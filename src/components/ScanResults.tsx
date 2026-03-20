@@ -3,10 +3,9 @@ import { AssessmentCard } from './AssessmentCard';
 
 interface ScanResultsProps {
   scan: Scan;
-  onReset?: () => void;
 }
 
-export function ScanResults({ scan, onReset }: ScanResultsProps) {
+export function ScanResults({ scan }: ScanResultsProps) {
   const totalFindings = scan.assessments.reduce((n, a) => n + a.findings.length, 0);
   const assessmentsWithFindings = scan.assessments.filter((a) => a.findings.length > 0);
   const cleanAssessments = scan.assessments.filter((a) => a.findings.length === 0 && a.status === 'completed');

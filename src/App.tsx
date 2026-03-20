@@ -70,7 +70,7 @@ export default function App() {
         )}
 
         {showResults ? (
-          <ScanResults scan={scan} onReset={reset} />
+          <ScanResults scan={scan} />
         ) : (
           !isLoading && <ScoreDashboard />
         )}
