@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import { useTheme } from './hooks/useTheme';
 import { useScan } from './hooks/useScan';
 import { ScanForm } from './components/ScanForm';
 import { ScanProgress } from './components/ScanProgress';
 import { ScanResults } from './components/ScanResults';
+import { AboutModal } from './components/AboutModal';
 
 const TERMINAL_STATUSES = ['completed', 'completed_with_errors', 'failed'];
 
 export default function App() {
   const { theme, toggle } = useTheme();
   const { scan, isLoading, error, submit } = useScan();
+  const [showAbout, setShowAbout] = useState(false);
 
   const showResults = scan !== null && TERMINAL_STATUSES.includes(scan.status);
   const showProgress = scan !== null && !showResults;
@@ -28,27 +31,40 @@ export default function App() {
         <h1 className="text-lg font-semibold tracking-tight">
           Website Responsibility Scanner
         </h1>
-        <button
-          onClick={toggle}
-          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="flex items-center gap-2 rounded-full border border-gray-200 dark:border-white/20 bg-white dark:bg-white/10 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-        >
-          {theme === 'dark' ? (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10A5 5 0 0012 7z" />
-              </svg>
-              Light
-            </>
-          ) : (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-              </svg>
-              Dark
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowAbout(true)}
+            aria-label="About this project"
+            title="About this project"
+            className="flex items-center justify-center w-9 h-9 rounded-full border border-gray-200 dark:border-white/20 bg-white dark:bg-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4m0-4h.01" />
+            </svg>
+          </button>
+          <button
+            onClick={toggle}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="flex items-center gap-2 rounded-full border border-gray-200 dark:border-white/20 bg-white dark:bg-white/10 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          >
+            {theme === 'dark' ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10A5 5 0 0012 7z" />
+                </svg>
+                Light
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+                Dark
+              </>
+            )}
+          </button>
+        </div>
       </header>
 
       <main className="relative flex-1 flex flex-col items-center px-4 pt-12 pb-24 gap-6">
@@ -70,6 +86,8 @@ export default function App() {
 
         {showResults && <ScanResults scan={scan} />}
       </main>
+
+      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
     </div>
   );
 }
