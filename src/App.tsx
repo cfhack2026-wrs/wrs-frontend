@@ -3,6 +3,7 @@ import { useTheme } from './hooks/useTheme';
 import { useScan } from './hooks/useScan';
 import { ScanForm } from './components/ScanForm';
 import { ScanProgress } from './components/ScanProgress';
+import { ScanProgressBanner } from './components/ScanProgressBanner';
 import { ScanResults } from './components/ScanResults';
 import { AboutModal } from './components/AboutModal';
 
@@ -13,8 +14,13 @@ export default function App() {
   const { scan, isLoading, error, submit } = useScan();
   const [showAbout, setShowAbout] = useState(false);
 
-  const showResults = scan !== null && TERMINAL_STATUSES.includes(scan.status);
-  const showProgress = scan !== null && !showResults;
+  const isTerminal     = scan !== null && TERMINAL_STATUSES.includes(scan.status);
+  const isScanning     = scan !== null && !isTerminal;
+  const hasAssessments = scan !== null && scan.assessments.length > 0;
+
+  const showFullProgress = isScanning && !hasAssessments;
+  const showInlineBanner = isScanning && hasAssessments;
+  const showResults      = hasAssessments;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white flex flex-col relative overflow-hidden transition-colors duration-300">
@@ -76,7 +82,7 @@ export default function App() {
 
         <ScanForm onSubmit={submit} isLoading={isLoading} />
 
-        {showProgress && <ScanProgress scan={scan} />}
+        {showFullProgress && <ScanProgress scan={scan!} />}
 
         {error && (
           <p role="alert" className="text-sm text-red-500 dark:text-red-400">
@@ -84,7 +90,12 @@ export default function App() {
           </p>
         )}
 
-        {showResults && <ScanResults scan={scan} />}
+        {showResults && (
+          <>
+            {showInlineBanner && <ScanProgressBanner />}
+            <ScanResults scan={scan!} isScanning={isScanning} />
+          </>
+        )}
       </main>
 
       {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}

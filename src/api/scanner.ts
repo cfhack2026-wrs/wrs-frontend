@@ -15,11 +15,12 @@ export async function createScan(url: string): Promise<Scan> {
   }
 
   const { data } = await response.json();
+  data.assessments ??= [];
   return data;
 }
 
-export async function getScan(id: string): Promise<Scan> {
-  const response = await fetch(`${BASE_URL}/scans/${id}`, {
+export async function getScan(monitorUrl: string): Promise<Scan> {
+  const response = await fetch(monitorUrl, {
     headers: { Accept: 'application/json' },
   });
 

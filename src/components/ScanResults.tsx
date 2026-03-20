@@ -4,6 +4,7 @@ import { ScoreRing } from './ScoreRing';
 
 interface ScanResultsProps {
   scan: Scan;
+  isScanning?: boolean;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -106,7 +107,23 @@ function FindingsSection({ name, assessments }: { name: string; assessments: Ass
   );
 }
 
-export function ScanResults({ scan }: ScanResultsProps) {
+function SkeletonCard() {
+  return (
+    <article
+      aria-hidden="true"
+      className="rounded-2xl border border-gray-200 dark:border-white/10
+                 bg-white dark:bg-white/5 p-5 flex items-center gap-4 animate-pulse"
+    >
+      <div className="w-[88px] h-[88px] rounded-full bg-gray-200 dark:bg-white/10 shrink-0" />
+      <div className="space-y-2 flex-1">
+        <div className="h-4 w-24 rounded bg-gray-200 dark:bg-white/10" />
+        <div className="h-3 w-16 rounded bg-gray-100 dark:bg-white/5" />
+      </div>
+    </article>
+  );
+}
+
+export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
   const categoryMap = new Map<string, typeof scan.assessments>();
   for (const a of scan.assessments) {
     const key = a.category ?? '__other__';
@@ -140,11 +157,13 @@ export function ScanResults({ scan }: ScanResultsProps) {
             Overall Score
           </p>
           <p className="text-gray-600 dark:text-gray-300 text-sm">
-            {overallScore >= 90
-              ? 'Excellent — this site is in great shape.'
-              : overallScore >= 50
-                ? 'Some issues found — there is room for improvement.'
-                : 'Critical issues detected — action recommended.'}
+            {isScanning
+              ? 'Scan in progress — results updating…'
+              : overallScore >= 90
+                ? 'Excellent — this site is in great shape.'
+                : overallScore >= 50
+                  ? 'Some issues found — there is room for improvement.'
+                  : 'Critical issues detected — action recommended.'}
           </p>
         </div>
       </div>
@@ -153,13 +172,20 @@ export function ScanResults({ scan }: ScanResultsProps) {
       {allCategories.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {allCategories.map(([catId, assessments]) => (
-            <CategoryCard
-              key={catId}
-              id={catId}
-              name={catId === '__other__' ? 'Other' : (CATEGORY_LABELS[catId] ?? formatLabel(catId))}
-              assessments={assessments}
-            />
+            <div key={catId} className="card-enter">
+              <CategoryCard
+                id={catId}
+                name={catId === '__other__' ? 'Other' : (CATEGORY_LABELS[catId] ?? formatLabel(catId))}
+                assessments={assessments}
+              />
+            </div>
           ))}
+          {isScanning && (
+            <>
+              <SkeletonCard />
+              <SkeletonCard />
+            </>
+          )}
         </div>
       )}
 
