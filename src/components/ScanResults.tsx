@@ -16,8 +16,8 @@ export function ScanResults({ scan, onReset }: ScanResultsProps) {
       {/* Summary */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-gray-500 font-mono break-all">{scan.url}</p>
-          <p className="text-sm text-gray-300 mt-0.5">
+          <p className="text-xs text-gray-400 dark:text-gray-500 font-mono break-all">{scan.url}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-0.5">
             {totalFindings === 0
               ? 'No issues found — great job!'
               : `${totalFindings} issue${totalFindings !== 1 ? 's' : ''} across ${assessmentsWithFindings.length} check${assessmentsWithFindings.length !== 1 ? 's' : ''}`}
@@ -25,7 +25,7 @@ export function ScanResults({ scan, onReset }: ScanResultsProps) {
         </div>
         <button
           onClick={onReset}
-          className="rounded-lg border border-white/20 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+          className="rounded-lg border border-gray-200 dark:border-white/20 px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           New scan
         </button>
@@ -34,7 +34,7 @@ export function ScanResults({ scan, onReset }: ScanResultsProps) {
       {/* Issues first */}
       {assessmentsWithFindings.length > 0 && (
         <div className="space-y-2">
-          <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold">Issues</h2>
+          <h2 className="text-xs uppercase tracking-widest text-gray-400 font-semibold">Issues</h2>
           <div className="space-y-2">
             {assessmentsWithFindings.map((a) => (
               <AssessmentCard key={a.id} assessment={a} />
@@ -46,7 +46,7 @@ export function ScanResults({ scan, onReset }: ScanResultsProps) {
       {/* Clean checks */}
       {cleanAssessments.length > 0 && (
         <div className="space-y-2">
-          <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold">Passed</h2>
+          <h2 className="text-xs uppercase tracking-widest text-gray-400 font-semibold">Passed</h2>
           <div className="space-y-2">
             {cleanAssessments.map((a) => (
               <AssessmentCard key={a.id} assessment={a} />

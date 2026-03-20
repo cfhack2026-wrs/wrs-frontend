@@ -7,9 +7,9 @@ interface AssessmentCardProps {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  completed: 'bg-green-500/20 text-green-300 border-green-500/30',
-  failed: 'bg-red-500/20 text-red-300 border-red-500/30',
-  skipped: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+  completed: 'bg-green-500/20 text-green-700 dark:text-green-300 border-green-500/30',
+  failed: 'bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/30',
+  skipped: 'bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/30',
 };
 
 export function AssessmentCard({ assessment }: AssessmentCardProps) {
@@ -17,10 +17,10 @@ export function AssessmentCard({ assessment }: AssessmentCardProps) {
   const hasFlaw = assessment.findings.length > 0;
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+    <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 overflow-hidden">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-inset"
         aria-expanded={open}
       >
         <div className="flex items-center gap-3">
@@ -29,11 +29,11 @@ export function AssessmentCard({ assessment }: AssessmentCardProps) {
           >
             {assessment.status}
           </span>
-          <span className="font-mono text-sm text-white">{assessment.identifier}</span>
+          <span className="font-mono text-sm text-gray-800 dark:text-white">{assessment.identifier}</span>
         </div>
         <div className="flex items-center gap-3">
           {hasFlaw && (
-            <span className="text-xs text-amber-400 font-medium">
+            <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
               {assessment.findings.length} finding{assessment.findings.length !== 1 ? 's' : ''}
             </span>
           )}
@@ -58,7 +58,7 @@ export function AssessmentCard({ assessment }: AssessmentCardProps) {
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-gray-500 italic">No issues found.</p>
+            <p className="text-sm text-gray-400 italic">No issues found.</p>
           )}
         </div>
       )}

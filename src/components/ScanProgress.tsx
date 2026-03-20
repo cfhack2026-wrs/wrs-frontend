@@ -18,18 +18,18 @@ export function ScanProgress({ scan }: ScanProgressProps) {
   return (
     <div className="w-full max-w-2xl" role="status" aria-live="polite">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-gray-400">
+        <span className="text-sm text-gray-500 dark:text-gray-400">
           {scan.url}
         </span>
         <span
           className={`text-sm font-medium ${
             scan.status === 'completed'
-              ? 'text-green-400'
+              ? 'text-green-600 dark:text-green-400'
               : scan.status === 'failed'
-              ? 'text-red-400'
+              ? 'text-red-600 dark:text-red-400'
               : scan.status === 'completed_with_errors'
-              ? 'text-yellow-400'
-              : 'text-indigo-400'
+              ? 'text-yellow-600 dark:text-yellow-400'
+              : 'text-indigo-600 dark:text-indigo-400'
           }`}
         >
           {STATUS_LABEL[scan.status] ?? scan.status}
@@ -37,7 +37,7 @@ export function ScanProgress({ scan }: ScanProgressProps) {
       </div>
 
       {!isTerminal && (
-        <div className="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+        <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
           <div className="h-full bg-indigo-500 rounded-full animate-pulse w-full" />
         </div>
       )}
