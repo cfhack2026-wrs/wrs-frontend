@@ -46,3 +46,9 @@
 
 .modal-backdrop { animation: modal-backdrop-in 0.15s ease-out forwards; }
 .modal-panel    { animation: modal-panel-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-enter { animation: card-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }

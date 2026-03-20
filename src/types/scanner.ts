@@ -26,6 +26,7 @@ export interface Assessment {
 
 export interface Scan {
   id: string;
+  monitor: string;
   url: string;
   status: ScanStatus;
   details: Record<string, unknown> | null;
