@@ -33,7 +33,7 @@ jobs:
       - run: npm run build
         env:
           BASE_PATH: /wrs-frontend/
-          VITE_API_URL: /api
+          VITE_API_URL: https://api.wrs.cloudfest.dev/api
 
       - uses: actions/upload-pages-artifact@v3
         with:
