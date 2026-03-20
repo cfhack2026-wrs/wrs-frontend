@@ -9,7 +9,7 @@ const TERMINAL_STATUSES = ['completed', 'completed_with_errors', 'failed'];
 
 export default function App() {
   const { theme, toggle } = useTheme();
-  const { scan, isLoading, error, submit, reset } = useScan();
+  const { scan, isLoading, error, submit } = useScan();
 
   const showResults = scan !== null && TERMINAL_STATUSES.includes(scan.status);
   const showProgress = scan !== null && !showResults;
