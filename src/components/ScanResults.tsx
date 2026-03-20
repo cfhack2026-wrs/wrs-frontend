@@ -15,30 +15,31 @@ function formatLabel(s: string): string {
   return s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function extractFixSuggestion(details: Record<string, unknown>): string | undefined {
-  const v = details.suggestion ?? details.message;
-  return typeof v === 'string' ? v : undefined;
-}
 
 function FindingsSection({ name, assessments }: { name: string; assessments: Assessment[] }) {
   const relevant = assessments.filter((a) => a.status !== 'skipped');
-  const violations = relevant.filter((a) => a.findings.length > 0 || a.status === 'failed');
   const passed = relevant.filter((a) => a.findings.length === 0 && a.status === 'completed');
+
+  // Flatten all findings across violating assessments for per-check display
+  const allFindings = relevant
+    .filter((a) => a.findings.length > 0 || a.status === 'failed')
+    .flatMap((a) => a.findings);
 
   return (
     <section aria-label={`${name} findings`} className="space-y-4">
       <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">{name}</h2>
 
-      {violations.length > 0 && (
+      {allFindings.length > 0 && (
         <div className="space-y-2">
           <h3 className="text-xs uppercase tracking-widest text-red-500 font-semibold">Issues</h3>
           <ul className="space-y-2">
-            {violations.map((a) => {
-              const fixSuggestion =
-                a.findings.length > 0 ? extractFixSuggestion(a.findings[0].details) : undefined;
+            {allFindings.map((f) => {
+              const title = typeof f.details.title === 'string' ? f.details.title : formatLabel(f.identifier);
+              const suggestion = typeof f.details.suggestion === 'string' ? f.details.suggestion : undefined;
+              const affected = typeof f.details.affected === 'string' ? f.details.affected : undefined;
               return (
                 <li
-                  key={a.id}
+                  key={f.id}
                   className="rounded-xl bg-red-500/5 border border-red-500/15 p-3 space-y-1.5"
                 >
                   <div className="flex items-start gap-2">
@@ -49,20 +50,18 @@ function FindingsSection({ name, assessments }: { name: string; assessments: Ass
                       stroke="currentColor"
                       aria-hidden="true"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                      {formatLabel(a.identifier)}
-                    </span>
+                    <div>
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{title}</span>
+                      {affected && (
+                        <span className="ml-2 text-xs text-gray-400">{affected}</span>
+                      )}
+                    </div>
                   </div>
-                  {fixSuggestion && (
+                  {suggestion && (
                     <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-6">
-                      {fixSuggestion}
+                      {suggestion}
                     </p>
                   )}
                 </li>
@@ -77,26 +76,29 @@ function FindingsSection({ name, assessments }: { name: string; assessments: Ass
           <h3 className="text-xs uppercase tracking-widest text-green-600 dark:text-green-500 font-semibold">
             Passed
           </h3>
-          <ul className="space-y-1.5">
-            {passed.map((a) => (
-              <li key={a.id} className="flex items-center gap-2 text-sm">
-                <svg
-                  className="w-4 h-4 shrink-0 text-green-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="text-gray-600 dark:text-gray-300">{formatLabel(a.identifier)}</span>
-              </li>
-            ))}
+          <ul className="space-y-2">
+            {passed.map((a) => {
+              const message = typeof a.details?.message === 'string' ? a.details.message : undefined;
+              return (
+                <li key={a.id} className="flex items-start gap-2 text-sm">
+                  <svg
+                    className="w-4 h-4 shrink-0 mt-0.5 text-green-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <div>
+                    <span className="text-gray-600 dark:text-gray-300">{formatLabel(a.identifier)}</span>
+                    {message && (
+                      <p className="text-xs text-gray-400 mt-0.5">{message}</p>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
