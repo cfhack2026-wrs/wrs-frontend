@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useTheme } from './hooks/useTheme';
+import logoHorizontalDark from '/logo_horizontal_dark.png';
+import logoHorizontalLight from '/logo_horizontal_light.png';
 import { useScan } from './hooks/useScan';
 import { ScanForm } from './components/ScanForm';
 import { ScanProgress } from './components/ScanProgress';
@@ -36,7 +38,7 @@ export default function App() {
       <header className="relative border-b border-gray-200 dark:border-white/10 px-6 py-4 backdrop-blur-sm flex items-center justify-between">
         <h1>
           <img
-            src={theme === 'dark' ? '/logo_horizontal_dark.png' : '/logo_horizontal_light.png'}
+            src={theme === 'dark' ? logoHorizontalDark : logoHorizontalLight}
             alt="Website Responsibility Scanner"
             className="h-10 w-auto"
           />

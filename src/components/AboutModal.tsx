@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import logoHorizontalDark from '/logo_horizontal_dark.png';
+import logoHorizontalLight from '/logo_horizontal_light.png';
 
 interface AboutModalProps {
   onClose: () => void;
@@ -75,7 +77,7 @@ export function AboutModal({ onClose }: AboutModalProps) {
                 Website Responsibility Scanner
               </h2>
               <img
-                src={theme === 'dark' ? '/logo_horizontal_dark.png' : '/logo_horizontal_light.png'}
+                src={theme === 'dark' ? logoHorizontalDark : logoHorizontalLight}
                 alt="Website Responsibility Scanner"
                 className="h-10 w-auto"
               />
