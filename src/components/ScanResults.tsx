@@ -16,23 +16,30 @@ function formatLabel(s: string): string {
   return s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-
 function FindingsSection({ name, assessments }: { name: string; assessments: Assessment[] }) {
   const relevant = assessments.filter((a) => a.status !== 'skipped');
   const passed = relevant.filter((a) => a.findings.length === 0 && a.status === 'completed');
-
-  // Flatten all findings across violating assessments for per-check display
   const allFindings = relevant
     .filter((a) => a.findings.length > 0 || a.status === 'failed')
     .flatMap((a) => a.findings);
 
   return (
     <section aria-label={`${name} findings`} className="space-y-4">
-      <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">{name}</h2>
+      <h2
+        className="mono text-xs uppercase tracking-widest"
+        style={{ color: 'var(--text-dim)', letterSpacing: '0.12em' }}
+      >
+        {name}
+      </h2>
 
       {allFindings.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs uppercase tracking-widest text-red-500 font-semibold">Issues</h3>
+          <h3
+            className="mono text-xs uppercase tracking-widest"
+            style={{ color: 'rgba(248,113,113,0.7)', letterSpacing: '0.1em' }}
+          >
+            Issues
+          </h3>
           <ul className="space-y-2">
             {allFindings.map((f) => {
               const title = typeof f.details.title === 'string' ? f.details.title : formatLabel(f.identifier);
@@ -41,27 +48,25 @@ function FindingsSection({ name, assessments }: { name: string; assessments: Ass
               return (
                 <li
                   key={f.id}
-                  className="rounded-xl bg-red-500/5 border border-red-500/15 p-3 space-y-1.5"
+                  className="rounded-xl p-4 space-y-1.5"
+                  style={{ background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.15)' }}
                 >
-                  <div className="flex items-start gap-2">
-                    <svg
-                      className="w-4 h-4 shrink-0 mt-0.5 text-red-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                  <div className="flex items-start gap-2.5">
+                    <svg className="w-3.5 h-3.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24"
+                      stroke="rgba(248,113,113,0.8)" strokeWidth={2.5} aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     <div>
-                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{title}</span>
+                      <span className="text-sm font-medium" style={{ color: 'var(--text-base)' }}>{title}</span>
                       {affected && (
-                        <span className="ml-2 text-xs text-gray-400">{affected}</span>
+                        <span className="mono ml-2 text-xs" style={{ color: 'var(--text-dim)' }}>
+                          {affected}
+                        </span>
                       )}
                     </div>
                   </div>
                   {suggestion && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-6">
+                    <p className="text-xs leading-relaxed pl-6" style={{ color: 'var(--text-muted)' }}>
                       {suggestion}
                     </p>
                   )}
@@ -74,27 +79,25 @@ function FindingsSection({ name, assessments }: { name: string; assessments: Ass
 
       {passed.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs uppercase tracking-widest text-green-600 dark:text-green-500 font-semibold">
+          <h3
+            className="mono text-xs uppercase tracking-widest"
+            style={{ color: 'rgba(74,222,128,0.6)', letterSpacing: '0.1em' }}
+          >
             Passed
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-1.5">
             {passed.map((a) => {
               const message = typeof a.details?.message === 'string' ? a.details.message : undefined;
               return (
-                <li key={a.id} className="flex items-start gap-2 text-sm">
-                  <svg
-                    className="w-4 h-4 shrink-0 mt-0.5 text-green-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                <li key={a.id} className="flex items-start gap-2.5 text-sm">
+                  <svg className="w-3.5 h-3.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24"
+                    stroke="rgba(74,222,128,0.7)" strokeWidth={2.5} aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                   <div>
-                    <span className="text-gray-600 dark:text-gray-300">{formatLabel(a.identifier)}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{formatLabel(a.identifier)}</span>
                     {message && (
-                      <p className="text-xs text-gray-400 mt-0.5">{message}</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>{message}</p>
                     )}
                   </div>
                 </li>
@@ -111,13 +114,18 @@ function SkeletonCard() {
   return (
     <article
       aria-hidden="true"
-      className="rounded-2xl border border-gray-200 dark:border-white/10
-                 bg-white dark:bg-white/5 p-5 flex items-center gap-4 animate-pulse"
+      className="rounded-2xl p-5 flex items-center gap-4"
+      style={{
+        background: 'var(--navy-card)',
+        border: '1px solid var(--border)',
+        animation: 'pulse 1.5s ease-in-out infinite',
+      }}
     >
-      <div className="w-[88px] h-[88px] rounded-full bg-gray-200 dark:bg-white/10 shrink-0" />
+      <div className="w-[88px] h-[88px] rounded-full shrink-0"
+        style={{ background: 'rgba(34,211,238,0.06)' }} />
       <div className="space-y-2 flex-1">
-        <div className="h-4 w-24 rounded bg-gray-200 dark:bg-white/10" />
-        <div className="h-3 w-16 rounded bg-gray-100 dark:bg-white/5" />
+        <div className="h-3 w-24 rounded" style={{ background: 'rgba(34,211,238,0.06)' }} />
+        <div className="h-2.5 w-16 rounded" style={{ background: 'rgba(34,211,238,0.04)' }} />
       </div>
     </article>
   );
@@ -145,32 +153,48 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
     ...(other.length > 0 ? [['__other__', other] as [string, typeof scan.assessments]] : []),
   ];
 
-  return (
-    <section className="w-full max-w-4xl space-y-6" aria-label="Scan results">
-      <p className="text-xs text-gray-400 dark:text-gray-500 font-mono break-all">{scan.url}</p>
+  const scoreColor = overallScore >= 90 ? '#4ade80' : overallScore >= 50 ? '#fbbf24' : '#f87171';
 
-      {/* Row 1 — Overall score */}
-      <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 p-6 flex items-center gap-6">
+  return (
+    <section className="w-full max-w-4xl space-y-5 animate-fade-up" aria-label="Scan results">
+
+      {/* URL breadcrumb */}
+      <p className="mono text-xs break-all" style={{ color: 'var(--text-dim)' }}>
+        {scan.url}
+      </p>
+
+      {/* Overall score */}
+      <div
+        className="rounded-2xl p-6 flex items-center gap-6"
+        style={{ background: 'var(--navy-card)', border: '1px solid var(--border)' }}
+      >
         <ScoreRing score={overallScore} size={104} />
         <div>
-          <p className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-1">
+          <p
+            className="mono text-xs uppercase tracking-widest mb-1.5"
+            style={{ color: 'var(--text-dim)', letterSpacing: '0.12em' }}
+          >
             Overall Score
           </p>
-          <p className="text-gray-600 dark:text-gray-300 text-sm">
+          <p className="text-2xl font-semibold" style={{ color: scoreColor }}>
+            {overallScore}
+            <span className="text-base font-normal ml-1" style={{ color: 'var(--text-dim)' }}>/100</span>
+          </p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
             {isScanning
               ? 'Scan in progress — results updating…'
               : overallScore >= 90
                 ? 'Excellent — this site is in great shape.'
                 : overallScore >= 50
-                  ? 'Some issues found — there is room for improvement.'
+                  ? 'Some issues found — room for improvement.'
                   : 'Critical issues detected — action recommended.'}
           </p>
         </div>
       </div>
 
-      {/* Row 2 — Per-category score cards */}
+      {/* Per-category cards */}
       {allCategories.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {allCategories.map(([catId, assessments]) => (
             <div key={catId} className="card-enter">
               <CategoryCard
@@ -180,18 +204,16 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
               />
             </div>
           ))}
-          {isScanning && (
-            <>
-              <SkeletonCard />
-              <SkeletonCard />
-            </>
-          )}
+          {isScanning && <><SkeletonCard /><SkeletonCard /></>}
         </div>
       )}
 
-      {/* Findings sections — one per category */}
+      {/* Findings */}
       {allCategories.length > 0 && (
-        <div className="space-y-8 pt-2">
+        <div
+          className="rounded-2xl p-6 space-y-8"
+          style={{ background: 'var(--navy-card)', border: '1px solid var(--border)' }}
+        >
           {allCategories.map(([catId, assessments]) => (
             <FindingsSection
               key={catId}

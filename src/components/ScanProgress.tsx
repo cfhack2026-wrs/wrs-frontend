@@ -5,42 +5,59 @@ interface ScanProgressProps {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  pending: 'Queued',
-  running: 'Scanning…',
-  completed: 'Complete',
-  completed_with_errors: 'Completed with errors',
-  failed: 'Failed',
+  pending: 'queued',
+  running: 'scanning…',
+  completed: 'complete',
+  completed_with_errors: 'completed with errors',
+  failed: 'failed',
 };
 
 export function ScanProgress({ scan }: ScanProgressProps) {
   const isTerminal = ['completed', 'completed_with_errors', 'failed'].includes(scan.status);
 
   return (
-    <div className="w-full max-w-2xl" role="status" aria-live="polite">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-gray-500 dark:text-gray-400">
-          {scan.url}
-        </span>
-        <span
-          className={`text-sm font-medium ${
-            scan.status === 'completed'
-              ? 'text-green-600 dark:text-green-400'
-              : scan.status === 'failed'
-              ? 'text-red-600 dark:text-red-400'
-              : scan.status === 'completed_with_errors'
-              ? 'text-yellow-600 dark:text-yellow-400'
-              : 'text-indigo-600 dark:text-indigo-400'
-          }`}
-        >
-          {STATUS_LABEL[scan.status] ?? scan.status}
-        </span>
-      </div>
-
-      {!isTerminal && (
-        <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
-          <div className="h-full bg-indigo-500 rounded-full animate-pulse w-full" />
+    <div
+      className="w-full max-w-2xl animate-fade-up"
+      role="status"
+      aria-live="polite"
+    >
+      <div
+        className="rounded-2xl p-5 space-y-4"
+        style={{ background: 'var(--navy-card)', border: '1px solid var(--border)' }}
+      >
+        <div className="flex items-center justify-between gap-4">
+          <span
+            className="mono text-xs truncate"
+            style={{ color: 'var(--text-dim)' }}
+          >
+            {scan.url}
+          </span>
+          <span
+            className="mono text-xs shrink-0 font-medium"
+            style={{
+              color:
+                scan.status === 'completed'        ? '#4ade80' :
+                scan.status === 'failed'           ? 'rgba(248,113,113,0.9)' :
+                scan.status === 'completed_with_errors' ? '#fbbf24' :
+                'var(--cyan)',
+            }}
+          >
+            {STATUS_LABEL[scan.status] ?? scan.status}
+          </span>
         </div>
-      )}
+
+        {!isTerminal && (
+          <div
+            className="h-px w-full overflow-hidden relative"
+            style={{ background: 'rgba(34,211,238,0.1)' }}
+          >
+            <div
+              className="scan-sweep absolute inset-y-0 w-1/4"
+              style={{ background: 'linear-gradient(90deg, transparent, var(--cyan), transparent)' }}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
