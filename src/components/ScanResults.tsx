@@ -1,5 +1,5 @@
 import type { Assessment, Scan } from '../types/scanner';
-import { CategoryCard, categoryScore } from './CategoryCard';
+import { CategoryCard } from './CategoryCard';
 import { ScoreRing } from './ScoreRing';
 
 interface ScanResultsProps {
