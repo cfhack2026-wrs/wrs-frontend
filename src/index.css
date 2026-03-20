@@ -29,7 +29,7 @@
   will-change: transform;
 }
 
-.blob-1 { animation: blob-drift 18s ease-in-out infinite; }
-.blob-2 { animation: blob-drift-slow 24s ease-in-out infinite; }
-.blob-3 { animation: blob-drift-reverse 20s ease-in-out infinite; }
-.blob-4 { animation: blob-drift 28s ease-in-out infinite reverse; }
+.blob-1 { animation: blob-drift 8s ease-in-out infinite; }
+.blob-2 { animation: blob-drift-slow 11s ease-in-out infinite; }
+.blob-3 { animation: blob-drift-reverse 9s ease-in-out infinite; }
+.blob-4 { animation: blob-drift 13s ease-in-out infinite reverse; }
