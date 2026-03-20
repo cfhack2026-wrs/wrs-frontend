@@ -3,7 +3,6 @@ import { useScan } from './hooks/useScan';
 import { ScanForm } from './components/ScanForm';
 import { ScanProgress } from './components/ScanProgress';
 import { ScanResults } from './components/ScanResults';
-import { ScoreDashboard } from './components/ScoreDashboard';
 
 const TERMINAL_STATUSES = ['completed', 'completed_with_errors', 'failed'];
 
@@ -69,11 +68,7 @@ export default function App() {
           </p>
         )}
 
-        {showResults ? (
-          <ScanResults scan={scan} />
-        ) : (
-          !isLoading && <ScoreDashboard />
-        )}
+        {showResults && <ScanResults scan={scan} />}
       </main>
     </div>
   );

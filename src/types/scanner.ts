@@ -15,6 +15,7 @@ export interface Finding {
 
 export interface Assessment {
   id: string;
+  category: string | null;
   identifier: string;
   status: AssessmentStatus;
   details: Record<string, unknown> | null;
