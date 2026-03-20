@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTheme } from '../hooks/useTheme';
 
 interface AboutModalProps {
   onClose: () => void;
@@ -7,6 +8,7 @@ interface AboutModalProps {
 export function AboutModal({ onClose }: AboutModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     closeButtonRef.current?.focus();
@@ -69,9 +71,14 @@ export function AboutModal({ onClose }: AboutModalProps) {
           {/* Header */}
           <div className="flex items-start justify-between gap-4 mb-6">
             <div>
-              <h2 id="about-title" className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+              <h2 id="about-title" className="sr-only">
                 Website Responsibility Scanner
               </h2>
+              <img
+                src={theme === 'dark' ? '/logo_horizontal_dark.png' : '/logo_horizontal_light.png'}
+                alt="Website Responsibility Scanner"
+                className="h-10 w-auto"
+              />
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Free, open-source auditing for a better web
               </p>
