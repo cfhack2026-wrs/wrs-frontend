@@ -51,14 +51,11 @@ export default function App() {
         </button>
       </header>
 
-      <main className="relative flex-1 flex flex-col items-center px-4 py-24 gap-10">
-        <div className="text-center space-y-4 max-w-2xl">
-          <h2 className="text-5xl font-bold tracking-tight">
+      <main className="relative flex-1 flex flex-col items-center px-4 pt-12 pb-24 gap-6">
+        <div className="text-center space-y-1 max-w-2xl">
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-600 dark:text-gray-400">
             Audit any website
           </h2>
-          <p className="text-lg text-gray-500 dark:text-gray-400">
-            Check for accessibility, performance, security, SEO, and code quality issues.
-          </p>
         </div>
 
         <ScanForm onSubmit={submit} isLoading={isLoading} />
