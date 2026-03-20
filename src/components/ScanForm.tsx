@@ -12,7 +12,8 @@ export function ScanForm({ onSubmit, isLoading }: ScanFormProps) {
     e.preventDefault();
     const trimmed = url.trim();
     if (trimmed) {
-      onSubmit(trimmed);
+      const normalized = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+      onSubmit(normalized);
     }
   }
 
@@ -24,7 +25,7 @@ export function ScanForm({ onSubmit, isLoading }: ScanFormProps) {
       <div className="flex gap-3">
         <input
           id="url-input"
-          type="url"
+          type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://example.com"
