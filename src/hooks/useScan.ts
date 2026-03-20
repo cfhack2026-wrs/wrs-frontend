@@ -28,10 +28,10 @@ export function useScan(): UseScanResult {
 
   useEffect(() => stopPolling, [stopPolling]);
 
-  const poll = useCallback((id: string) => {
+  const poll = useCallback((monitorUrl: string) => {
     pollRef.current = setInterval(async () => {
       try {
-        const updated = await getScan(id);
+        const updated = await getScan(monitorUrl);
         setScan(updated);
 
         if (TERMINAL_STATUSES.includes(updated.status)) {
@@ -55,7 +55,7 @@ export function useScan(): UseScanResult {
     try {
       const created = await createScan(url);
       setScan(created);
-      poll(created.id);
+      poll(created.monitor);
     } catch (err) {
       setIsLoading(false);
       setError(err instanceof Error ? err.message : 'Something went wrong.');
