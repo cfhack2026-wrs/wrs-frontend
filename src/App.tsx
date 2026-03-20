@@ -52,27 +52,23 @@ export default function App() {
       </header>
 
       <main className="relative flex-1 flex flex-col items-center px-4 py-24 gap-10">
-        {!showResults && (
-          <>
-            <div className="text-center space-y-4 max-w-2xl">
-              <h2 className="text-5xl font-bold tracking-tight">
-                Audit any website
-              </h2>
-              <p className="text-lg text-gray-500 dark:text-gray-400">
-                Check for accessibility, performance, security, SEO, and code quality issues.
-              </p>
-            </div>
+        <div className="text-center space-y-4 max-w-2xl">
+          <h2 className="text-5xl font-bold tracking-tight">
+            Audit any website
+          </h2>
+          <p className="text-lg text-gray-500 dark:text-gray-400">
+            Check for accessibility, performance, security, SEO, and code quality issues.
+          </p>
+        </div>
 
-            <ScanForm onSubmit={submit} isLoading={isLoading} />
+        <ScanForm onSubmit={submit} isLoading={isLoading} />
 
-            {showProgress && <ScanProgress scan={scan} />}
+        {showProgress && <ScanProgress scan={scan} />}
 
-            {error && (
-              <p role="alert" className="text-sm text-red-500 dark:text-red-400">
-                {error}
-              </p>
-            )}
-          </>
+        {error && (
+          <p role="alert" className="text-sm text-red-500 dark:text-red-400">
+            {error}
+          </p>
         )}
 
         {showResults && (
