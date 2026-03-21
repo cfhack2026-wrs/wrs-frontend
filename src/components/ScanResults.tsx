@@ -4,6 +4,7 @@ import { ScoreRing } from './ScoreRing';
 import { LetterGrade } from './LetterGrade';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { ChecklistView } from './ChecklistView';
+import { RecommendationRoadmap } from './RecommendationRoadmap';
 import { mergeFindings } from '../utils/findings';
 import html2pdf from 'html2pdf.js';
 
@@ -81,8 +82,33 @@ interface ScanResultsProps {
   isScanning?: boolean;
 }
 
+type ScanView = 'roadmap' | 'checklist';
+
+interface ViewToggleButtonProps {
+  active: ScanView;
+  view: ScanView;
+  label: string;
+  icon: string;
+  onClick: () => void;
+}
+
+function ViewToggleButton({ active, view, label, icon, onClick }: ViewToggleButtonProps) {
+  const isActive = active === view;
+  return (
+    <button
+      onClick={onClick}
+      className={`eaa-tab${isActive ? ' active' : ''}`}
+      style={{ flex: 1, justifyContent: 'center' }}
+    >
+      <span aria-hidden="true">{icon}</span>
+      {label}
+    </button>
+  );
+}
+
 export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
   const [copied, setCopied] = useState(false);
+  const [scanView, setScanView] = useState<ScanView>('checklist');
   const contentRef = useRef<HTMLElement>(null);
 
   async function handleShare() {
@@ -266,7 +292,29 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
       {/* Category breakdown */}
       <CategoryBreakdown assessments={scan.assessments} />
 
-      <ChecklistView assessments={scan.assessments} />
+      {/* Findings view toggle */}
+      <div style={{ display: 'flex', gap: 8 }}>
+        <ViewToggleButton
+            active={scanView}
+            view="checklist"
+            label="All Issues"
+            icon="📋"
+            onClick={() => setScanView('checklist')}
+        />
+        <ViewToggleButton
+          active={scanView}
+          view="roadmap"
+          label="Roadmap"
+          icon="🗺️"
+          onClick={() => setScanView('roadmap')}
+        />
+      </div>
+
+      {scanView === 'roadmap' ? (
+        <RecommendationRoadmap assessments={scan.assessments} />
+      ) : (
+        <ChecklistView assessments={scan.assessments} />
+      )}
     </section>
   );
 }
