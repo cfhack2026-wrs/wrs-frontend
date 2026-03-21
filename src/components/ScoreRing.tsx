@@ -4,13 +4,13 @@ interface ScoreRingProps {
 }
 
 function scoreColor(score: number): string {
-  if (score >= 90) return '#22c55e'; // green-500
-  if (score >= 50) return '#f59e0b'; // amber-500
-  return '#ef4444';                  // red-500
+  if (score >= 90) return '#4ade80';  // green
+  if (score >= 50) return '#fbbf24';  // amber
+  return '#f87171';                   // red
 }
 
 export function ScoreRing({ score, size = 88 }: ScoreRingProps) {
-  const strokeWidth = 7;
+  const strokeWidth = 6;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - score / 100);
@@ -30,9 +30,8 @@ export function ScoreRing({ score, size = 88 }: ScoreRingProps) {
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="currentColor"
+        stroke="rgba(34,211,238,0.10)"
         strokeWidth={strokeWidth}
-        className="text-gray-200 dark:text-white/10"
       />
       {/* Progress arc */}
       <circle
@@ -46,7 +45,7 @@ export function ScoreRing({ score, size = 88 }: ScoreRingProps) {
         strokeDasharray={circumference}
         strokeDashoffset={offset}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+        style={{ transition: 'stroke-dashoffset 0.7s cubic-bezier(0.16,1,0.3,1)' }}
       />
       {/* Score label */}
       <text
@@ -54,8 +53,9 @@ export function ScoreRing({ score, size = 88 }: ScoreRingProps) {
         y="50%"
         dominantBaseline="central"
         textAnchor="middle"
-        fontSize={size * 0.24}
-        fontWeight="700"
+        fontSize={size * 0.23}
+        fontWeight="600"
+        fontFamily="'DM Mono', monospace"
         fill={color}
       >
         {score}
