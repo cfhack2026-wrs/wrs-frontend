@@ -10,6 +10,7 @@ import { ScanResults } from './components/ScanResults';
 import { RecentScans } from './components/RecentScans';
 import { AboutModal } from './components/AboutModal';
 import { Header } from './components/Header';
+import { AboutPage } from './components/AboutPage';
 
 function PageLayout({ children, state, error, showAbout, setShowAbout }: {
   children?: React.ReactNode;
@@ -146,6 +147,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/scan/:id" element={<ScanPage />} />
+        <Route path="/about" element={
+          <PageLayout showAbout={false} setShowAbout={() => {}}>
+            <AboutPage />
+          </PageLayout>
+        } />
       </Routes>
     </HashRouter>
   );
