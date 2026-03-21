@@ -1,54 +1,213 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 /* Class-based dark mode for Tailwind v4 */
 @variant dark (&:where(.dark, .dark *));
 
-@keyframes blob-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25%       { transform: translate(40px, -60px) scale(1.05); }
-  50%       { transform: translate(-30px, 40px) scale(0.95); }
-  75%       { transform: translate(60px, 20px) scale(1.03); }
+/* ── Design tokens — dark (default) ── */
+:root {
+  --cyan:       #22d3ee;
+  --cyan-dim:   #0891b2;
+  --navy:       #0a0f1e;
+  --navy-mid:   #0d1525;
+  --navy-card:  #111827;
+  --grid-line:  rgba(34,211,238,0.06);
+  --border:     rgba(34,211,238,0.12);
+  --border-hi:  rgba(34,211,238,0.30);
+  --text-base:  #e2e8f0;
+  --text-muted: rgba(148,163,184,0.65);
+  --text-dim:   rgba(148,163,184,0.40);
 }
 
-@keyframes blob-drift-slow {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%       { transform: translate(-50px, 60px) scale(1.08); }
-  66%       { transform: translate(40px, -30px) scale(0.93); }
+/* ── Light mode overrides ── */
+:root:not(.dark) {
+  --navy:       #f0f5fa;
+  --navy-mid:   #e8eef5;
+  --navy-card:  #ffffff;
+  --grid-line:  rgba(14,116,144,0.06);
+  --border:     rgba(14,116,144,0.15);
+  --border-hi:  rgba(14,116,144,0.35);
+  --text-base:  #0f172a;
+  --text-muted: rgba(51,65,85,0.75);
+  --text-dim:   rgba(71,85,105,0.55);
 }
 
-@keyframes blob-drift-reverse {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  30%       { transform: translate(50px, 30px) scale(0.97); }
-  60%       { transform: translate(-40px, -50px) scale(1.06); }
+/* ── Base ── */
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--navy);
 }
 
-.blob {
+code, .mono {
+  font-family: 'DM Mono', monospace;
+}
+
+/* ── Grid backdrop ── */
+.grid-bg {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ── Glow orbs ── */
+@keyframes orb-drift {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%      { transform: translate(60px,-80px) scale(1.08); }
+  66%      { transform: translate(-40px,50px) scale(0.94); }
+}
+@keyframes orb-drift-b {
+  0%,100% { transform: translate(0,0) scale(1); }
+  40%     { transform: translate(-70px,40px) scale(1.05); }
+  80%     { transform: translate(50px,-60px) scale(0.97); }
+}
+
+.orb {
   border-radius: 9999px;
-  filter: blur(80px);
+  filter: blur(100px);
   position: absolute;
   will-change: transform;
 }
+.orb-a { animation: orb-drift   14s ease-in-out infinite; }
+.orb-b { animation: orb-drift-b 18s ease-in-out infinite; }
+.orb-c { animation: orb-drift   22s ease-in-out infinite reverse; }
 
-.blob-1 { animation: blob-drift 8s ease-in-out infinite; }
-.blob-2 { animation: blob-drift-slow 11s ease-in-out infinite; }
-.blob-3 { animation: blob-drift-reverse 9s ease-in-out infinite; }
-.blob-4 { animation: blob-drift 13s ease-in-out infinite reverse; }
+/* ── Scan input ── */
+.scan-input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text-base);
+  font-family: 'DM Mono', monospace;
+  font-size: 1rem;
+  padding: 1rem 1.25rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  width: 100%;
+}
+:root:not(.dark) .scan-input {
+  background: rgba(255,255,255,0.8);
+}
+.scan-input::placeholder { color: var(--text-dim); }
+.scan-input:focus {
+  border-color: var(--border-hi);
+  box-shadow: 0 0 0 3px rgba(34,211,238,0.10), inset 0 1px 0 rgba(34,211,238,0.08);
+  background: rgba(255,255,255,0.06);
+}
+:root:not(.dark) .scan-input:focus {
+  background: #ffffff;
+}
+.scan-input.error {
+  border-color: rgba(248,113,113,0.45);
+  box-shadow: 0 0 0 3px rgba(248,113,113,0.08);
+}
+.scan-input:disabled { opacity: 0.45; cursor: not-allowed; }
 
+/* ── Scan button ── */
+.scan-btn {
+  background: var(--cyan);
+  border-radius: 12px;
+  color: var(--navy);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  padding: 1rem 2rem;
+  white-space: nowrap;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+  border: none;
+  cursor: pointer;
+}
+.scan-btn:hover:not(:disabled) {
+  background: #67e8f9;
+  box-shadow: 0 0 20px rgba(34,211,238,0.35);
+  transform: translateY(-1px);
+}
+.scan-btn:active:not(:disabled) { transform: translateY(0); }
+.scan-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.scan-btn:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+/* ── Example pills ── */
+.example-pill {
+  background: rgba(34,211,238,0.06);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.9rem;
+  transition: opacity 0.2s, transform 0.2s, color 0.2s, border-color 0.2s, background 0.2s;
+  cursor: pointer;
+  display: inline-block;
+}
+.example-pill:disabled { opacity: 0.35; cursor: not-allowed; }
+.example-pill:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* ── Cards ── */
+.wrs-card {
+  background: var(--navy-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.wrs-card:hover { border-color: rgba(34,211,238,0.2); }
+
+/* ── Score ring track color ── */
+.score-track { color: rgba(34,211,238,0.10); }
+
+/* ── Ticker scroll ── */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+/* ── Progress bar ── */
+@keyframes scan-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.scan-sweep {
+  animation: scan-sweep 1.6s ease-in-out infinite;
+}
+
+/* ── Entrance animations ── */
+@keyframes fade-up {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+
+.animate-fade-up   { animation: fade-up  0.5s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-in   { animation: fade-in  0.3s ease both; }
+.delay-100 { animation-delay:0.10s; }
+.delay-200 { animation-delay:0.20s; }
+.delay-300 { animation-delay:0.30s; }
+
+/* ── Modal ── */
 @keyframes modal-backdrop-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from { opacity:0; } to { opacity:1; }
 }
-
 @keyframes modal-panel-in {
-  from { opacity: 0; transform: scale(0.95) translateY(8px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity:0; transform:scale(0.95) translateY(10px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
 }
-
 .modal-backdrop { animation: modal-backdrop-in 0.15s ease-out forwards; }
-.modal-panel    { animation: modal-panel-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.modal-panel    { animation: modal-panel-in 0.22s cubic-bezier(0.16,1,0.3,1) forwards; }
 
+/* ── Card enter (results) ── */
 @keyframes card-enter {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
 }
-.card-enter { animation: card-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.card-enter { animation: card-enter 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+/* ── Cyan text / accent ── */
+.text-cyan { color: var(--cyan); }
+.border-cyan { border-color: var(--border); }
