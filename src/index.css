@@ -316,7 +316,6 @@ code, .mono {
   color: var(--text-dim);
   cursor: pointer;
   transition: all 0.15s;
-  white-space: nowrap;
   font-family: 'Outfit', sans-serif;
 }
 .eaa-tab:hover {
@@ -429,6 +428,14 @@ code, .mono {
   padding: 4px 10px;
   border-radius: 6px;
   border: 1px solid rgba(56,189,248,0.2);
+}
+
+/* ── Remediation panel ── */
+.remediation-panel {
+  border-left: 3px solid;
+  border-radius: 0 8px 8px 0;
+  padding: 0.75rem 1rem;
+  margin-top: 14px;
 }
 
 /* ── Impact badge ── */
