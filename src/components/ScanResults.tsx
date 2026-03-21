@@ -30,7 +30,11 @@ async function shareUrl(scan: Scan) {
   if (navigator.share && navigator.canShare?.(shareData)) {
     await navigator.share(shareData);
   } else {
-    await navigator.clipboard.writeText(`${window.location.origin}/#/scan/${scan.id}`);
+    let base = 'https://cfhack2026-wrs.github.io/wrs-frontend';
+    if (window.location.host === 'localhost' || window.location.host.startsWith('localhost:')) {
+      base = `${window.location.protocol}//${window.location.host}`;
+    }
+    await navigator.clipboard.writeText(`${base}/#/scan/${scan.id}`);
   }
 }
 
@@ -43,7 +47,6 @@ function exportPDF() {
 function computeStats(assessments: Assessment[]) {
   const relevant = assessments.filter((a) => a.status !== 'skipped');
 
-  // Try to use Lighthouse / Axe tool-level score if available
   const allFindings = relevant.flatMap((a) => a.findings);
   const criticalCount = allFindings.filter(
     (f) => typeof f.details.impact === 'string' && f.details.impact === 'critical',
@@ -53,7 +56,7 @@ function computeStats(assessments: Assessment[]) {
   ).length;
   const totalFindings = allFindings.length;
 
-  // Best available overall score: prefer Lighthouse score_percent if present
+  // Best available overall score: prefer Lighthouse score_percent, fall back to Axe, then pass ratio
   const lighthouseAssessment = relevant.find(
     (a) => a.identifier === 'lighthouse' && typeof a.details?.score_percent === 'number',
   );
@@ -71,20 +74,10 @@ function computeStats(assessments: Assessment[]) {
     overallScore = relevant.length > 0 ? Math.round((passed / relevant.length) * 100) : 100;
   }
 
-  // Count unique categories
   const categories = new Set(relevant.map((a) => a.category ?? a.identifier));
-
-  // Compliant = no critical or serious findings
   const isCompliant = criticalCount === 0 && seriousCount === 0;
 
-  return {
-    overallScore,
-    criticalCount,
-    seriousCount,
-    totalFindings,
-    categoriesCount: categories.size,
-    isCompliant,
-  };
+  return { overallScore, criticalCount, seriousCount, totalFindings, categoriesCount: categories.size, isCompliant };
 }
 
 function gradeLabel(score: number): { text: string; color: string; bg: string } {
@@ -121,7 +114,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
         <p className="text-xs font-mono break-all" style={{ color: 'var(--text-muted)' }}>
           {scan.url}
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => downloadResults(scan)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
