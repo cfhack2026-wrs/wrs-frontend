@@ -7,7 +7,7 @@ interface CategoryCardProps {
   assessments: Assessment[];
 }
 
-export function categoryScore(assessments: Assessment[]): {
+function categoryScore(assessments: Assessment[]): {
   score: number;
   passed: number;
   total: number;
