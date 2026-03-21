@@ -1,4 +1,4 @@
-import { useState, useMemo, type FormEvent } from 'react';
+import { useState, useMemo, useRef, useEffect, type FormEvent } from 'react';
 
 interface ScanFormProps {
   onSubmit: (url: string) => void;
@@ -32,11 +32,68 @@ function normalize(value: string): string {
 export function ScanForm({ onSubmit, isLoading }: ScanFormProps) {
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
-  const [paused, setPaused] = useState(false);
   const [hoveredSite, setHoveredSite] = useState<string | null>(null);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isHoveredRef = useRef(false);
+  const isUserScrollingRef = useRef(false);
 
   // Duplicate for seamless loop
   const ticker = useMemo(() => [...EXAMPLE_SITES, ...EXAMPLE_SITES], []);
+
+  // RAF-based auto-scroll — pauses on hover or manual scroll, resumes from current position
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const SPEED = 40; // px/s
+    let lastTime: number | null = null;
+    let rafId: number;
+    let resumeTimer: ReturnType<typeof setTimeout>;
+
+    function tick(now: number) {
+      if (!isHoveredRef.current && !isUserScrollingRef.current && el) {
+        const dt = lastTime !== null ? (now - lastTime) / 1000 : 0;
+        el.scrollLeft += SPEED * dt;
+        const half = el.scrollWidth / 2;
+        if (el.scrollLeft >= half) el.scrollLeft -= half;
+      }
+      lastTime = now;
+      rafId = requestAnimationFrame(tick);
+    }
+
+    function pauseAndScheduleResume() {
+      isUserScrollingRef.current = true;
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => { isUserScrollingRef.current = false; }, 600);
+    }
+
+    // non-passive so we can redirect vertical wheel to horizontal scroll
+    function handleWheel(e: WheelEvent) {
+      e.preventDefault();
+      if (el) el.scrollLeft += e.deltaY !== 0 ? e.deltaY : e.deltaX;
+      pauseAndScheduleResume();
+    }
+
+    // touch: pause on drag, resume after finger lift
+    function handleTouchStart() { pauseAndScheduleResume(); }
+    function handleTouchEnd() { pauseAndScheduleResume(); }
+
+    // NOTE: no 'scroll' listener — it would fire on programmatic scrollLeft
+    // changes from the RAF loop and cause a self-pausing cycle
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchend', handleTouchEnd, { passive: true });
+    rafId = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(resumeTimer);
+      el.removeEventListener('wheel', handleWheel);
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -137,19 +194,14 @@ export function ScanForm({ onSubmit, isLoading }: ScanFormProps) {
             WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)',
           }}
         >
-          {/* Inner overflow clip so content doesn't bleed sideways before masking */}
+          {/* Inner scroll container — scrollbar hidden via CSS, wheel/touch scroll enabled */}
           <div
-            className="overflow-hidden py-2"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => { setPaused(false); setHoveredSite(null); }}
+            ref={scrollRef}
+            className="overflow-x-auto ticker-scroll-container py-2"
+            onMouseEnter={() => { isHoveredRef.current = true; }}
+            onMouseLeave={() => { isHoveredRef.current = false; setHoveredSite(null); }}
           >
-            <div
-              className="flex gap-2 w-max"
-              style={{
-                animation: 'ticker-scroll 120s linear infinite',
-                animationPlayState: paused ? 'paused' : 'running',
-              }}
-            >
+            <div className="flex gap-2 w-max">
             {ticker.map((site, i) => (
               <button
                 key={`${site}-${i}`}
