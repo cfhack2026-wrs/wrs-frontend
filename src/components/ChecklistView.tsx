@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import type { Assessment } from '../types/scanner';
 import { mergeFindings } from '../utils/findings';
+import remediationTexts from '../../a11y_remidiation_texts.json';
+
+// Build a lookup map from rule-id → plain-english text
+const remediationMap = new Map<string, string>(
+  (remediationTexts as { 'rule-id': string; 'plain-english': string }[]).map(
+    (r) => [r['rule-id'], r['plain-english']],
+  ),
+);
 
 interface ChecklistViewProps {
   assessments: Assessment[];
@@ -60,17 +68,6 @@ function impactSymbol(impact?: string): string {
   return 'i';
 }
 
-const PHASE_META: Record<string, { label: string; color: string; bg: string; border: string; timeline: string }> = {
-  critical: { label: 'Phase 1 — Critical', color: '#f43f5e', bg: 'rgba(244,63,94,0.08)', border: 'rgba(244,63,94,0.30)', timeline: 'Fix immediately' },
-  serious:  { label: 'Phase 2 — Serious',  color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.30)', timeline: 'Week 1–2' },
-  moderate: { label: 'Phase 3 — Moderate', color: '#38bdf8', bg: 'rgba(56,189,248,0.08)',  border: 'rgba(56,189,248,0.30)',  timeline: 'Week 3–4' },
-  minor:    { label: 'Phase 3 — Minor',    color: '#38bdf8', bg: 'rgba(56,189,248,0.08)',  border: 'rgba(56,189,248,0.30)',  timeline: 'Week 3–4' },
-};
-const PHASE_DEFAULT = { label: 'Phase 4 — Informational', color: '#a695ff', bg: 'rgba(124,106,247,0.08)', border: 'rgba(124,106,247,0.30)', timeline: 'Ongoing' };
-
-function phaseMeta(impact?: string) {
-  return (impact ? PHASE_META[impact] : undefined) ?? PHASE_DEFAULT;
-}
 
 function extractWcagTags(tags: string[]): string[] {
   return tags
@@ -84,6 +81,7 @@ function extractWcagTags(tags: string[]): string[] {
 
 function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
   const [open, setOpen] = useState(defaultOpen);
+  const [showAllNodes, setShowAllNodes] = useState(false);
 
   const title =
     typeof finding.details.title === 'string' ? finding.details.title : finding.identifier;
@@ -115,11 +113,32 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
           <div style={{ fontSize: '0.92rem', fontWeight: 500, color: 'var(--text-base)' }}>
             {title}
           </div>
-          {impact && (
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: 2 }}>
-              Impact: {impact}
-            </div>
-          )}
+          {impact && (() => {
+            const COLOR: Record<string, { color: string; bg: string; border: string }> = {
+              critical: { color: '#f43f5e', bg: 'rgba(244,63,94,0.12)', border: 'rgba(244,63,94,0.35)' },
+              serious:  { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.35)' },
+              moderate: { color: '#38bdf8', bg: 'rgba(56,189,248,0.12)',  border: 'rgba(56,189,248,0.35)'  },
+              minor:    { color: '#a3e635', bg: 'rgba(163,230,53,0.12)',  border: 'rgba(163,230,53,0.35)'  },
+            };
+            const c = COLOR[impact] ?? { color: '#a695ff', bg: 'rgba(124,106,247,0.12)', border: 'rgba(124,106,247,0.35)' };
+            return (
+              <span style={{
+                display: 'inline-block',
+                marginTop: 4,
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                textTransform: 'capitalize',
+                color: c.color,
+                background: c.bg,
+                border: `1px solid ${c.border}`,
+                borderRadius: 100,
+                padding: '1px 9px',
+                letterSpacing: '0.03em',
+              }}>
+                {impact}
+              </span>
+            );
+          })()}
         </div>
         {wcagTags.length > 0 && <span className="wcag-tag">{wcagTags[0]}</span>}
         <div className="check-expand-btn" aria-hidden="true">
@@ -163,7 +182,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
               <div className="fix-label" style={{ marginBottom: 8 }}>
                 Affected elements ({nodes.length})
               </div>
-              {nodes.slice(0, 3).map((node, idx) => (
+              {(showAllNodes ? nodes : nodes.slice(0, 3)).map((node, idx) => (
                 <div key={idx} className="node-snippet">
                   {node.html && <div className="node-html">{node.html}</div>}
                   {node.failure_summary && (
@@ -172,9 +191,26 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
                 </div>
               ))}
               {nodes.length > 3 && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 6, fontStyle: 'italic' }}>
-                  + {nodes.length - 3} more affected elements
-                </p>
+                <button
+                  onClick={() => setShowAllNodes((v) => !v)}
+                  style={{
+                    marginTop: 8,
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: 'var(--eaa-blue)',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  {showAllNodes
+                    ? '− Show less'
+                    : `+ Show ${nodes.length - 3} more affected element${nodes.length - 3 === 1 ? '' : 's'}`}
+                </button>
               )}
             </div>
           )}
@@ -188,41 +224,33 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
 
           {/* Remediation guidance */}
           {(() => {
-            const phase = phaseMeta(impact);
+            const plainEnglish = remediationMap.get(finding.identifier);
+            if (!plainEnglish && !helpUrl) return null;
             return (
               <div
                 className="remediation-panel"
-                style={{ borderColor: phase.color, background: phase.bg }}
+                style={{ borderColor: 'var(--border)', background: 'var(--navy-mid)' }}
               >
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-dim)', marginBottom: 6 }}>
                   Remediation
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                  <span
-                    style={{
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      color: phase.color,
-                      background: `${phase.color}18`,
-                      border: `1px solid ${phase.border}`,
-                      borderRadius: 100,
-                      padding: '2px 10px',
-                    }}
+
+                {plainEnglish && (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-base)', lineHeight: 1.6, marginBottom: helpUrl ? 10 : 0 }}>
+                    {plainEnglish}
+                  </p>
+                )}
+
+                {helpUrl && (
+                  <a
+                    href={helpUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ fontSize: '0.8rem', color: 'var(--eaa-blue)', display: 'inline-block' }}
                   >
-                    {phase.label}
-                  </span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{phase.timeline}</span>
-                  {helpUrl && (
-                    <a
-                      href={helpUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ fontSize: '0.8rem', color: 'var(--eaa-blue)', marginLeft: 'auto' }}
-                    >
-                      Learn how to fix ↗
-                    </a>
-                  )}
-                </div>
+                    Learn how to fix ↗
+                  </a>
+                )}
               </div>
             );
           })()}
@@ -252,8 +280,14 @@ function scoreSubLabel(assessments: Assessment[]): string | undefined {
   return parts.length > 1 ? parts.join(' · ') : undefined;
 }
 
+const IMPACT_ORDER: Record<string, number> = { critical: 0, serious: 1, moderate: 2, minor: 3 };
+
 function CategoryPanel({ assessments, meta }: { assessments: Assessment[]; meta: ReturnType<typeof fallbackMeta> }) {
-  const mergedFindings = mergeFindings(assessments);
+  const mergedFindings = mergeFindings(assessments).slice().sort((a, b) => {
+    const ai = typeof a.details.impact === 'string' ? (IMPACT_ORDER[a.details.impact] ?? 4) : 4;
+    const bi = typeof b.details.impact === 'string' ? (IMPACT_ORDER[b.details.impact] ?? 4) : 4;
+    return ai - bi;
+  });
   const score = normalizedCategoryScore(assessments);
   const subLabel = scoreSubLabel(assessments);
 
