@@ -124,7 +124,7 @@ export function ScanForm({ onSubmit, isLoading }: ScanFormProps) {
       <div className="mt-6 text-center">
         <p
           className="mono text-xs uppercase tracking-widest mb-3"
-          style={{ color: 'var(--text-dim)', letterSpacing: '0.14em' }}
+          style={{ color: 'var(--text-muted)', letterSpacing: '0.14em' }}
         >
           or try one of these
         </p>
