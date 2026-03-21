@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route, useParams, Link } from 'react-router-dom';
+import { HashRouter, Routes, Route, useParams, Link } from 'react-router-dom';
 import { useScan } from './hooks/useScan';
 import { ScanForm } from './components/ScanForm';
 import { ScanProgress } from './components/ScanProgress';
@@ -170,11 +170,11 @@ function ScanPage() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/scan/:id" element={<ScanPage />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
