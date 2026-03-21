@@ -11,6 +11,7 @@ interface UseScanResult {
   isLoading: boolean;
   error: string | null;
   submit: (url: string) => Promise<void>;
+  selectScan: (scan: Scan) => Promise<void>;
   reset: () => void;
 }
 
@@ -88,6 +89,24 @@ export function useScan(initialId?: string): UseScanResult {
     }
   }, [poll, stopPolling]);
 
+  const selectScan = useCallback(async (selected: Scan) => {
+    stopPolling();
+    setError(null);
+    setIsLoading(true);
+    setScan(selected);
+    try {
+      const full = await getScanById(selected.id);
+      setScan(full);
+      if (!TERMINAL_STATUSES.includes(full.status)) {
+        poll(full.monitor);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load scan.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [stopPolling, poll]);
+
   const reset = useCallback(() => {
     stopPolling();
     setScan(null);
@@ -95,5 +114,5 @@ export function useScan(initialId?: string): UseScanResult {
     setIsLoading(false);
   }, [stopPolling]);
 
-  return { scan, isLoading, error, submit, reset };
+  return { scan, isLoading, error, submit, selectScan, reset };
 }
