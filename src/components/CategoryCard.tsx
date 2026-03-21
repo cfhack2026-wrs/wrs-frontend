@@ -23,13 +23,24 @@ export function CategoryCard({ name, assessments }: CategoryCardProps) {
 
   return (
     <article
-      className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 p-5 flex items-center gap-4"
+      className="rounded-2xl p-5 flex items-center gap-4 transition-colors"
+      style={{ background: 'var(--navy-card)', border: '1px solid var(--border)' }}
       aria-label={`${name} score: ${score}`}
     >
       <ScoreRing score={score} />
       <div>
-        <h3 className="font-semibold text-gray-900 dark:text-white text-base">{name}</h3>
-        <p className="text-xs text-gray-400 mt-0.5">{passed} / {total} checks passed</p>
+        <h3
+          className="font-medium text-sm"
+          style={{ color: 'var(--text-base)' }}
+        >
+          {name}
+        </h3>
+        <p
+          className="mono text-xs mt-0.5"
+          style={{ color: 'var(--text-dim)' }}
+        >
+          {passed} / {total} passed
+        </p>
       </div>
     </article>
   );
