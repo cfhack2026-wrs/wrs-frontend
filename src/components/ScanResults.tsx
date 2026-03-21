@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { Assessment, Scan } from '../types/scanner';
 import { ScoreRing } from './ScoreRing';
 import { ChecklistView } from './ChecklistView';
+import html2pdf from 'html2pdf.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,10 +28,6 @@ function buildShareUrl(scanId: string): string {
     baseUrl = `${protocol}//${host}`;
   }
   return `${baseUrl}/#/scan/${scanId}`;
-}
-
-function exportPDF() {
-  window.print();
 }
 
 // ── Score calculations ────────────────────────────────────────────────────────
@@ -86,11 +83,34 @@ interface ScanResultsProps {
 
 export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
   const [copied, setCopied] = useState(false);
+  const contentRef = useRef<HTMLElement>(null);
 
   async function handleShare() {
     await navigator.clipboard.writeText(buildShareUrl(scan.id));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function exportPDF() {
+    const element = contentRef.current;
+    if (!element) return;
+
+    document.documentElement.classList.remove('dark');
+    // waiting for render flush to be completed
+    await new Promise((r) => setTimeout(r));
+
+    const hostname = new URL(scan.url).hostname;
+    const filename = `scan-report-${hostname}-${Date.now()}.pdf`;
+
+    await html2pdf().set({
+      margin: 10,
+      filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    }).from(element).save();
+
+    document.documentElement.classList.add('dark');
   }
 
   const stats = computeStats(scan.assessments);
@@ -103,7 +123,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
         : 'var(--score-bad)';
 
   return (
-    <section className="w-full max-w-4xl space-y-5 animate-fade-up" aria-label="Scan results">
+    <section ref={contentRef} className="w-full max-w-4xl space-y-5 animate-fade-up" aria-label="Scan results">
       {/* URL + actions bar */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <p className="text-xs font-mono break-all" style={{ color: 'var(--text-muted)' }}>
