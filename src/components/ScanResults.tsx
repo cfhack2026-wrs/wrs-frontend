@@ -95,6 +95,10 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
     const element = contentRef.current;
     if (!element) return;
 
+    document.documentElement.classList.remove('dark');
+    // waiting for render flush to be completed
+    await new Promise((r) => setTimeout(r));
+
     const hostname = new URL(scan.url).hostname;
     const filename = `scan-report-${hostname}-${Date.now()}.pdf`;
 
@@ -105,6 +109,8 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
     }).from(element).save();
+
+    document.documentElement.classList.add('dark');
   }
 
   const stats = computeStats(scan.assessments);
