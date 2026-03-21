@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { HashRouter, Routes, Route, useParams, Link } from 'react-router-dom';
 import { useScan } from './hooks/useScan';
+import { useRecentScans } from './hooks/useRecentScans';
 import { TERMINAL_STATUSES } from './types/scanner';
 import { ScanForm } from './components/ScanForm';
 import { ScanProgress } from './components/ScanProgress';
 import { ScanProgressBanner } from './components/ScanProgressBanner';
 import { ScanResults } from './components/ScanResults';
+import { RecentScans } from './components/RecentScans';
 import { AboutModal } from './components/AboutModal';
 import { Header } from './components/Header';
 
@@ -49,7 +51,8 @@ function PageLayout({ children, state, error, showAbout, setShowAbout }: {
 }
 
 function HomePage() {
-  const { scan, isLoading, error, submit } = useScan();
+  const { scan, isLoading, error, submit, selectScan } = useScan();
+  const { scans: recentScans, refresh: refreshRecent } = useRecentScans();
   const [showAbout, setShowAbout] = useState(false);
 
   const isTerminal     = scan !== null && TERMINAL_STATUSES.includes(scan.status);
@@ -59,6 +62,11 @@ function HomePage() {
   const showFullProgress = isScanning && !hasAssessments;
   const showInlineBanner = isScanning && hasAssessments;
   const showResults      = hasAssessments;
+
+  const handleSubmit = useCallback(async (url: string) => {
+    await submit(url);
+    refreshRecent();
+  }, [submit, refreshRecent]);
 
   return (
     <PageLayout showAbout={showAbout} setShowAbout={setShowAbout}>
@@ -85,7 +93,14 @@ function HomePage() {
         </p>
       </div>
 
-      <ScanForm onSubmit={submit} isLoading={isLoading} />
+      <ScanForm onSubmit={handleSubmit} isLoading={isLoading} />
+
+      <RecentScans
+        scans={recentScans}
+        onSelect={selectScan}
+        onRerun={handleSubmit}
+        activeScanId={scan?.id}
+      />
 
       {showFullProgress && <ScanProgress scan={scan!} />}
 
