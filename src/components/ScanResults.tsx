@@ -88,19 +88,9 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
   const [copied, setCopied] = useState(false);
 
   async function handleShare() {
-    const url = buildShareUrl(scan.id);
-    const shareData = {
-      title: `Scan Results for ${new URL(scan.url).hostname}`,
-      text: `Check out the web responsibility scan results for ${scan.url}`,
-      url,
-    };
-    if (navigator.share && navigator.canShare?.(shareData)) {
-      await navigator.share(shareData);
-    } else {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+    await navigator.clipboard.writeText(buildShareUrl(scan.id));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   const stats = computeStats(scan.assessments);
