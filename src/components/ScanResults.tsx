@@ -28,7 +28,11 @@ async function shareUrl(scan: Scan) {
   if (navigator.share && navigator.canShare?.(shareData)) {
     await navigator.share(shareData);
   } else {
-    await navigator.clipboard.writeText(`${window.location.origin}/#/scan/${scan.id}`);
+    let base = "https://cfhack2026-wrs.github.io/wrs-frontend"
+    if (window.location.host === 'localhost') {
+      base = "http://localhost:3000"
+    }
+    await navigator.clipboard.writeText(`${base}/#/scan/${scan.id}`);
   }
 }
 
