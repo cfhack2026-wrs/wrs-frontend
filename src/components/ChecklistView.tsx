@@ -33,6 +33,20 @@ const CATEGORY_META: Record<string, { label: string; icon: string; color: string
     bg: 'var(--eaa-purple-bg)',
     desc: 'Automated checks via axe-core and Google Lighthouse — covers ARIA, colour contrast, focus management, heading order and more.',
   },
+  performance: {
+    label: 'Performance',
+    icon: '⚡',
+    color: 'var(--eaa-blue)',
+    bg: 'var(--eaa-blue-bg)',
+    desc: 'Lighthouse performance metrics — measures loading speed, interactivity, and visual stability.',
+  },
+  design: {
+    label: 'Design',
+    icon: '🎨',
+    color: 'var(--eaa-teal)',
+    bg: 'var(--eaa-teal-bg)',
+    desc: 'Design quality checks — image formats, CSS animations, web fonts, and embedded media.',
+  },
   sustainability: {
     label: 'Sustainability',
     icon: '🌱',
@@ -68,6 +82,33 @@ function impactSymbol(impact?: string): string {
   return 'i';
 }
 
+function scoreClass(score: number): string {
+  if (score >= 0.9) return 'status-pass';
+  if (score >= 0.5) return 'status-warn';
+  return 'status-fail';
+}
+function scoreSymbol(score: number): string {
+  if (score >= 0.9) return '✓';
+  if (score >= 0.5) return '!';
+  return '✕';
+}
+
+/** Converts inline markdown links [text](url) to <a> elements. */
+function renderMarkdownLinks(text: string): React.ReactNode {
+  const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
+  return parts.map((part, i) => {
+    const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (match) {
+      return (
+        <a key={i} href={match[2]} target="_blank" rel="noreferrer" style={{ color: 'var(--eaa-blue)' }}>
+          {match[1]}
+        </a>
+      );
+    }
+    return part;
+  });
+}
+
 
 function extractWcagTags(tags: string[]): string[] {
   return tags
@@ -101,6 +142,8 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
         ? finding.details.explanation
         : undefined;
   const impact = typeof finding.details.impact === 'string' ? finding.details.impact : undefined;
+  const findingScore = typeof finding.details.score === 'number' ? finding.details.score : undefined;
+  const displayValue = typeof finding.details.displayValue === 'string' ? finding.details.displayValue : undefined;
   const helpUrl =
     typeof finding.details.help_url === 'string' ? finding.details.help_url : undefined;
   const suggestion =
@@ -116,7 +159,20 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
     : [];
 
   const wcagTags = extractWcagTags(tags);
-  const statusCls = impact ? impactClass(impact) : suggestion ? 'status-warn' : 'status-info';
+  const statusCls = impact
+    ? impactClass(impact)
+    : findingScore !== undefined
+      ? scoreClass(findingScore)
+      : suggestion
+        ? 'status-warn'
+        : 'status-info';
+  const statusSymbol = impact
+    ? impactSymbol(impact)
+    : findingScore !== undefined
+      ? scoreSymbol(findingScore)
+      : suggestion
+        ? '!'
+        : 'i';
 
   return (
     <div className="check-item">
@@ -128,7 +184,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpen((o) => !o); }}
       >
-        <div className={`check-status ${statusCls}`}>{impact ? impactSymbol(impact) : suggestion ? '!' : 'i'}</div>
+        <div className={`check-status ${statusCls}`}>{statusSymbol}</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: '0.92rem', fontWeight: 500, color: 'var(--text-base)' }}>
             {title}
@@ -160,6 +216,26 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
             );
           })()}
         </div>
+        {displayValue && (
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              color: findingScore !== undefined
+                ? findingScore >= 0.9 ? 'var(--score-good)' : findingScore >= 0.5 ? 'var(--score-ok)' : 'var(--score-bad)'
+                : 'var(--text-dim)',
+              background: 'var(--navy-mid)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              padding: '2px 8px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
+            {displayValue}
+          </span>
+        )}
         {wcagTags.length > 0 && <span className="wcag-tag">{wcagTags[0]}</span>}
         <div className="check-expand-btn" aria-hidden="true">
           {open ? '−' : '+'}
@@ -171,7 +247,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
           <div className="check-divider" />
 
           {description && (
-            <p className="check-desc">{description}</p>
+            <p className="check-desc">{renderMarkdownLinks(description)}</p>
           )}
 
           {/* WCAG / standard tags */}
@@ -388,7 +464,11 @@ function CategoryPanel({ assessments, meta }: { assessments: Assessment[]; meta:
   const mergedFindings = mergeFindings(assessments).slice().sort((a, b) => {
     const ai = typeof a.details.impact === 'string' ? (IMPACT_ORDER[a.details.impact] ?? 4) : 4;
     const bi = typeof b.details.impact === 'string' ? (IMPACT_ORDER[b.details.impact] ?? 4) : 4;
-    return ai - bi;
+    if (ai !== bi) return ai - bi;
+    // Secondary sort: lower score (worse) first
+    const as = typeof a.details.score === 'number' ? a.details.score : 1;
+    const bs = typeof b.details.score === 'number' ? b.details.score : 1;
+    return as - bs;
   });
   const score = normalizedCategoryScore(assessments);
   const subLabel = scoreSubLabel(assessments);
