@@ -23,15 +23,7 @@ function PageLayout({ children, state, error, showAbout, setShowAbout }: {
       className="min-h-screen flex flex-col relative overflow-hidden"
       style={{ background: 'var(--navy)', color: 'var(--text-base)' }}
     >
-      <div className="grid-bg pointer-events-none fixed inset-0" aria-hidden="true" />
-      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-        <div className="orb orb-a w-[700px] h-[700px] -top-64 -right-64"
-          style={{ background: 'rgba(34,211,238,0.12)' }} />
-        <div className="orb orb-b w-[500px] h-[500px] top-1/2 -left-48"
-          style={{ background: 'rgba(99,102,241,0.10)' }} />
-        <div className="orb orb-c w-[600px] h-[600px] bottom-0 left-1/2 -translate-x-1/2"
-          style={{ background: 'rgba(34,211,238,0.07)' }} />
-      </div>
+
       <Header onAboutClick={() => setShowAbout(true)} />
       <main className={`relative z-10 flex-1 flex flex-col items-center px-4 pt-16 pb-24 gap-8 ${state ? 'justify-center' : ''}`}>
         {state === 'loading' && (

@@ -57,7 +57,11 @@
 /* ── Base ── */
 body {
   font-family: 'Outfit', sans-serif;
-  background: var(--navy);
+  background: #1a1a1a;
+}
+
+:root:not(.dark) body {
+  background: #ffffff;
 }
 
 code, .mono {
