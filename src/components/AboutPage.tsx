@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
-import logoHorizontalDark from '/logo_horizontal_dark.png';
-import logoHorizontalLight from '/logo_horizontal_light.png';
+import logoHorizontalDark from '/logo_white_transparent.png';
+import logoHorizontalLight from '/logo_black_transparent.png';
 
 export function AboutPage() {
   const { theme } = useTheme();
@@ -11,88 +11,93 @@ export function AboutPage() {
 
       {/* Hero */}
       <div className="text-center space-y-4 animate-fade-up">
-        <img
-          src={theme === 'dark' ? logoHorizontalDark : logoHorizontalLight}
-          alt="Website Responsibility Scanner"
-          className="h-12 w-auto mx-auto"
-        />
+        <div className="flex items-center justify-center gap-4">
+          <img
+            src={theme === 'dark' ? logoHorizontalDark : logoHorizontalLight}
+            alt=""
+            className="h-16 w-auto"
+          />
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text-base)' }}>
+            Website Responsibility Scanner
+          </h1>
+        </div>
         <p className="mono text-xs uppercase tracking-widest" style={{ color: 'var(--cyan)', letterSpacing: '0.15em' }}>
-          Über diesen Scanner
+          About this project
         </p>
         <p className="text-sm leading-relaxed max-w-xl mx-auto" style={{ color: 'var(--text-muted)' }}>
-          Ein verantwortungsvolles Web sollte für alle zugänglich sein – und niemanden einen Arm und ein Bein kosten.
-          Der WRS macht Nachhaltigkeits- und Barrierefreiheitsprüfungen einfach, transparent und umsetzbar.
+          Website Responsibility Scanner helps people understand how responsible a website really is.
+          It brings together accessibility and sustainability in one place and turns them into something
+          easier to explore, understand, and improve.
         </p>
       </div>
 
-      {/* Pillars */}
+      {/* Current focus areas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full animate-fade-up">
-        <div
-          className="rounded-2xl p-6 border"
-          style={{ background: 'rgba(16,185,129,0.06)', borderColor: 'rgba(16,185,129,0.2)' }}
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-2xl" aria-hidden="true">🌱</span>
-            <span className="text-sm font-semibold" style={{ color: 'var(--text-base)' }}>Nachhaltigkeit</span>
-          </div>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            Seitengewicht, Bild- &amp; Script-Optimierung, Caching und Green-Hosting-Checks –
-            um den CO₂-Fußabdruck deiner Website zu reduzieren.
-          </p>
-        </div>
-
         <div
           className="rounded-2xl p-6 border"
           style={{ background: 'rgba(99,102,241,0.06)', borderColor: 'rgba(99,102,241,0.2)' }}
         >
           <div className="flex items-center gap-3 mb-3">
             <span className="text-2xl" aria-hidden="true">♿</span>
-            <span className="text-sm font-semibold" style={{ color: 'var(--text-base)' }}>Barrierefreiheit</span>
+            <span className="text-sm font-semibold" style={{ color: 'var(--text-base)' }}>Accessibility</span>
           </div>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            WCAG-Konformitätsprüfungen, damit deine Website für alle funktioniert – auch für Menschen mit
-            Behinderungen – und die EAA-Anforderungen erfüllt.
+            Highlights barriers that may make websites harder to use for many people. Based on established
+            web accessibility principles and automated checks that help identify common issues.
           </p>
         </div>
 
         <div
           className="rounded-2xl p-6 border"
-          style={{ background: 'rgba(6,182,212,0.06)', borderColor: 'rgba(6,182,212,0.2)' }}
+          style={{ background: 'rgba(16,185,129,0.06)', borderColor: 'rgba(16,185,129,0.2)' }}
         >
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-2xl" aria-hidden="true">⚡</span>
-            <span className="text-sm font-semibold" style={{ color: 'var(--text-base)' }}>Performance</span>
+            <span className="text-2xl" aria-hidden="true">🌱</span>
+            <span className="text-sm font-semibold" style={{ color: 'var(--text-base)' }}>Sustainability</span>
           </div>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            Core Web Vitals, Ladezeiten und Rendering-Metriken, die direkt die Nutzererfahrung
-            und das Suchmaschinen-Ranking beeinflussen.
-          </p>
-        </div>
-
-        <div
-          className="rounded-2xl p-6 border"
-          style={{ background: 'rgba(245,158,11,0.06)', borderColor: 'rgba(245,158,11,0.2)' }}
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-2xl" aria-hidden="true">🔒</span>
-            <span className="text-sm font-semibold" style={{ color: 'var(--text-base)' }}>Sicherheit</span>
-          </div>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            HTTP-Sicherheits-Header, HTTPS-Konfiguration und grundlegende Schwachstellen –
-            für eine sichere Grundlage.
+            Shows how website choices such as large pages, unoptimized assets, or unnecessary scripts
+            can increase digital weight and resource use.
           </p>
         </div>
       </div>
 
-      {/* Features */}
+      {/* Why it exists */}
       <div className="w-full rounded-2xl p-6 border animate-fade-up" style={{ borderColor: 'var(--border)', background: 'rgba(255,255,255,0.02)' }}>
-        <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-base)' }}>Was den WRS auszeichnet</h2>
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-base)' }}>Why it exists</h2>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+          Many existing tools are either highly technical, limited to one area, closed source, or difficult
+          to understand without specialist knowledge. Website Responsibility Scanner exists to make responsible
+          website checks more open, more understandable, and more practical. It treats accessibility and
+          sustainability as connected parts of better web development — in many cases, clearer structure,
+          lighter pages, and more thoughtful design decisions can improve both.
+        </p>
+      </div>
+
+      {/* Current status */}
+      <div className="w-full animate-fade-up">
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-base)' }}>Current status</h2>
+        <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-muted)' }}>
+          Website Responsibility Scanner is currently in an early MVP stage. The current focus is on building
+          a foundation that can scan a website through a simple interface, report on accessibility and
+          sustainability, explain findings in plain language, and remain open source and self-hostable.
+        </p>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+          The longer term direction is modular. New checks and additional topic areas are planned over time,
+          so the project can grow well beyond its current starting point.
+        </p>
+      </div>
+
+      {/* What makes it different */}
+      <div className="w-full rounded-2xl p-6 border animate-fade-up" style={{ borderColor: 'var(--border)', background: 'rgba(255,255,255,0.02)' }}>
+        <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-base)' }}>What makes it different</h2>
         <ul className="space-y-3">
           {[
-            'Klare, verständliche Erklärungen zu jedem gefundenen Problem',
-            'Konkrete Lösungshinweise – nicht nur eine Punktzahl',
-            'Modulare Architektur: eigene Checks hinzufügbar',
-            'Self-hostable und 100 % Open Source',
+            'Explains findings in plain language, not just technical warnings',
+            'Makes next steps easier to understand — not only a score',
+            'Transparent about what automated checks can and cannot do',
+            'Modular by design — built to grow beyond accessibility and sustainability',
+            'Open source and self-hostable',
           ].map((item) => (
             <li key={item} className="flex items-start gap-3 text-sm" style={{ color: 'var(--text-muted)' }}>
               <svg className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--cyan)' }} viewBox="0 0 24 24" fill="none"
@@ -105,11 +110,72 @@ export function AboutPage() {
         </ul>
       </div>
 
+      {/* How it approaches responsibility */}
+      <div className="w-full rounded-2xl p-6 border animate-fade-up" style={{ borderColor: 'var(--border)', background: 'rgba(255,255,255,0.02)' }}>
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-base)' }}>How it approaches responsibility</h2>
+        <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-muted)' }}>
+          Website Responsibility Scanner is not meant to reduce website quality to a single score. Some issues
+          can be detected automatically. Others still need human review, context, and judgement — this is
+          especially true for accessibility, where automated testing can support the process but cannot
+          replace real evaluation.
+        </p>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+          That is why the project aims to be helpful, transparent, and realistic about what automated
+          checks can and cannot do.
+        </p>
+      </div>
+
+      {/* Who it is for */}
+      <div className="w-full animate-fade-up">
+        <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-base)' }}>Who it is for</h2>
+        <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
+          Website Responsibility Scanner is meant for people who want to improve websites without needing
+          to be experts first. That includes freelancers, small agencies, non-profits, community projects,
+          website owners, content teams, designers, developers, accessibility advocates, and
+          sustainability-minded teams.
+        </p>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+          It is also relevant for anyone who wants a clearer, more practical way to understand how a website
+          performs beyond speed or SEO alone.
+        </p>
+      </div>
+
+      {/* Open source & looking ahead */}
+      <div
+        className="w-full rounded-2xl p-6 border animate-fade-up"
+        style={{ background: 'rgba(6,182,212,0.04)', borderColor: 'rgba(6,182,212,0.2)' }}
+      >
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-base)' }}>Open source by design</h2>
+        <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
+          Openness makes it easier to inspect how the tool works, contribute improvements, adapt it to
+          different needs, and self-host it if required. Accessibility and sustainability are the starting
+          point, not the final scope. The project is built to grow with additional areas of website
+          responsibility over time — and because it is open source, that growth is not limited to one team.
+        </p>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+          Anyone is welcome to support the project, contribute ideas, improve existing checks, add new areas,
+          or adapt the tool for their own needs.
+        </p>
+      </div>
+
+      {/* Looking ahead */}
+      <div className="w-full animate-fade-up">
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-base)' }}>Looking ahead</h2>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+          Website Responsibility Scanner starts with accessibility and sustainability, but it is built to
+          grow beyond both. The project is intended to become a flexible foundation for broader website
+          responsibility over time, while staying understandable and useful for non-technical audiences.
+          As an open source project, it can continue to evolve through shared ideas, contributions, and
+          adaptations by the people who use it. At its core, it is about making responsible websites
+          easier to understand and easier to improve.
+        </p>
+      </div>
+
       {/* Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full pt-4 animate-fade-up"
         style={{ borderTop: '1px solid var(--border)' }}>
         <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-          Ein CloudFest 2026 Hackathon-Projekt
+          A CloudFest Hackathon 2026 project
         </span>
         <div className="flex items-center gap-4">
           <a
@@ -129,7 +195,7 @@ export function AboutPage() {
             className="text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 rounded"
             style={{ color: 'var(--text-muted)' }}
           >
-            Zurück zum Scanner
+            Back to scanner
           </Link>
         </div>
       </div>
