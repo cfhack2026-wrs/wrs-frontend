@@ -79,24 +79,44 @@ function extractWcagTags(tags: string[]): string[] {
     });
 }
 
+function prettifyIdentifier(id: string): string {
+  return id
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
   const [open, setOpen] = useState(defaultOpen);
   const [showAllNodes, setShowAllNodes] = useState(false);
+  const [showAllImages, setShowAllImages] = useState(false);
 
   const title =
-    typeof finding.details.title === 'string' ? finding.details.title : finding.identifier;
+    typeof finding.details.title === 'string'
+      ? finding.details.title
+      : prettifyIdentifier(finding.identifier);
   const description =
-    typeof finding.details.description === 'string' ? finding.details.description : undefined;
+    typeof finding.details.description === 'string'
+      ? finding.details.description
+      : typeof finding.details.explanation === 'string'
+        ? finding.details.explanation
+        : undefined;
   const impact = typeof finding.details.impact === 'string' ? finding.details.impact : undefined;
   const helpUrl =
     typeof finding.details.help_url === 'string' ? finding.details.help_url : undefined;
+  const suggestion =
+    typeof finding.details.suggestion === 'string' ? finding.details.suggestion : undefined;
+  const hostedBy =
+    typeof finding.details.hosted_by === 'string' ? finding.details.hosted_by : undefined;
   const tags = Array.isArray(finding.details.tags) ? (finding.details.tags as string[]) : [];
   const nodes = Array.isArray(finding.details.nodes)
     ? (finding.details.nodes as { html?: string; failure_summary?: string }[])
     : [];
+  const images = Array.isArray(finding.details.images)
+    ? (finding.details.images as { src: string; format: string }[])
+    : [];
 
   const wcagTags = extractWcagTags(tags);
-  const statusCls = impactClass(impact);
+  const statusCls = impact ? impactClass(impact) : suggestion ? 'status-warn' : 'status-info';
 
   return (
     <div className="check-item">
@@ -108,7 +128,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpen((o) => !o); }}
       >
-        <div className={`check-status ${statusCls}`}>{impactSymbol(impact)}</div>
+        <div className={`check-status ${statusCls}`}>{impact ? impactSymbol(impact) : suggestion ? '!' : 'i'}</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: '0.92rem', fontWeight: 500, color: 'var(--text-base)' }}>
             {title}
@@ -215,6 +235,88 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
             </div>
           )}
 
+          {/* Hosted-by badge (green-hosting findings) */}
+          {hostedBy && (
+            <div style={{ marginBottom: 12 }}>
+              <div className="fix-label" style={{ marginBottom: 8 }}>Provider</div>
+              <span
+                style={{
+                  display: 'inline-block',
+                  fontSize: '0.78rem',
+                  fontWeight: 500,
+                  color: '#f59e0b',
+                  background: 'rgba(245,158,11,0.12)',
+                  border: '1px solid rgba(245,158,11,0.35)',
+                  borderRadius: 100,
+                  padding: '3px 12px',
+                }}
+              >
+                {hostedBy}
+              </span>
+            </div>
+          )}
+
+          {/* Image list (non-next-gen-image-format findings) */}
+          {images.length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <div className="fix-label" style={{ marginBottom: 8 }}>
+                Legacy-format images ({images.length})
+              </div>
+              {(showAllImages ? images : images.slice(0, 5)).map((img, idx) => {
+                const basename = img.src.split('/').pop()?.split('?')[0] ?? img.src;
+                return (
+                  <div key={idx} className="node-snippet" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span
+                      style={{
+                        flexShrink: 0,
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        color: '#f59e0b',
+                        background: 'rgba(245,158,11,0.12)',
+                        border: '1px solid rgba(245,158,11,0.35)',
+                        borderRadius: 4,
+                        padding: '1px 6px',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {img.format}
+                    </span>
+                    <span
+                      className="node-html"
+                      title={img.src}
+                      style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}
+                    >
+                      {basename}
+                    </span>
+                  </div>
+                );
+              })}
+              {images.length > 5 && (
+                <button
+                  onClick={() => setShowAllImages((v) => !v)}
+                  style={{
+                    marginTop: 8,
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: 'var(--eaa-blue)',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  {showAllImages
+                    ? '− Show less'
+                    : `+ Show ${images.length - 5} more image${images.length - 5 === 1 ? '' : 's'}`}
+                </button>
+              )}
+            </div>
+          )}
+
           {/* EAA reference */}
           {wcagTags.length > 0 && (
             <span className="eaa-ref">
@@ -225,7 +327,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
           {/* Remediation guidance */}
           {(() => {
             const plainEnglish = remediationMap.get(finding.identifier);
-            if (!plainEnglish && !helpUrl) return null;
+            if (!plainEnglish && !helpUrl && !suggestion) return null;
             return (
               <div
                 className="remediation-panel"
@@ -235,9 +337,9 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
                   Remediation
                 </div>
 
-                {plainEnglish && (
+                {(plainEnglish ?? suggestion) && (
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-base)', lineHeight: 1.6, marginBottom: helpUrl ? 10 : 0 }}>
-                    {plainEnglish}
+                    {plainEnglish ?? suggestion}
                   </p>
                 )}
 
