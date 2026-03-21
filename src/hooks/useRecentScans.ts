@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getRecentScans } from '../api/scanner';
+import { getScanById } from '../api/scanner';
+import { getScanIds } from '../lib/scanHistory';
 import type { Scan } from '../types/scanner';
 
 export function useRecentScans(): {
@@ -11,10 +12,14 @@ export function useRecentScans(): {
   const [isLoading, setIsLoading] = useState(false);
 
   const refresh = useCallback(() => {
+    const ids = getScanIds();
+    if (ids.length === 0) {
+      setScans([]);
+      return;
+    }
     setIsLoading(true);
-    getRecentScans()
-      .then(setScans)
-      .catch(() => {})
+    Promise.all(ids.map((id) => getScanById(id).catch(() => null)))
+      .then((results) => setScans(results.filter((s): s is Scan => s !== null)))
       .finally(() => setIsLoading(false));
   }, []);
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createScan, getScan, getScanById } from '../api/scanner';
+import { addScanId } from '../lib/scanHistory';
 import { TERMINAL_STATUSES } from '../types/scanner';
 import type { Scan } from '../types/scanner';
 
@@ -81,6 +82,7 @@ export function useScan(initialId?: string): UseScanResult {
 
     try {
       const created = await createScan(url);
+      addScanId(created.id);
       setScan(created);
       poll(created.monitor);
     } catch (err) {
