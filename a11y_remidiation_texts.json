@@ -1,0 +1,596 @@
+[
+    {
+        "category": "ARIA",
+        "rule-id": "aria-allowed-attr",
+        "technical-description": "Elements must only use supported ARIA attributes.",
+        "plain-english": "A piece of code on your page is using an instruction that doesn't belong with that type of element. Think of it like writing a recipe instruction (\"bake at 200°C\") on a parking ticket — it simply doesn't fit. Remove the misplaced instruction, or switch to an element type that actually supports it."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-allowed-role",
+        "technical-description": "ARIA role should be appropriate for the element.",
+        "plain-english": "Every element on a webpage has a job — a button's job is to be clicked, a heading's job is to label a section. This error means an element has been given a job description that doesn't match what it actually is. For example, calling a decorative image a \"navigation menu\" would confuse anyone trying to navigate. Correct or remove the mismatched job description."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-braille-equivalent",
+        "technical-description": "Ensure aria-braillelabel and aria-brailleroledescription have a non-braille equivalent.",
+        "plain-english": "Some elements on your page have labels written specifically for braille displays — but there's no matching plain-text label for everyone else. It's like printing a sign only in braille with nothing in regular text beside it. Make sure every braille label has a matching plain-text version so all users, regardless of their assistive technology, can understand the element."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-command-name",
+        "technical-description": "ARIA commands must have an accessible name.",
+        "plain-english": "There is a button, link, or menu item on your page that has no visible or hidden label. When a screen reader user arrives at it, the reader announces something like \"button\" — with no indication of what it does. This is like a physical button in an elevator with no label or symbol. Add a short, descriptive name so that everyone knows what will happen when they activate it."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-conditional-attr",
+        "technical-description": "ARIA attributes are used as specified for the element's role.",
+        "plain-english": "An element on your page is using an accessibility instruction that is only allowed under specific circumstances — and those circumstances don't apply here. Imagine adding a \"fragile\" sticker to a concrete block: the instruction exists, but it simply doesn't apply. Remove the instruction or adjust the element so the instruction actually makes sense in context."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-deprecated-role",
+        "technical-description": "Deprecated ARIA roles were not used.",
+        "plain-english": "One or more elements on your page are using an old, outdated label for their role — like calling a smartphone a \"car phone.\" The label still exists but is no longer officially supported and may not work correctly with modern screen readers. Replace it with the current, up-to-date equivalent so assistive technologies can understand it reliably."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-dialog-name",
+        "technical-description": "Elements with role=\"dialog\" or role=\"alertdialog\" have accessible names.",
+        "plain-english": "Your page has a popup window or alert box — but it has no title or label. When a screen reader user lands inside it, they have no idea what the popup is about or why it appeared. Imagine a door opening to a room with no sign and no one to greet you. Give the popup a clear, descriptive title so every user immediately understands its purpose."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-hidden-body",
+        "technical-description": "aria-hidden=\"\"true\"\" must not be present on the document body.",
+        "plain-english": "The entire visible content of your page has been marked as \"hidden\" from screen readers. This means users who rely on a screen reader to read the page aloud would arrive at a completely silent, empty experience — as if the page were blank. This is almost always a mistake. Remove this hidden flag from the outermost container of your page content."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-hidden-focus",
+        "technical-description": "ARIA hidden element must not be focusable or contain focusable elements.",
+        "plain-english": "Part of your page has been marked as invisible to screen readers — but keyboard users can still accidentally tab into it. This is like having a hidden room that people can stumble into even though it's not supposed to exist. Either make the hidden area truly unreachable by keyboard, or remove the hidden flag so screen readers can see it too."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-input-field-name",
+        "technical-description": "ARIA input fields must have an accessible name.",
+        "plain-english": "There is an input field on your page — a box where users type something — that has no label. Screen reader users arrive at it and hear only \"edit field\" or \"text box,\" with no explanation of what to type. Think of a form with blank lines and no questions written on it. Add a clear label to every input field so all users know exactly what information is being asked for."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-meter-name",
+        "technical-description": "ARIA meter nodes must have an accessible name.",
+        "plain-english": "Your page contains a meter or gauge — something that shows a level or measurement, like a battery indicator or a progress bar showing how full a storage space is. This meter has no label, so screen reader users have no idea what is being measured. Add a short description, for example \"Battery level\" or \"Storage used,\" so the measurement is meaningful to everyone."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-progressbar-name",
+        "technical-description": "ARIA progressbar nodes must have an accessible name.",
+        "plain-english": "Your page has a progress bar — a visual indicator showing how far along a process is — but it has no label. A screen reader user would hear \"progress bar\" with no context about what is progressing. Is it a file uploading? A form being submitted? A page loading? Add a descriptive label so every user understands what the progress bar is tracking."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-prohibited-attr",
+        "technical-description": "Elements use only permitted ARIA attributes.",
+        "plain-english": "An element on your page is using an accessibility instruction that is explicitly not allowed for that type of element. Think of it like trying to stamp \"approved\" on a document that can never be approved — the action is not just wrong, it's forbidden for that document type. Remove the forbidden instruction entirely."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-required-attr",
+        "technical-description": "Required ARIA attributes must be provided.",
+        "plain-english": "A custom interactive element on your page — such as a custom dropdown menu or a toggle switch built with code — is missing a piece of information that it absolutely must have to work correctly with screen readers. It's like building a traffic light but forgetting to include the red light. Look up which piece of information is required for that type of element and add it."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-required-children",
+        "technical-description": "Certain ARIA roles must contain particular children.",
+        "plain-english": "Some interactive elements are only meaningful when they contain specific sub-elements. For example, a list only makes sense if it contains list items. This error means an element is missing the sub-elements it requires. Check what sub-elements are expected and make sure they are properly nested inside the parent element."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-required-parent",
+        "technical-description": "Certain ARIA roles must be contained by particular parents.",
+        "plain-english": "Some elements only work correctly when they are placed inside a specific parent element. For example, a menu item only makes sense when it is inside a menu. This error means an element has been placed in the wrong location in the page structure. Move it inside the correct parent element so it functions as intended."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-roles",
+        "technical-description": "[role] values are valid.",
+        "plain-english": "An element on your page has been given a job title — called a \"role\" — that doesn't exist or has been misspelled. Screen readers rely on these job titles to understand what an element does. If the job title is wrong or gibberish, the screen reader cannot explain the element to the user. Check the spelling and use only recognised, official role names."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-roledescription",
+        "technical-description": "aria-roledescription must be on elements with a semantic role.",
+        "plain-english": "Your page is trying to give a custom description to an element that has no defined role in the first place. You can only customise the description of something that already has a clear identity. It's like giving a nickname to someone who hasn't been introduced yet. Make sure the element has a proper role assigned before adding a custom description."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-tab-name",
+        "technical-description": "Ensure every ARIA tab node has an accessible name.",
+        "plain-english": "Your page contains tabs — like the tabs you'd see in a tabbed folder or a browser — but one or more of these tabs has no label. Screen reader users would hear \"tab\" with no indication of which tab it is or what content it leads to. Give every tab a clear, descriptive name so users can navigate between them confidently."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-text",
+        "technical-description": "Elements with the role=text attribute do not have focusable descendants.",
+        "plain-english": "An element has been marked as \"plain text\" — meaning it should be read as a single, uninterrupted piece of text. However, it contains interactive elements inside it, such as links or buttons. This creates a conflict: screen readers don't expect to find clickable things inside plain text. Either remove the interactive elements from inside it, or remove the \"plain text\" designation."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-toggle-field-name",
+        "technical-description": "ARIA toggle fields must have an accessible name.",
+        "plain-english": "Your page has a toggle — something users can switch on or off, like a checkbox or an on/off switch — but it has no label. Screen reader users would hear \"checkbox\" or \"switch\" with no explanation of what they are toggling. It's like a light switch on a wall with no label indicating which room or device it controls. Add a clear label to every toggle."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-tooltip-name",
+        "technical-description": "ARIA tooltip nodes must have an accessible name.",
+        "plain-english": "Your page has a tooltip — a small pop-up that appears when hovering over an element to give extra information — but the tooltip itself has no text. A screen reader would announce that a tooltip exists, but there would be nothing to read. Make sure every tooltip contains meaningful text that actually communicates the intended information."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-treeitem-name",
+        "technical-description": "ARIA treeitem nodes should have an accessible name.",
+        "plain-english": "Your page contains a tree-style navigation — like a folder structure or a nested menu — and one or more items in that tree have no label. Screen reader users navigating the tree would hear \"tree item\" with no indication of what the item represents. Give every item in the tree a clear, descriptive name."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-valid-attr",
+        "technical-description": "ARIA attributes must conform to valid names.",
+        "plain-english": "Your page is using an accessibility instruction with a name that doesn't exist — it may be misspelled or simply made up. Screen readers will ignore instructions they don't recognise, meaning the intended accessibility support won't work at all. Check the spelling carefully and make sure every instruction name matches an officially recognised one."
+    },
+    {
+        "category": "ARIA",
+        "rule-id": "aria-valid-attr-value",
+        "technical-description": "ARIA attributes must conform to valid values.",
+        "plain-english": "Your page has an accessibility instruction with a value that is not valid for that instruction. Think of it like setting a speed limit sign to \"banana\" instead of a number — the sign exists, but the value makes no sense. Check what values are allowed for that instruction and replace the invalid value with a correct one."
+    },
+    {
+        "category": "Forms",
+        "rule-id": "autocomplete-valid",
+        "technical-description": "Ensure the autocomplete attribute is correct and suitable for the form field.",
+        "plain-english": "Your page has a form field — a box where users type information like their name, email, or address — but the autocomplete setting is incorrect or missing. The autocomplete feature helps browsers and screen readers automatically suggest or fill in common information. When it's wrong, the browser can't help users fill in the form, which is especially frustrating for people with cognitive or motor disabilities. Set the correct autocomplete value that matches what the field is asking for."
+    },
+    {
+        "category": "Forms",
+        "rule-id": "button-name",
+        "technical-description": "Buttons must have discernible text.",
+        "plain-english": "One or more buttons on your page have no text or label. When a screen reader reaches the button, it announces only \"button\" — giving the user no idea what the button does. It's the equivalent of a physical button with no label, symbol, or colour to hint at its purpose. Add a short, clear label to every button that describes its action, such as \"Submit form,\" \"Close window,\" or \"Play video.\""
+    },
+    {
+        "category": "Forms",
+        "rule-id": "form-field-multiple-labels",
+        "technical-description": "Form field must not have multiple label elements.",
+        "plain-english": "A form field on your page — a box where users enter information — has two or more labels attached to it. This is like having two signs above a door, both saying different things. Depending on which screen reader a person uses, it might read one label, both labels, or neither — creating confusion. Keep exactly one clear label per form field."
+    },
+    {
+        "category": "Forms",
+        "rule-id": "input-button-name",
+        "technical-description": "Input buttons must have discernible text.",
+        "plain-english": "Your page has a button that was created using an image or icon, but it has no text description. Screen reader users arrive at this button and hear nothing useful — they can't tell what it does. Think of a vending machine button with just a blank space where the product picture should be. Add a text description that explains what the button does, even if it's hidden visually."
+    },
+    {
+        "category": "Forms",
+        "rule-id": "label",
+        "technical-description": "Form elements must have labels.",
+        "plain-english": "One or more fields in a form on your page — boxes where users type information — have no label at all. Screen reader users land on these fields and have no idea what information they're supposed to enter. It's like a paper form with blank spaces but no questions written next to them. Add a clear, visible label to every form field explaining exactly what the user should type."
+    },
+    {
+        "category": "Forms",
+        "rule-id": "label-content-name-mismatch",
+        "technical-description": "Elements with visible text labels have matching accessible names.",
+        "plain-english": "A button or link on your page shows one piece of text visually, but behind the scenes it has a different name that screen readers announce. For example, a button that says \"Buy now\" visually might be labelled \"purchase_action\" for screen readers — and people who use voice commands to click elements by saying their visible name would be completely unable to activate it. Make sure the label that screen readers use matches the visible text exactly."
+    },
+    {
+        "category": "Forms",
+        "rule-id": "label-title-only",
+        "technical-description": "Form elements should have a visible label.",
+        "plain-english": "A form field on your page relies on a tooltip — a small piece of text that only appears when you hover over it — as its only label. Many users, including those using a keyboard or touchscreen, may never see this tooltip. People with cognitive disabilities may also not notice it. Add a permanent, always-visible label next to every form field so all users can see it without having to hover."
+    },
+    {
+        "category": "Forms",
+        "rule-id": "select-name",
+        "technical-description": "Select element must have an accessible name.",
+        "plain-english": "Your page has a dropdown menu — a list that expands when clicked to show options — but it has no label. Screen reader users arrive at it and hear only \"dropdown\" or \"select\" with no indication of what they are choosing. It's like a voting ballot with a list of options but no question at the top. Add a clear label — either visible text or a hidden description — that tells users what the dropdown is for."
+    },
+    {
+        "category": "Images / text alternatives",
+        "rule-id": "area-alt",
+        "technical-description": "Active <area> elements must have alternative text.",
+        "plain-english": "Your page contains an image map — a single image divided into clickable regions, each leading to a different place. One or more of these clickable regions has no text description. Screen reader users can navigate to these regions but have no way of knowing what they are or where they lead. Add a short text description to every clickable region in the image map."
+    },
+    {
+        "category": "Images / text alternatives",
+        "rule-id": "image-alt",
+        "technical-description": "Images must have alternative text.",
+        "plain-english": "One or more images on your page have no text description. Screen readers read out the file name instead — which typically looks like \"IMG_4823.jpg\" or \"hero-banner-final-v2.png\" and tells the user nothing meaningful. Every image that conveys information needs a short description of what it shows, written in plain language. If an image is purely decorative and adds no meaning, mark it explicitly so screen readers skip it silently."
+    },
+    {
+        "category": "Images / text alternatives",
+        "rule-id": "image-redundant-alt",
+        "technical-description": "Alternative text of images should not be repeated as text.",
+        "plain-english": "An image on your page has a text description that says exactly the same thing as text already written next to the image. Screen reader users would hear the same information twice in a row, which is repetitive and confusing. Shorten or remove the image description to avoid the duplication, while making sure the image still communicates its purpose if needed."
+    },
+    {
+        "category": "Images / text alternatives",
+        "rule-id": "input-image-alt",
+        "technical-description": "Image buttons must have alternative text.",
+        "plain-english": "Your page has a button that uses an image instead of text — for example, a \"search\" button that shows a magnifying glass icon. This button has no text description. Screen reader users land on it and hear nothing useful. Add a short description of what the button does, such as \"Search\" or \"Submit,\" so every user can understand and use it."
+    },
+    {
+        "category": "Images / text alternatives",
+        "rule-id": "object-alt",
+        "technical-description": "<object> elements must have alternative text.",
+        "plain-english": "Your page contains an embedded object — this could be a PDF viewer, a media player, a Flash animation, or another embedded piece of content. This embedded object has no text description. Users who cannot see or interact with the embedded content have no way of knowing what it contains. Add a text description explaining what the embedded content is and what it communicates."
+    },
+    {
+        "category": "Images / text alternatives",
+        "rule-id": "role-img-alt",
+        "technical-description": "[role=\"\"img\"\"] elements must have alternative text.",
+        "plain-english": "An element on your page is being used as an image — but it is not a standard image file; it may be a graphic built with code, an icon font, or a decorated element. It has no text description. Screen reader users receive no information about what this image represents. Add a short, plain-language description of what the image shows or communicates."
+    },
+    {
+        "category": "Images / text alternatives",
+        "rule-id": "svg-img-alt",
+        "technical-description": "<svg> elements with an img role must have alternative text.",
+        "plain-english": "Your page contains graphics drawn with code — often icons, logos, charts, or illustrations. One or more of these graphics have no text description. Screen reader users either hear nothing or receive a string of meaningless code. Every meaningful graphic needs a short description of what it shows. If a graphic is purely decorative and adds no meaning, mark it so screen readers ignore it completely."
+    },
+    {
+        "category": "Media",
+        "rule-id": "no-autoplay-audio",
+        "technical-description": "<audio> or <video> elements must not play automatically.",
+        "plain-english": "Audio or video on your page starts playing automatically as soon as the page loads. For screen reader users, this creates an immediate problem: the audio from the media clashes with the screen reader's voice, making it extremely difficult to hear either one. For people with cognitive disabilities, unexpected audio can be disorienting and distressing. Disable autoplay so users can choose when to start the media themselves."
+    },
+    {
+        "category": "Media",
+        "rule-id": "video-caption",
+        "technical-description": "<video> elements must have captions.",
+        "plain-english": "Your page contains a video but it has no captions or subtitles. Deaf users and hard-of-hearing users cannot follow the spoken content. Captions are also valuable in noisy environments, for non-native speakers, and for anyone watching with the sound off. Add accurate captions that reflect all spoken words, as well as meaningful sounds like music or background noise."
+    },
+    {
+        "category": "Links / navigation",
+        "rule-id": "bypass",
+        "technical-description": "Page must have means to bypass repeated blocks.",
+        "plain-english": "Every page on your site likely starts with the same navigation menu — a repeated set of links at the top. Sighted users can skip past this instantly by scrolling or clicking. Keyboard and screen reader users, however, must tab through every single link in the menu on every page before reaching the actual content. Add a \"Skip to main content\" link at the very top of the page — this allows keyboard users to jump directly to the content with a single keypress."
+    },
+    {
+        "category": "Links / navigation",
+        "rule-id": "link-in-text-block",
+        "technical-description": "Links must be distinguishable without relying on color.",
+        "plain-english": "There is a link inside a block of text on your page, but the only visual difference between the link and the surrounding text is its colour. People who are colour blind or who have difficulty distinguishing colours may not notice that a link exists at all. Add an underline or another visual indicator — something other than colour alone — so that links are recognisable to everyone regardless of how they perceive colour."
+    },
+    {
+        "category": "Links / navigation",
+        "rule-id": "link-name",
+        "technical-description": "Links must have discernible text.",
+        "plain-english": "One or more links on your page have no readable text. They may be image-only links, icon links, or empty links — and when a screen reader reaches them, it announces only \"link\" with no indication of where the link leads. It's like a door with no sign, no number, and no handle — you know it's a door, but you have no idea where it goes. Add a clear description to every link that explains its destination or purpose."
+    },
+    {
+        "category": "Links / navigation",
+        "rule-id": "skip-link",
+        "technical-description": "The skip-link target should exist and be focusable.",
+        "plain-english": "Your page has a \"Skip to main content\" link — a helpful feature that lets keyboard users jump past the navigation menu. However, the destination it points to either doesn't exist or cannot receive keyboard focus, so the link doesn't actually work. Find the element the skip link is supposed to jump to and make sure it exists and can be reached by keyboard."
+    },
+    {
+        "category": "Links / navigation",
+        "rule-id": "target-size",
+        "technical-description": "All touch targets must be 24px large or leave sufficient space.",
+        "plain-english": "One or more clickable elements on your page — such as buttons, links, or icons — are too small to tap comfortably on a touchscreen. People with motor disabilities, tremors, or limited dexterity struggle to accurately tap small targets. The minimum recommended tap area is 24 by 24 pixels, with enough space around it so neighbouring elements don't get accidentally tapped instead. Increase the size or spacing of small interactive elements."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "avoid-inline-spacing",
+        "technical-description": "Inline text spacing must be adjustable with custom stylesheets.",
+        "plain-english": "The spacing between letters, words, or lines of text on your page is set directly in the page's code in a way that cannot be overridden. Some users — particularly those with dyslexia or low vision — customise text spacing in their browser or operating system to make reading easier. If the page hard-codes spacing that cannot be changed, those customisations stop working. Move text spacing settings to a place where user preferences can override them."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "blink",
+        "technical-description": "Ensure <blink> elements are not used.",
+        "plain-english": "Your page uses an outdated code element that makes text blink on and off. Blinking content can trigger seizures in people with photosensitive epilepsy, and it is distracting and disorienting for many other users. This element is no longer supported in modern browsers and should be removed entirely. If you need to draw attention to something, use a more accessible alternative such as a distinct colour, icon, or visual highlight."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "css-orientation-lock",
+        "technical-description": "CSS media queries must not lock display orientation.",
+        "plain-english": "Your page is locked to display in one orientation only — either always portrait (upright) or always landscape (sideways). Many users mount their devices in a fixed orientation because of a physical disability — for example, a wheelchair user may have their tablet mounted horizontally. Locking the orientation prevents these users from accessing the page in the way that works for them. Remove the orientation lock so the page works in any direction."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "definition-list",
+        "technical-description": "<dl> elements must only directly contain properly ordered <dt> and <dd> groups.",
+        "plain-english": "Your page contains a definition list — a structured list used to pair terms with their definitions, like a glossary. The contents of this list are not structured correctly; unexpected elements have been placed inside it. Screen readers use the structure of a definition list to understand which term goes with which definition. Correct the structure so each term is directly followed by its definition, with no extra elements in between."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "dlitem",
+        "technical-description": "<dt> and <dd> elements must be contained by a <dl>.",
+        "plain-english": "Terms or definitions from a definition list have been placed outside their list container. Think of it like pulling individual dictionary entries out of the dictionary and scattering them across the page — the relationship between them is lost. Move all terms and their definitions back inside a properly structured definition list."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "document-title",
+        "technical-description": "Documents must have <title> element to aid in navigation.",
+        "plain-english": "Your page has no title. The title is the text that appears in the browser tab and is the very first thing a screen reader announces when the page loads. Without a title, users who have multiple browser tabs open cannot tell which tab is which, and screen reader users have no immediate way of knowing what page they have arrived at. Add a short, descriptive title that clearly identifies the page."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "empty-heading",
+        "technical-description": "Headings should not be empty.",
+        "plain-english": "Your page has one or more headings — titles that visually separate and label sections of the page, like chapter titles in a book — that exist in the code but contain no text. Screen readers announce \"heading\" to signal that a section begins, but then read nothing. Users navigating by headings — a very common technique among screen reader users — encounter a dead end with no information. Add meaningful text to every heading, or remove the empty heading entirely."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "frame-title",
+        "technical-description": "Frames must have an accessible name.",
+        "plain-english": "Your page contains one or more embedded frames — sections of the page that load separate content, like an embedded map, a chat widget, or a third-party payment form. These frames have no label. Screen readers announce \"frame\" when entering them, with no indication of what the frame contains. Give every frame a short, descriptive title — for example, \"Google Maps: store location\" or \"Customer support chat\" — so users know what they are entering."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "frame-title-unique",
+        "technical-description": "Ensure <iframe> and <frame> elements contain a unique title attribute.",
+        "plain-english": "Your page has two or more embedded frames with identical titles. Even if each frame is labelled, having the same label for multiple different frames makes them indistinguishable. Imagine two rooms in a building both labelled \"Room A\" — you wouldn't know which is which. Give each embedded frame a distinct, descriptive title that clearly tells users what is inside."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "heading-order",
+        "technical-description": "Heading levels should only increase by one.",
+        "plain-english": "Your page uses headings to organise content — like chapters and subchapters in a book. However, the heading levels skip steps. For example, the page might jump from a top-level title (chapter 1) directly to a sub-sub-heading (chapter 1.1.1), skipping the intermediate level. Screen reader users often navigate pages by jumping between headings, and a broken heading structure is disorienting and confusing. Ensure headings follow a logical, step-by-step order without skipping levels."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "hidden-content",
+        "technical-description": "Inform users about hidden content.",
+        "plain-english": "Your page contains content that is hidden visually but is still present in the code. Depending on how it is hidden, screen readers may announce this content to users who cannot see it — creating confusion because the user hears about something they cannot interact with. Alternatively, the content may be needed but inaccessible. Review all hidden content and ensure it is either truly invisible to all users including screen readers, or made fully accessible to all users."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "html-has-lang",
+        "technical-description": "<html> element must have a lang attribute.",
+        "plain-english": "Your page does not declare what language it is written in. Screen readers use the declared language to choose the correct voice and pronunciation rules. Without this information, a reader might read an English page using French or German pronunciation — making the text difficult or impossible to understand. Add the correct language declaration to your page, for example indicating that the page is written in English, German, or French."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "html-lang-valid",
+        "technical-description": "<html> element must have a valid value for the lang attribute.",
+        "plain-english": "Your page declares a language, but the language code used is not a recognised, valid code. It's like writing \"Geraman\" instead of \"German\" — the intent is clear, but the system cannot use it. Replace the invalid code with the correct official language code for your page's language."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "html-xml-lang-mismatch",
+        "technical-description": "HTML elements with lang and xml:lang must have the same base language.",
+        "plain-english": "Your page declares its language in two different places, and the two declarations contradict each other — one says the page is in one language, the other says a different language. Screen readers may become confused about which language to use. Make sure both language declarations say exactly the same language."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "list",
+        "technical-description": "<ul> and <ol> must only directly contain <li> elements.",
+        "plain-english": "Your page has a list — either a bulleted or numbered list — but the list contains elements that don't belong directly inside a list. Lists have a specific structure: a list is a container that holds list items, and nothing else. When unexpected elements are placed directly inside the list container, screen readers may misinterpret the structure and confuse users. Fix the list so it contains only proper list items."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "listitem",
+        "technical-description": "<li> elements must be contained in a <ul> or <ol>.",
+        "plain-english": "Your page has items that are formatted as list items — individual entries that belong inside a list — but they have been placed outside of any list container. This is like individual bullet points floating on a page with no list to belong to. Screen readers expect list items to live inside lists. Move all list items inside a proper bulleted or numbered list."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "marquee",
+        "technical-description": "Ensure <marquee> elements are not used.",
+        "plain-english": "Your page uses an outdated code element that makes text scroll horizontally across the screen. This element is no longer supported by modern browsers and creates serious accessibility problems: it can distract users with cognitive disabilities, and screen readers may not handle it correctly. Remove it entirely. If you want to animate text, use modern, accessible techniques that respect user preferences for reduced motion."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "meta-refresh",
+        "technical-description": "Delayed refresh under 20 hours must not be used.",
+        "plain-english": "Your page is set to automatically reload or redirect users to another page after a short delay. This can interrupt screen reader users mid-sentence, disorient users with cognitive disabilities, and prevent users from finishing what they were doing. Remove the automatic redirect or reload. If you need to send users to another page, use a clearly labelled link or button that the user can activate themselves."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "meta-viewport",
+        "technical-description": "Zooming and scaling must not be disabled.",
+        "plain-english": "Your page is set to prevent users from zooming in. Zooming is essential for people with low vision who need to enlarge text and elements to read them. Disabling it forces these users to read content at a size that may be too small for them. Remove the setting that blocks zooming so every user can adjust the page size to meet their needs."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "p-as-heading",
+        "technical-description": "Ensure bold or italic text or font-size is not used to style <p> elements as headings.",
+        "plain-english": "Your page has text that looks like a heading — it may be larger, bolder, or visually prominent — but it is structured as a regular paragraph rather than an actual heading. Sighted users may recognise it as a heading, but screen readers do not. Users who navigate by headings — a very common and efficient technique for screen reader users — will miss this section entirely because it doesn't behave like a heading. Use proper heading elements to mark section titles."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "page-has-heading-one",
+        "technical-description": "Page should contain a level-one heading.",
+        "plain-english": "Your page has no main title heading. Every page should have one top-level heading that tells users — and screen readers — what the page is fundamentally about, like the title of a book. Without it, screen reader users have no clear starting point for understanding the page's purpose. Add one clear main title heading to the page."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "region",
+        "technical-description": "All page content should be contained by landmarks.",
+        "plain-english": "Your page has content sitting outside of any named, structured region. Websites are typically divided into recognisable regions — the header area at the top, the main content area in the middle, the navigation menu, and the footer at the bottom. These regions act like signposts for screen reader users, who can jump directly between them. Content placed outside these regions is like furniture left in a corridor — it exists, but it doesn't belong to any room and is hard to find. Organise all content into clearly defined regions."
+    },
+    {
+        "category": "Structure / document",
+        "rule-id": "valid-lang",
+        "technical-description": "Ensure lang attributes have valid values.",
+        "plain-english": "One or more elements on your page — not just the page itself, but individual pieces of content — declare their language using an invalid or unrecognised language code. Screen readers use these declarations to switch to the correct pronunciation for that section of text. An invalid code means the switch won't happen. Replace all invalid language codes with correct, officially recognised codes."
+    },
+    {
+        "category": "Tables",
+        "rule-id": "empty-table-header",
+        "technical-description": "Ensure table headers have discernible text.",
+        "plain-english": "Your page contains a table — a grid of rows and columns for presenting structured information — and one or more of the column or row headers are blank. Headers explain what each column or row contains, like the labels at the top of a spreadsheet. Without them, screen reader users navigating the table cannot tell which column or row they are in. Add a clear, descriptive label to every table header."
+    },
+    {
+        "category": "Tables",
+        "rule-id": "table-duplicate-name",
+        "technical-description": "Ensure the <caption> element does not contain the same text as the summary attribute.",
+        "plain-english": "Your table has a visible title and a hidden description for screen readers, but both say exactly the same thing. Screen readers will read the same sentence twice in a row, which is redundant and confusing. Either remove the duplication, or use the two pieces of text to complement each other — for example, the visible title could be brief, and the hidden description could provide additional context."
+    },
+    {
+        "category": "Tables",
+        "rule-id": "table-fake-caption",
+        "technical-description": "Ensure that tables with a caption use the <caption> element.",
+        "plain-english": "Your table has what appears to be a title or caption, but it has been added as a regular cell inside the table rather than using the proper title element. Screen readers will treat it as just another data cell and won't recognise it as the table's title. This means users don't get a proper introduction to what the table contains before navigating through its data. Use the correct title element so screen readers can announce it as the table's name."
+    },
+    {
+        "category": "Tables",
+        "rule-id": "td-headers-attr",
+        "technical-description": "Ensure that each cell using the headers attribute only refers to <th> elements in the same table.",
+        "plain-english": "Some cells in your table are labelled with references to header cells — this is used in complex tables to tell screen readers which column and row headers apply to each cell. However, the references point to headers that either don't exist or belong to a different table. This is like a spreadsheet cell referring to a column that doesn't exist in the document. Fix the references so every cell correctly points to its actual header cells within the same table."
+    },
+    {
+        "category": "Tables",
+        "rule-id": "th-has-data-cells",
+        "technical-description": "Ensure <th> elements and elements with role=columnheader/rowheader have data cells they describe.",
+        "plain-english": "Your table has header cells — labels for columns or rows — but those headers don't actually have any data beneath or beside them to describe. It's like labelling a spreadsheet column \"January\" but leaving all the cells in that column empty. This confuses screen readers and misleads users about the table's content. Either fill in the missing data, or remove the orphaned header cells."
+    },
+    {
+        "category": "Landmarks",
+        "rule-id": "landmark-banner-is-top-level",
+        "technical-description": "Banner landmark should not be contained in another landmark.",
+        "plain-english": "The header area of your page — the region typically containing your logo, site name, and top navigation — has been placed inside another region of the page instead of sitting at the top level on its own. Screen readers expect the page header to be a standalone area at the outermost level. When it is nested inside another region, navigation becomes confusing. Move the page header so it stands on its own."
+    },
+    {
+        "category": "Landmarks",
+        "rule-id": "landmark-complementary-is-top-level",
+        "technical-description": "Aside should not be contained in another landmark.",
+        "plain-english": "Your page's sidebar or supplementary content area — a region containing secondary information that supports the main content, such as related links, tips, or advertisements — has been placed inside another region of the page. Screen readers expect this type of area to stand at the top level. Move it outside of any other regions so it can be navigated to independently."
+    },
+    {
+        "category": "Landmarks",
+        "rule-id": "landmark-contentinfo-is-top-level",
+        "technical-description": "Contentinfo landmark should not be contained in another landmark.",
+        "plain-english": "The footer area of your page — the region at the very bottom typically containing copyright information, legal links, and contact details — has been placed inside another region instead of standing on its own. Screen readers expect the footer to be a standalone, top-level area. Move it outside of any other regions."
+    },
+    {
+        "category": "Landmarks",
+        "rule-id": "landmark-main-is-top-level",
+        "technical-description": "Main landmark should not be contained in another landmark.",
+        "plain-english": "The main content area of your page — the central region containing the primary information users came to read — has been placed inside another region. This is like putting the main room of a building inside a storage cupboard. Screen readers expect the main content area to stand independently at the top level. Move it outside of any other regions."
+    },
+    {
+        "category": "Landmarks",
+        "rule-id": "landmark-no-duplicate-banner",
+        "technical-description": "Document should not have more than one banner landmark.",
+        "plain-english": "Your page has more than one header area. Screen readers expect exactly one page header — the area containing your site's name, logo, and primary navigation. When multiple headers exist, users navigating by landmarks become confused about which one is the real header. Ensure only one header region exists at the top level of your page."
+    },
+    {
+        "category": "Landmarks",
+        "rule-id": "landmark-no-duplicate-contentinfo",
+        "technical-description": "Document should not have more than one contentinfo landmark.",
+        "plain-english": "Your page has more than one footer area. Screen readers expect exactly one footer — the bottom section of the page containing copyright, legal, and contact information. Multiple footers create confusion when users navigate by landmarks. Ensure only one footer region exists at the top level of your page."
+    },
+    {
+        "category": "Landmarks",
+        "rule-id": "landmark-no-duplicate-main",
+        "technical-description": "Document should not have more than one main landmark.",
+        "plain-english": "Your page has more than one main content area. Every page should have exactly one main region — the single most important area of the page that users came to read. Multiple main regions confuse screen reader users who navigate directly to the main content. Remove or convert any duplicate main regions."
+    },
+    {
+        "category": "Landmarks",
+        "rule-id": "landmark-one-main",
+        "technical-description": "Document should have one main landmark.",
+        "plain-english": "Your page has no clearly defined main content area. Screen readers offer users a shortcut to jump directly to the main content, bypassing repeated navigation and header elements. Without a defined main area, this shortcut doesn't exist. Wrap your page's primary content in a main region so screen reader users can reach it immediately."
+    },
+    {
+        "category": "Landmarks",
+        "rule-id": "landmark-unique",
+        "technical-description": "Landmarks should have a unique role or role/label/title combination.",
+        "plain-english": "Your page has multiple regions of the same type — for example, several navigation menus or several sections — without any labels to distinguish them. When screen reader users navigate by landmarks, they see a list of regions, and if multiple regions have the same type and no label, users can't tell them apart. Give each region a distinct, descriptive label so users can identify and navigate to exactly the region they need."
+    },
+    {
+        "category": "Keyboard / focus",
+        "rule-id": "accesskeys",
+        "technical-description": "accesskey attribute value should be unique.",
+        "plain-english": "Two or more elements on your page share the same keyboard shortcut. Keyboard shortcuts are intended to let users quickly activate a specific element by pressing a key combination. If two elements share the same shortcut, pressing it may trigger the wrong element or cause unpredictable behaviour. Assign a unique keyboard shortcut to each element that has one."
+    },
+    {
+        "category": "Keyboard / focus",
+        "rule-id": "focus-order-semantics",
+        "technical-description": "Elements in the focus order should have an appropriate role.",
+        "plain-english": "Your page has an element that users can reach by pressing the Tab key — meaning it is interactive — but the element has no role that communicates its purpose to a screen reader. When a screen reader user tabs to it, they hear no indication of what the element is or what it does. It's like a mysterious lever with no label. Give every interactive element a role that accurately describes what it is, such as a button, link, or menu."
+    },
+    {
+        "category": "Keyboard / focus",
+        "rule-id": "frame-focusable-content",
+        "technical-description": "Ensure <frame> and <iframe> elements with focusable content do not have tabindex=-1.",
+        "plain-english": "Your page contains an embedded frame — a section that loads separate content, such as a map, form, or video. This frame contains interactive elements like links and buttons, but a setting on the frame is preventing keyboard users from entering it at all. Keyboard and screen reader users cannot reach any of the content inside the frame. Remove the setting that blocks keyboard access so all users can interact with the embedded content."
+    },
+    {
+        "category": "Keyboard / focus",
+        "rule-id": "nested-interactive",
+        "technical-description": "Ensure interactive controls are not nested.",
+        "plain-english": "Your page has an interactive element — such as a button or a link — placed inside another interactive element. This creates a conflict: when a user activates the outer element, what happens to the inner one? Screen readers handle this inconsistently, and keyboard navigation can break entirely. Separate the interactive elements so each one stands independently and can be activated without ambiguity."
+    },
+    {
+        "category": "Keyboard / focus",
+        "rule-id": "scrollable-region-focusable",
+        "technical-description": "Scrollable region must have keyboard access.",
+        "plain-english": "Your page has an area that can be scrolled — meaning it contains more content than fits in the visible space — but keyboard users cannot reach or scroll this area. They can only scroll with a mouse or touchscreen. Users who navigate by keyboard, including many people with motor disabilities and screen reader users, will be unable to access the content hidden below the visible portion. Make the scrollable area reachable by keyboard."
+    },
+    {
+        "category": "Keyboard / focus",
+        "rule-id": "tabindex",
+        "technical-description": "Elements should not have tabindex greater than zero.",
+        "plain-english": "Your page manually controls the order in which users move through elements when pressing the Tab key, and some elements have been given a high priority number that forces them to appear first in the tab order. This almost always creates a confusing and disorienting experience, because the order users tab through elements no longer follows the visual and logical order of the page. Remove the manual tab order numbers so the browser follows the natural, expected reading order."
+    },
+    {
+        "category": "Parsing / IDs",
+        "rule-id": "duplicate-id",
+        "technical-description": "id attribute value must be unique.",
+        "plain-english": "Two or more elements on your page share the same identifier — a unique name used behind the scenes to refer to a specific element. Identifiers are supposed to be unique, like an ID card number. When two elements share the same identifier, screen readers and other tools can become confused about which element they are referring to, potentially skipping one entirely or reading it incorrectly. Give every element its own unique identifier."
+    },
+    {
+        "category": "Parsing / IDs",
+        "rule-id": "duplicate-id-active",
+        "technical-description": "IDs of active focusable elements must be unique.",
+        "plain-english": "Two or more interactive elements on your page — things users can click, tap, or activate, such as buttons or links — share the same identifier. This is particularly serious because screen readers use identifiers to associate labels, instructions, and announcements with specific elements. If two interactive elements share an identifier, a screen reader may skip one or read the wrong label for the wrong element. Assign each interactive element its own unique identifier immediately."
+    },
+    {
+        "category": "Parsing / IDs",
+        "rule-id": "duplicate-id-aria",
+        "technical-description": "IDs used in ARIA and labels must be unique.",
+        "plain-english": "An identifier that is used to connect a label to its form field — or to connect an element to an accessibility description — appears more than once on the page. This means the connection is broken or ambiguous: the screen reader doesn't know which element the label belongs to. As a result, users may hear no label at all, or the wrong label. Make all identifiers used in accessibility connections unique."
+    },
+    {
+        "category": "Parsing / IDs",
+        "rule-id": "server-side-image-map",
+        "technical-description": "Ensure that server-side image maps are not used.",
+        "plain-english": "Your page uses an older type of clickable image map where clicking different regions of the image sends requests to a server to determine where to navigate. This approach is not accessible by keyboard — users who cannot use a mouse have no way to activate specific regions. Replace it with a modern, accessible version where clickable regions are defined directly in the page and can be activated by keyboard."
+    },
+    {
+        "category": "Parsing / IDs",
+        "rule-id": "summary-name",
+        "technical-description": "Ensure summary elements have discernible text.",
+        "plain-english": "Your page has a collapsible section — a piece of content that users can show or hide by clicking a toggle. The toggle itself has no label. Screen reader users arrive at it and hear only \"button\" or \"summary\" with no indication of what content will be revealed. It's like a box with a handle but no label indicating what's inside. Add clear, descriptive text to the toggle so users know what they are choosing to expand or collapse."
+    },
+    {
+        "category": "Semantics / best practice",
+        "rule-id": "identical-links-same-purpose",
+        "technical-description": "Links with the same name must have a similar purpose.",
+        "plain-english": "Your page has multiple links that all display the same text — for example, several links all labelled \"Read more\" or \"Click here\" — but each one leads to a completely different place. Screen reader users often navigate by listing all links on a page, and if multiple links have the same label, there is no way to distinguish between them or predict where each leads. Replace generic link labels with specific descriptions that clearly identify each link's destination, such as \"Read more about our pricing\" or \"Read more about our team.\""
+    },
+    {
+        "category": "Semantics / best practice",
+        "rule-id": "presentation-role-conflict",
+        "technical-description": "Elements marked as presentational should be consistently ignored.",
+        "plain-english": "An element on your page has been marked as purely decorative — meaning it should be invisible to screen readers because it adds no meaningful information. However, the element also has accessibility instructions or interactive properties attached to it. These two intentions contradict each other and create unpredictable behaviour. Decide what the element is: if it is truly decorative, remove all interactive and accessibility properties from it. If it needs to communicate something, give it a proper role and make it fully accessible."
+    },
+    {
+        "category": "Color",
+        "rule-id": "color-contrast",
+        "technical-description": "Elements must meet minimum color contrast ratio thresholds.",
+        "plain-english": "Some text on your page is too difficult to read because the colour of the text is too similar to the colour of the background behind it. Think of grey text on a white background, or yellow text on a light beige background — the text is there, but it blurs into the background. This is a serious problem for people with low vision, colour blindness, or anyone reading in bright sunlight. Increase the difference between text colour and background colour until the contrast is strong enough. A free online tool such as the WebAIM Contrast Checker (https://webaim.org/resources/contrastchecker/) can measure whether the contrast is sufficient."
+    },
+    {
+        "category": "Color",
+        "rule-id": "color-contrast-enhanced",
+        "technical-description": "Elements must meet enhanced color contrast ratio thresholds.",
+        "plain-english": "Some text on your page meets the basic contrast standard but does not meet the higher, stricter standard recommended for the best possible readability. Users with more significant visual impairments benefit greatly from higher contrast. The enhanced standard requires an even stronger difference between text and background colours — especially for regular-sized text. Where possible, increase the contrast beyond the minimum requirement to make the page as readable as possible for the widest range of users."
+    }
+]
