@@ -28,7 +28,7 @@ async function shareUrl(scan: Scan) {
   if (navigator.share && navigator.canShare?.(shareData)) {
     await navigator.share(shareData);
   } else {
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(`${window.location.host}/scan/${scan.id}`);
   }
 }
 
