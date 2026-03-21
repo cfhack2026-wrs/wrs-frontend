@@ -105,23 +105,27 @@ function buildRoadmap(assessments: Assessment[]): RoadmapSection[] {
   return [
     {
       id: 'phase-1',
-      label: 'Phase 1: Quick Wins',
+      label: phase1.length > 0 ? 'Phase 1: Quick Wins' : 'Phase 1: Compliant',
       icon: '1',
       color: '#38bdf8',
       bg: 'rgba(56,189,248,0.12)',
       borderColor: 'rgba(56,189,248,0.3)',
       items: phase1,
-      recommendation: 'Address these critical and high-priority issues first. They have the biggest impact on accessibility compliance and can be resolved quickly. Start with images without alt text, missing form labels, and color contrast failures.',
+      recommendation: phase1.length > 0
+        ? 'Address these critical and high-priority issues first. They have the biggest impact on accessibility compliance and can be resolved quickly.'
+        : 'Great job! Your site has no critical or high-priority accessibility issues.',
     },
     {
       id: 'phase-2',
-      label: 'Phase 2: Next Steps',
+      label: phase2.length > 0 ? 'Phase 2: Next Steps' : 'Phase 2: Minor Issues',
       icon: '2',
       color: '#f59e0b',
       bg: 'rgba(245,158,11,0.1)',
       borderColor: 'rgba(245,158,11,0.3)',
       items: phase2,
-      recommendation: 'These issues require more planning but are essential for full compliance. Focus on keyboard navigation improvements, ARIA attribute corrections, and heading structure fixes. Consider involving your development team for complex changes.',
+      recommendation: phase2.length > 0
+        ? 'These issues require more planning but are essential for full compliance. Focus on keyboard navigation, ARIA corrections, and heading structure.'
+        : 'Your site has no medium-priority issues requiring moderate effort.',
     },
     {
       id: 'phase-3',
@@ -131,9 +135,11 @@ function buildRoadmap(assessments: Assessment[]): RoadmapSection[] {
       bg: 'rgba(248,113,113,0.12)',
       borderColor: 'rgba(248,113,113,0.3)',
       items: phase3,
-      recommendation: 'These enhancements improve the overall user experience but are lower priority. Schedule them for your next development sprint. Focus on code quality improvements, metatag optimizations, and progressive enhancement features.',
+      recommendation: phase3.length > 0
+        ? 'These enhancements improve the overall user experience but are lower priority. Schedule them for your next development sprint.'
+        : 'No future improvements needed at this time.',
     },
-  ].filter((s) => s.items.length > 0);
+  ];
 }
 
 const PRIORITY_COLORS: Record<string, { bg: string; text: string; label: string }> = {
@@ -231,7 +237,26 @@ export function RecommendationRoadmap({ assessments }: RecommendationRoadmapProp
           </div>
 
           <div style={{ padding: '0.75rem' }}>
-            {section.items.map((item, idx) => (
+            {section.items.length === 0 ? (
+              <div
+                style={{
+                  padding: '1.5rem',
+                  textAlign: 'center',
+                  color: 'var(--text-dim)',
+                  fontSize: '0.85rem',
+                }}
+              >
+                {section.id === 'phase-1' ? (
+                  <span style={{ fontSize: '1.2rem', display: 'block', marginBottom: '0.25rem' }}>✓</span>
+                ) : section.id === 'phase-2' ? (
+                  <span style={{ fontSize: '1.2rem', display: 'block', marginBottom: '0.25rem' }}>👍</span>
+                ) : (
+                  <span style={{ fontSize: '1.2rem', display: 'block', marginBottom: '0.25rem' }}>🎉</span>
+                )}
+                {section.recommendation}
+              </div>
+            ) : (
+              section.items.map((item, idx) => (
               <div
                 key={item.finding.id}
                 style={{
@@ -342,7 +367,8 @@ export function RecommendationRoadmap({ assessments }: RecommendationRoadmapProp
                   )}
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
         </div>
       ))}
