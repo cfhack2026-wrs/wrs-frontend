@@ -157,6 +157,27 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
   const images = Array.isArray(finding.details.images)
     ? (finding.details.images as { src: string; format: string }[])
     : [];
+  const co2Data = (finding.identifier === 'sustainability.carbon-footprint' && finding.details.co2 && typeof finding.details.co2 === 'object')
+    ? (finding.details.co2 as {
+        total: number;
+        networkCO2e: number;
+        dataCenterCO2e: number;
+        firstVisitCO2e: number;
+        returnVisitCO2e: number;
+        totalEmbodiedCO2e: number;
+        consumerDeviceCO2e: number;
+        networkEmbodiedCO2e: number;
+        totalOperationalCO2e: number;
+        dataCenterEmbodiedCO2e: number;
+        networkOperationalCO2e: number;
+        dataCenterOperationalCO2e: number;
+        consumerDeviceEmbodiedCO2e: number;
+        consumerDeviceOperationalCO2e: number;
+      })
+    : null;
+  const greenEnergyUsed = typeof finding.details.green_energy_used === 'boolean'
+    ? finding.details.green_energy_used
+    : null;
 
   const wcagTags = extractWcagTags(tags);
   const statusCls = impact
@@ -392,6 +413,158 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
               )}
             </div>
           )}
+
+          {/* Carbon footprint breakdown */}
+          {co2Data && (() => {
+            const fmt = (v: number) => v.toFixed(3);
+            const total = co2Data.total;
+            // Rating thresholds: < 0.5g = good, < 1g = ok, >= 1g = bad
+            const co2Color = total < 0.5 ? '#3dd68c' : total < 1.0 ? '#f59e0b' : '#f43f5e';
+            const co2Bg   = total < 0.5 ? 'rgba(61,214,140,0.10)' : total < 1.0 ? 'rgba(245,158,11,0.10)' : 'rgba(244,63,94,0.10)';
+            const co2Border = total < 0.5 ? 'rgba(61,214,140,0.30)' : total < 1.0 ? 'rgba(245,158,11,0.30)' : 'rgba(244,63,94,0.30)';
+
+            const maxSegment = Math.max(co2Data.dataCenterCO2e, co2Data.networkCO2e, co2Data.consumerDeviceCO2e);
+            const pct = (v: number) => maxSegment > 0 ? Math.round((v / maxSegment) * 100) : 0;
+
+            const segments = [
+              {
+                label: 'Data Centers',
+                icon: '🏢',
+                total: co2Data.dataCenterCO2e,
+                operational: co2Data.dataCenterOperationalCO2e,
+                embodied: co2Data.dataCenterEmbodiedCO2e,
+                color: '#38bdf8',
+                note: '22% of internet energy',
+              },
+              {
+                label: 'Networks',
+                icon: '🌐',
+                total: co2Data.networkCO2e,
+                operational: co2Data.networkOperationalCO2e,
+                embodied: co2Data.networkEmbodiedCO2e,
+                color: '#a695ff',
+                note: '24% of internet energy',
+              },
+              {
+                label: 'User Devices',
+                icon: '💻',
+                total: co2Data.consumerDeviceCO2e,
+                operational: co2Data.consumerDeviceOperationalCO2e,
+                embodied: co2Data.consumerDeviceEmbodiedCO2e,
+                color: '#3dd68c',
+                note: '54% of internet energy',
+              },
+            ];
+
+            return (
+              <div style={{ marginBottom: 14 }}>
+                <div className="fix-label" style={{ marginBottom: 10 }}>Carbon Footprint (SWDMv4)</div>
+
+                {/* Total CO2e hero */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 14,
+                  background: co2Bg,
+                  border: `1px solid ${co2Border}`,
+                  borderRadius: 10,
+                  padding: '0.9rem 1.1rem',
+                  marginBottom: 12,
+                }}>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 700, color: co2Color, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>
+                    {fmt(total)}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: co2Color }}>gCO₂e per page view</div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>
+                      First visit: {fmt(co2Data.firstVisitCO2e)} g · Return visit: {fmt(co2Data.returnVisitCO2e)} g
+                    </div>
+                  </div>
+                  {greenEnergyUsed !== null && (
+                    <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
+                      <span style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 600,
+                        color: greenEnergyUsed ? '#3dd68c' : '#f43f5e',
+                        background: greenEnergyUsed ? 'rgba(61,214,140,0.12)' : 'rgba(244,63,94,0.12)',
+                        border: `1px solid ${greenEnergyUsed ? 'rgba(61,214,140,0.35)' : 'rgba(244,63,94,0.35)'}`,
+                        borderRadius: 100,
+                        padding: '3px 10px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                      }}>
+                        {greenEnergyUsed ? '⚡ Green hosting' : '⚠ Non-green hosting'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Three-segment breakdown */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {segments.map((seg) => (
+                    <div key={seg.label} style={{
+                      background: 'var(--navy-mid)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 8,
+                      padding: '0.65rem 0.9rem',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                        <span style={{ fontSize: '0.95rem' }} aria-hidden="true">{seg.icon}</span>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--text-base)', flex: 1 }}>{seg.label}</span>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{seg.note}</span>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem', fontWeight: 600, color: seg.color }}>
+                          {fmt(seg.total)} g
+                        </span>
+                      </div>
+                      {/* Stacked bar: operational + embodied */}
+                      <div style={{ height: 5, borderRadius: 3, background: 'var(--border)', overflow: 'hidden', position: 'relative' }}>
+                        <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${pct(seg.total)}%`, background: seg.color, borderRadius: 3, opacity: 0.85 }} />
+                      </div>
+                      <div style={{ display: 'flex', gap: 12, marginTop: 5 }}>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)' }}>
+                          Operational: <span style={{ color: seg.color, fontFamily: "'DM Mono', monospace" }}>{fmt(seg.operational)} g</span>
+                        </span>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)' }}>
+                          Embodied: <span style={{ color: 'var(--text-muted)', fontFamily: "'DM Mono', monospace" }}>{fmt(seg.embodied)} g</span>
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Operational vs embodied totals */}
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <div style={{
+                    flex: 1,
+                    background: 'var(--navy-mid)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    padding: '0.5rem 0.8rem',
+                    textAlign: 'center',
+                  }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginBottom: 2 }}>Total Operational</div>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.85rem', fontWeight: 600, color: '#38bdf8' }}>
+                      {fmt(co2Data.totalOperationalCO2e)} g
+                    </div>
+                  </div>
+                  <div style={{
+                    flex: 1,
+                    background: 'var(--navy-mid)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    padding: '0.5rem 0.8rem',
+                    textAlign: 'center',
+                  }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginBottom: 2 }}>Total Embodied</div>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                      {fmt(co2Data.totalEmbodiedCO2e)} g
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* EAA reference */}
           {wcagTags.length > 0 && (
