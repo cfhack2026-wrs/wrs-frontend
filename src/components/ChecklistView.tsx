@@ -248,7 +248,7 @@ function categoryScore(assessments: Assessment[]): { passed: number; failed: num
   return { passed, failed, total, pct };
 }
 
-function AssessmentPanel({ assessment, meta }: { assessment: Assessment; meta: ReturnType<typeof fallbackMeta> }) {
+function AssessmentPanel({ assessment, meta, showHeader = true }: { assessment: Assessment; meta: ReturnType<typeof fallbackMeta>; showHeader?: boolean }) {
   const { passed, total, pct } = categoryScore([assessment]);
   const allFindings = assessment.findings;
 
@@ -271,7 +271,7 @@ function AssessmentPanel({ assessment, meta }: { assessment: Assessment; meta: R
   return (
     <div>
       {/* Category header */}
-      <div
+      {showHeader && <div
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -349,7 +349,7 @@ function AssessmentPanel({ assessment, meta }: { assessment: Assessment; meta: R
             </>
           )}
         </div>
-      </div>
+      </div>}
 
       {/* Sustainability / no findings */}
       {assessment.status === 'completed' && allFindings.length === 0 && (
@@ -473,8 +473,8 @@ export function ChecklistView({ assessments }: ChecklistViewProps) {
         const group = grouped.get(key)!;
         return (
           <div key={key}>
-            {group.map((assessment) => (
-              <AssessmentPanel key={assessment.id} assessment={assessment} meta={m} />
+            {group.map((assessment, i) => (
+              <AssessmentPanel key={assessment.id} assessment={assessment} meta={m} showHeader={i === 0} />
             ))}
           </div>
         );
