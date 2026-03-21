@@ -93,7 +93,7 @@ function HomePage() {
         <p
           role="alert"
           className="mono text-xs"
-          style={{ color: 'rgba(248,113,113,0.9)' }}
+          style={{ color: 'var(--error-text)' }}
         >
           ⚠ {error}
         </p>

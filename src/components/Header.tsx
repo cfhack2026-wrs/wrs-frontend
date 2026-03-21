@@ -34,7 +34,7 @@ export function Header({ onAboutClick }: HeaderProps) {
           style={{
             border: '1px solid var(--border)',
             background: 'rgba(255,255,255,0.04)',
-            color: 'rgba(148,163,184,0.7)',
+            color: 'var(--ui-muted)',
           }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none"
@@ -51,7 +51,7 @@ export function Header({ onAboutClick }: HeaderProps) {
           style={{
             border: '1px solid var(--border)',
             background: 'rgba(255,255,255,0.04)',
-            color: 'rgba(148,163,184,0.7)',
+            color: 'var(--ui-muted)',
             fontFamily: "'DM Mono', monospace",
             fontSize: '0.75rem',
           }}

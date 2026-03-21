@@ -5,7 +5,7 @@ export function ScanProgressBanner() {
         className="rounded-xl px-4 py-3 space-y-2.5"
         style={{ background: 'rgba(34,211,238,0.05)', border: '1px solid rgba(34,211,238,0.15)' }}
       >
-        <p className="mono text-xs" style={{ color: 'var(--cyan)' }}>
+        <p className="mono text-xs" style={{ color: 'var(--accent-text)' }}>
           Scanning — more checks in progress…
         </p>
         <div
