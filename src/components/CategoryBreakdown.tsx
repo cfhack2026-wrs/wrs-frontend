@@ -74,8 +74,7 @@ function normalizeScore(assessments: Assessment[]): number | null {
     .filter((a) => a.status === 'completed' && typeof a.details?.score_percent === 'number')
     .map((a) => a.details!.score_percent as number);
   if (scores.length === 0) {
-    const allCompleted = assessments.length > 0 && assessments.every((a) => a.status === 'completed');
-    return allCompleted ? 100 : null;
+    return null;
   }
   return Math.round(scores.reduce((s, n) => s + n, 0) / scores.length);
 }
