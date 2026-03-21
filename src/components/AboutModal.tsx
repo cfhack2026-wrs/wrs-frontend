@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import logoHorizontalDark from '/logo_horizontal_dark.png';
-import logoHorizontalLight from '/logo_horizontal_light.png';
+import logoHorizontalDark from '/logo_white_transparent.png';
+import logoHorizontalLight from '/logo_black_transparent.png';
 
 interface AboutModalProps {
   onClose: () => void;
