@@ -65,7 +65,7 @@ function HomePage() {
     <PageLayout showAbout={showAbout} setShowAbout={setShowAbout}>
       <div className="text-center space-y-3 max-w-xl animate-fade-up">
         <p
-          className="mono text-xs uppercase tracking-widest"
+          className="sm:hidden mono text-xs uppercase tracking-widest"
           style={{ color: 'var(--cyan)', letterSpacing: '0.15em' }}
         >
           Web Responsibility Scanner

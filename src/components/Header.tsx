@@ -15,15 +15,16 @@ export function Header({ onAboutClick }: HeaderProps) {
       className="relative z-10 px-6 py-4 flex items-center justify-between backdrop-blur-sm"
       style={{ borderBottom: '1px solid var(--border)' }}
     >
-      <h1>
-        <Link to="/">
-          <img
-            src={theme === 'dark' ? logoHorizontalDark : logoHorizontalLight}
-            alt="Website Responsibility Scanner"
-            className="h-18 w-auto"
-          />
-        </Link>
-      </h1>
+      <Link to="/" className="flex items-center gap-4">
+        <img
+          src={theme === 'dark' ? logoHorizontalDark : logoHorizontalLight}
+          alt="Website Responsibility Scanner"
+          className="h-18 w-auto"
+        />
+        <span className="hidden sm:block text-2xl font-bold" style={{ color: 'var(--ui-text)' }}>
+          Website Responsibility Scanner
+        </span>
+      </Link>
 
       <div className="flex items-center gap-2">
         <Link
