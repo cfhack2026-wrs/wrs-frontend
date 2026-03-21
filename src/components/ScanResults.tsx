@@ -75,6 +75,216 @@ function gradeLabel(score: number): { text: string; color: string; bg: string } 
   return { text: 'Non-Compliant', color: 'var(--eaa-red)', bg: 'var(--eaa-red-bg)' };
 }
 
+// ── Carbon footprint overview ─────────────────────────────────────────────────
+
+function ratingColor(rating: string): { color: string; bg: string } {
+  switch (rating) {
+    case 'A': return { color: 'var(--score-good)', bg: 'var(--eaa-green-bg)' };
+    case 'B': return { color: 'var(--score-good)', bg: 'var(--eaa-green-bg)' };
+    case 'C': return { color: 'var(--eaa-amber)', bg: 'var(--eaa-amber-bg)' };
+    case 'D': return { color: 'var(--eaa-amber)', bg: 'var(--eaa-amber-bg)' };
+    default:  return { color: 'var(--eaa-red)',   bg: 'var(--eaa-red-bg)'   };
+  }
+}
+
+function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] }) {
+  const cfAssessment = assessments.find((a) => a.identifier === 'carbon-footprint');
+  if (!cfAssessment || !cfAssessment.details) return null;
+
+  const details = cfAssessment.details as {
+    rating?: string;
+    co2_per_visit?: number;
+    annual_co2_kg?: number;
+    total_bytes?: number;
+    green_hosting?: boolean;
+    segments?: {
+      dataCenterCO2e?: number;
+      dataCenterOperationalCO2e?: number;
+      dataCenterEmbodiedCO2e?: number;
+      networkCO2e?: number;
+      networkOperationalCO2e?: number;
+      networkEmbodiedCO2e?: number;
+      consumerDeviceCO2e?: number;
+      consumerDeviceOperationalCO2e?: number;
+      consumerDeviceEmbodiedCO2e?: number;
+      firstVisitCO2e?: number;
+      returnVisitCO2e?: number;
+    };
+  };
+
+  // Green hosting: prefer the flag embedded directly in carbon details,
+  // fall back to the companion green-hosting assessment score.
+  const ghAssessment = assessments.find((a) => a.identifier === 'green-hosting');
+  const isGreenHosted =
+    typeof details.green_hosting === 'boolean'
+      ? details.green_hosting
+      : ghAssessment?.status === 'completed' &&
+        (ghAssessment.details as Record<string, unknown> | null)?.score === 1;
+  const hostedBy = (ghAssessment?.details as Record<string, unknown> | null)?.hosted_by as string | undefined;
+
+  const rating = details.rating ?? '?';
+  const { color, bg } = ratingColor(rating);
+
+  const co2Visit  = typeof details.co2_per_visit === 'number' ? details.co2_per_visit : null;
+  const annualCo2 = typeof details.annual_co2_kg === 'number' ? details.annual_co2_kg : null;
+  const pageSizeMb = typeof details.total_bytes === 'number'
+    ? details.total_bytes / 1_048_576
+    : null;
+
+  const seg = details.segments;
+  const dcCO2   = seg?.dataCenterCO2e     ?? 0;
+  const netCO2  = seg?.networkCO2e        ?? 0;
+  const devCO2  = seg?.consumerDeviceCO2e ?? 0;
+  const segTotal = dcCO2 + netCO2 + devCO2;
+  const hasSegments = segTotal > 0;
+
+  const firstVisit  = seg?.firstVisitCO2e  ?? null;
+  const returnVisit = seg?.returnVisitCO2e ?? null;
+
+  const pct = (v: number) => segTotal > 0 ? `${((v / segTotal) * 100).toFixed(1)}%` : '0%';
+
+  const SEGMENT_COLORS = {
+    dc:  { op: '#6366f1', em: '#4f46e5', label: 'Data Center'    },
+    net: { op: '#0ea5e9', em: '#0284c7', label: 'Network'         },
+    dev: { op: '#10b981', em: '#059669', label: 'Consumer Device' },
+  };
+
+  return (
+    <div
+      style={{
+        background: 'var(--navy-card)',
+        border: `1px solid ${color}40`,
+        borderRadius: 16,
+        padding: '1.25rem',
+      }}
+    >
+      {/* ── Header ── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: '1.1rem' }}>🌍</span>
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-dim)' }}>
+            Carbon Footprint
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.25rem 0.75rem', borderRadius: 20, background: bg, border: `1px solid ${color}40` }}>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '1rem', fontWeight: 700, color }}>{rating}</span>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>Carbon Rating</span>
+        </div>
+      </div>
+
+      {/* ── Top-level metrics ── */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: hasSegments ? '1rem' : 0 }}>
+        {co2Visit !== null && (
+          <div style={{ flex: '1 1 110px', background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.65rem 0.85rem' }}>
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color }}>{co2Visit.toFixed(3)} g</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>CO₂ per visit</div>
+          </div>
+        )}
+        {annualCo2 !== null && (
+          <div style={{ flex: '1 1 130px', background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.65rem 0.85rem' }}>
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-base)' }}>{annualCo2.toFixed(2)} kg</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>CO₂/year (10k visitors/mo)</div>
+          </div>
+        )}
+        {pageSizeMb !== null && (
+          <div style={{ flex: '1 1 90px', background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.65rem 0.85rem' }}>
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-base)' }}>{pageSizeMb.toFixed(2)} MB</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>Page transfer size</div>
+          </div>
+        )}
+        <div style={{ flex: '1 1 130px', background: isGreenHosted ? 'var(--eaa-green-bg)' : 'var(--navy-mid)', borderRadius: 10, border: `1px solid ${isGreenHosted ? 'var(--score-good)' : 'var(--border)'}40`, padding: '0.65rem 0.85rem' }}>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color: isGreenHosted ? 'var(--score-good)' : 'var(--text-muted)' }}>
+            {isGreenHosted ? '✔' : '✘'}
+          </div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>
+            {isGreenHosted ? `Green hosting${hostedBy ? ` (${hostedBy})` : ''}` : 'No green hosting detected'}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Segment breakdown (only when SWDMv4 segment data is present) ── */}
+      {hasSegments && (
+        <div style={{ background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.75rem 0.9rem' }}>
+          <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-dim)', marginBottom: '0.6rem' }}>
+            Emissions by system segment
+          </div>
+
+          {/* Stacked proportional bar */}
+          <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', marginBottom: '0.65rem', gap: 1 }}>
+            {[
+              { value: dcCO2,  color: SEGMENT_COLORS.dc.op,  label: SEGMENT_COLORS.dc.label  },
+              { value: netCO2, color: SEGMENT_COLORS.net.op, label: SEGMENT_COLORS.net.label },
+              { value: devCO2, color: SEGMENT_COLORS.dev.op, label: SEGMENT_COLORS.dev.label },
+            ].map(({ value, color: c, label }) => (
+              <div
+                key={label}
+                title={`${label}: ${(value * 1000).toFixed(2)} mgCO₂e (${pct(value)})`}
+                style={{ width: pct(value), background: c, transition: 'width 0.4s ease', minWidth: value > 0 ? 2 : 0 }}
+              />
+            ))}
+          </div>
+
+          {/* Legend rows */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {[
+              { value: dcCO2,  opVal: seg?.dataCenterOperationalCO2e      ?? 0, emVal: seg?.dataCenterEmbodiedCO2e      ?? 0, ...SEGMENT_COLORS.dc,  icon: '🏢' },
+              { value: netCO2, opVal: seg?.networkOperationalCO2e          ?? 0, emVal: seg?.networkEmbodiedCO2e          ?? 0, ...SEGMENT_COLORS.net, icon: '📡' },
+              { value: devCO2, opVal: seg?.consumerDeviceOperationalCO2e   ?? 0, emVal: seg?.consumerDeviceEmbodiedCO2e   ?? 0, ...SEGMENT_COLORS.dev, icon: '💻' },
+            ].map(({ value, opVal, emVal, op, em, label, icon }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: '0.8rem', width: 18 }}>{icon}</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', flex: '0 0 115px' }}>{label}</span>
+                {/* mini bar */}
+                <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'var(--border)', overflow: 'hidden', position: 'relative' }}>
+                  <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: pct(value), background: op, borderRadius: 3 }} />
+                </div>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.72rem', color: op, minWidth: 42, textAlign: 'right' }}>
+                  {pct(value)}
+                </span>
+                {/* operational / embodied sub-label */}
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', minWidth: 135, whiteSpace: 'nowrap' }}>
+                  <span style={{ color: op }}>{(opVal * 1000).toFixed(1)}</span>
+                  {' '}op · <span style={{ color: em }}>{(emVal * 1000).toFixed(1)}</span> emb mgCO₂e
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* First visit vs return visit */}
+          {(firstVisit !== null || returnVisit !== null) && (
+            <div style={{ display: 'flex', gap: 8, marginTop: '0.75rem', flexWrap: 'wrap' }}>
+              {firstVisit !== null && (
+                <div style={{ flex: '1 1 110px', background: 'var(--navy-card)', borderRadius: 8, border: '1px solid var(--border)', padding: '0.5rem 0.7rem' }}>
+                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-base)' }}>
+                    {(firstVisit * 1000).toFixed(0)} mg
+                  </div>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 1 }}>First visit CO₂e</div>
+                </div>
+              )}
+              {returnVisit !== null && (
+                <div style={{ flex: '1 1 110px', background: 'var(--navy-card)', borderRadius: 8, border: '1px solid var(--border)', padding: '0.5rem 0.7rem' }}>
+                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.9rem', fontWeight: 700, color: 'var(--score-good)' }}>
+                    {(returnVisit * 1000).toFixed(0)} mg
+                  </div>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 1 }}>Return visit CO₂e</div>
+                </div>
+              )}
+              {firstVisit !== null && returnVisit !== null && (
+                <div style={{ flex: '1 1 130px', background: 'var(--navy-card)', borderRadius: 8, border: '1px solid var(--border)', padding: '0.5rem 0.7rem' }}>
+                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.9rem', fontWeight: 700, color: 'var(--score-good)' }}>
+                    −{(((firstVisit - returnVisit) / firstVisit) * 100).toFixed(0)}%
+                  </div>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 1 }}>Saved on return (caching)</div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 interface ScanResultsProps {
@@ -288,6 +498,9 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
           </div>
         </div>
       </div>
+
+      {/* Carbon footprint overview */}
+      <CarbonFootprintOverview assessments={scan.assessments} />
 
       {/* Category breakdown */}
       <CategoryBreakdown assessments={scan.assessments} />
