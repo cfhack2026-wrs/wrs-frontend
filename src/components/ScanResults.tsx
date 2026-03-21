@@ -22,7 +22,11 @@ function downloadResults(scan: Scan) {
 
 function buildShareUrl(scanId: string): string {
   const { protocol, host } = window.location;
-  return `${protocol}//${host}/#/scan/${scanId}`;
+  let baseUrl = 'https://cfhack2026-wrs.github.io/wrs-frontend';
+  if (host.includes('localhost')){
+    baseUrl = `${protocol}//${host}`;
+  }
+  return `${baseUrl}/#/scan/${scanId}`;
 }
 
 function exportPDF() {
