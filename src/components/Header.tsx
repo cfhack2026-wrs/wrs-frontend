@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import logoHorizontalDark from '/logo_horizontal_dark.png';
-import logoHorizontalLight from '/logo_horizontal_light.png';
+import logoHorizontalDark from '/logo_white_transparent.png';
+import logoHorizontalLight from '/logo_black_transparent.png';
 import { useTheme } from '../hooks/useTheme';
 
 interface HeaderProps {
@@ -20,7 +20,7 @@ export function Header({ onAboutClick }: HeaderProps) {
           <img
             src={theme === 'dark' ? logoHorizontalDark : logoHorizontalLight}
             alt="Website Responsibility Scanner"
-            className="h-9 w-auto"
+            className="h-18 w-auto"
           />
         </Link>
       </h1>
