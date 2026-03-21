@@ -31,3 +31,17 @@ export async function getScan(monitorUrl: string): Promise<Scan> {
   const { data } = await response.json();
   return data;
 }
+
+export async function getScanById(id: string): Promise<Scan> {
+  const response = await fetch(`${BASE_URL}/scans/${id}`, {
+    headers: { Accept: 'application/json' },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+
+  const { data } = await response.json();
+  data.assessments ??= [];
+  return data;
+}
