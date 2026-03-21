@@ -6,30 +6,52 @@
 
 /* ── Design tokens — dark (default) ── */
 :root {
-  --cyan:       #22d3ee;
-  --cyan-dim:   #0891b2;
-  --navy:       #0a0f1e;
-  --navy-mid:   #0d1525;
-  --navy-card:  #111827;
-  --grid-line:  rgba(34,211,238,0.06);
-  --border:     rgba(34,211,238,0.12);
-  --border-hi:  rgba(34,211,238,0.30);
-  --text-base:  #e2e8f0;
-  --text-muted: rgba(148,163,184,0.65);
-  --text-dim:   rgba(148,163,184,0.40);
+  --cyan:         #22d3ee;
+  --cyan-dim:     #0891b2;
+  --navy:         #0a0f1e;
+  --navy-mid:     #0d1525;
+  --navy-card:    #111827;
+  --grid-line:    rgba(34,211,238,0.06);
+  --border:       rgba(34,211,238,0.12);
+  --border-hi:    rgba(34,211,238,0.30);
+  --text-base:    #e2e8f0;
+  /* raised from 0.65 → 0.85 to clear 4.5:1 on --navy */
+  --text-muted:   rgba(148,163,184,0.85);
+  /* raised from 0.40 → 0.60 to clear 3:1 on --navy-card for labels */
+  --text-dim:     rgba(148,163,184,0.60);
+  /* semantic color tokens — dark */
+  --accent-text:  #22d3ee;          /* cyan — fine on dark */
+  --error-text:   #fca5a5;          /* red-300: 5.8:1 on --navy-card */
+  --success-text: #86efac;          /* green-300: 6.1:1 on --navy-card */
+  --warning-text: #fcd34d;          /* amber-300: 7.2:1 on --navy-card */
+  --ui-muted:     #94a3b8;          /* slate-400: 4.6:1 on --navy — header buttons */
+  --score-good:   #4ade80;          /* green-400: 5.3:1 on --navy-card */
+  --score-ok:     #fbbf24;          /* amber-400: 8.5:1 on --navy-card */
+  --score-bad:    #f87171;          /* red-400: 4.5:1 on --navy-card */
 }
 
 /* ── Light mode overrides ── */
 :root:not(.dark) {
-  --navy:       #f0f5fa;
-  --navy-mid:   #e8eef5;
-  --navy-card:  #ffffff;
-  --grid-line:  rgba(14,116,144,0.06);
-  --border:     rgba(14,116,144,0.15);
-  --border-hi:  rgba(14,116,144,0.35);
-  --text-base:  #0f172a;
-  --text-muted: rgba(51,65,85,0.75);
-  --text-dim:   rgba(71,85,105,0.55);
+  --navy:         #f0f5fa;
+  --navy-mid:     #e8eef5;
+  --navy-card:    #ffffff;
+  --grid-line:    rgba(14,116,144,0.06);
+  --border:       rgba(14,116,144,0.15);
+  --border-hi:    rgba(14,116,144,0.35);
+  --text-base:    #0f172a;
+  /* raised from 0.75 to solid to clear 4.5:1 on white */
+  --text-muted:   #475569;          /* slate-600: 5.9:1 on white */
+  /* raised from 0.55 to solid to clear 3:1 on white */
+  --text-dim:     #64748b;          /* slate-500: 4.6:1 on white */
+  /* semantic color tokens — light */
+  --accent-text:  #0369a1;          /* sky-700: 5.9:1 on white (cyan #22d3ee only 1.6:1 — unusable) */
+  --error-text:   #b91c1c;          /* red-700: 5.8:1 on white */
+  --success-text: #15803d;          /* green-700: 5.1:1 on white */
+  --warning-text: #a16207;          /* amber-700: 5.0:1 on white */
+  --ui-muted:     #475569;          /* slate-600: 5.9:1 on light bg */
+  --score-good:   #16a34a;          /* green-600: 5.1:1 on white */
+  --score-ok:     #a16207;          /* amber-700: 5.0:1 on white */
+  --score-bad:    #b91c1c;          /* red-700: 5.8:1 on white */
 }
 
 /* ── Base ── */
@@ -98,8 +120,8 @@ code, .mono {
   background: #ffffff;
 }
 .scan-input.error {
-  border-color: rgba(248,113,113,0.45);
-  box-shadow: 0 0 0 3px rgba(248,113,113,0.08);
+  border-color: var(--error-text);
+  box-shadow: 0 0 0 3px rgba(185,28,28,0.10);
 }
 .scan-input:disabled { opacity: 0.45; cursor: not-allowed; }
 
@@ -107,7 +129,7 @@ code, .mono {
 .scan-btn {
   background: var(--cyan);
   border-radius: 12px;
-  color: var(--navy);
+  color: #0a0f1e; /* always dark text on cyan for sufficient contrast in both modes */
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   font-size: 0.95rem;
@@ -159,6 +181,7 @@ code, .mono {
 
 /* ── Score ring track color ── */
 .score-track { color: rgba(34,211,238,0.10); }
+.score-arc { transition: stroke-dashoffset 0.7s cubic-bezier(0.16,1,0.3,1); }
 
 /* ── Ticker scroll ── */
 @keyframes ticker-scroll {

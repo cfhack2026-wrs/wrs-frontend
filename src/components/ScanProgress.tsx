@@ -36,10 +36,10 @@ export function ScanProgress({ scan }: ScanProgressProps) {
             className="mono text-xs shrink-0 font-medium"
             style={{
               color:
-                scan.status === 'completed'        ? '#4ade80' :
-                scan.status === 'failed'           ? 'rgba(248,113,113,0.9)' :
-                scan.status === 'completed_with_errors' ? '#fbbf24' :
-                'var(--cyan)',
+                scan.status === 'completed'             ? 'var(--score-good)' :
+                scan.status === 'failed'                ? 'var(--error-text)' :
+                scan.status === 'completed_with_errors' ? 'var(--score-ok)' :
+                'var(--accent-text)',
             }}
           >
             {STATUS_LABEL[scan.status] ?? scan.status}
