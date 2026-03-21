@@ -174,7 +174,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/scan/:id" element={<ScanPage />} />
-        <Route path="/:id" element={<ScanPage />} />
       </Routes>
     </BrowserRouter>
   );
