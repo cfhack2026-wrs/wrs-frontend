@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createScan, getScan, getScanById } from '../api/scanner';
-import type { Scan, ScanStatus } from '../types/scanner';
+import { TERMINAL_STATUSES } from '../types/scanner';
+import type { Scan } from '../types/scanner';
 
-const TERMINAL_STATUSES: ScanStatus[] = ['completed', 'completed_with_errors', 'failed'];
 const POLL_INTERVAL_MS = 2000;
+const MAX_POLL_FAILURES = 3;
 
 interface UseScanResult {
   scan: Scan | null;
@@ -18,6 +19,7 @@ export function useScan(initialId?: string): UseScanResult {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const failCountRef = useRef(0);
 
   const stopPolling = useCallback(() => {
     if (pollRef.current !== null) {
@@ -29,9 +31,11 @@ export function useScan(initialId?: string): UseScanResult {
   useEffect(() => stopPolling, [stopPolling]);
 
   const poll = useCallback((monitorUrl: string) => {
+    failCountRef.current = 0;
     pollRef.current = setInterval(async () => {
       try {
         const updated = await getScan(monitorUrl);
+        failCountRef.current = 0;
         setScan(updated);
 
         if (TERMINAL_STATUSES.includes(updated.status)) {
@@ -39,9 +43,12 @@ export function useScan(initialId?: string): UseScanResult {
           setIsLoading(false);
         }
       } catch {
-        stopPolling();
-        setIsLoading(false);
-        setError('Failed to fetch scan status. Please try again.');
+        failCountRef.current += 1;
+        if (failCountRef.current >= MAX_POLL_FAILURES) {
+          stopPolling();
+          setIsLoading(false);
+          setError('Failed to fetch scan status. Please try again.');
+        }
       }
     }, POLL_INTERVAL_MS);
   }, [stopPolling]);
@@ -56,8 +63,8 @@ export function useScan(initialId?: string): UseScanResult {
             poll(data.monitor);
           }
         })
-        .catch(() => {
-          setError('Failed to load scan results.');
+        .catch((err) => {
+          setError(err instanceof Error ? err.message : 'Failed to load scan results.');
         })
         .finally(() => {
           setIsLoading(false);
