@@ -3,10 +3,10 @@ interface ScoreRingProps {
   size?: number;
 }
 
-function scoreColor(score: number): string {
-  if (score >= 90) return '#4ade80';  // green
-  if (score >= 50) return '#fbbf24';  // amber
-  return '#f87171';                   // red
+function scoreColorVar(score: number): string {
+  if (score >= 90) return 'var(--score-good)';
+  if (score >= 50) return 'var(--score-ok)';
+  return 'var(--score-bad)';
 }
 
 export function ScoreRing({ score, size = 88 }: ScoreRingProps) {
@@ -14,7 +14,7 @@ export function ScoreRing({ score, size = 88 }: ScoreRingProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - score / 100);
-  const color = scoreColor(score);
+  const color = scoreColorVar(score);
 
   return (
     <svg
@@ -39,13 +39,13 @@ export function ScoreRing({ score, size = 88 }: ScoreRingProps) {
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke={color}
+        style={{ stroke: color }}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeDasharray={circumference}
         strokeDashoffset={offset}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        style={{ transition: 'stroke-dashoffset 0.7s cubic-bezier(0.16,1,0.3,1)' }}
+        className="score-arc"
       />
       {/* Score label */}
       <text
@@ -56,7 +56,7 @@ export function ScoreRing({ score, size = 88 }: ScoreRingProps) {
         fontSize={size * 0.23}
         fontWeight="600"
         fontFamily="'DM Mono', monospace"
-        fill={color}
+        style={{ fill: color }}
       >
         {score}
       </text>
