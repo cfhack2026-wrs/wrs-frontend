@@ -2,6 +2,36 @@ import type { Assessment, Scan } from '../types/scanner';
 import { CategoryCard } from './CategoryCard';
 import { ScoreRing } from './ScoreRing';
 
+function downloadResults(scan: Scan) {
+  const data = JSON.stringify({
+    website: scan.url,
+    scanUrl: scan.monitor,
+    status: scan.status,
+    assessments: scan.assessments,
+  }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `scan-results-${new URL(scan.url).hostname}-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function shareUrl(scan: Scan) {
+  const url = scan.monitor
+  const shareData = {
+    title: `Scan Results for ${new URL(scan.url).hostname}`,
+    text: `Check out the scan results for ${scan.url}`,
+    url,
+  };
+  if (navigator.share && navigator.canShare?.(shareData)) {
+    await navigator.share(shareData);
+  } else {
+    await navigator.clipboard.writeText(`${window.location.host}/scan/${scan.id}`);
+  }
+}
+
 interface ScanResultsProps {
   scan: Scan;
   isScanning?: boolean;
@@ -157,6 +187,29 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
 
   return (
     <section className="w-full max-w-4xl space-y-5 animate-fade-up" aria-label="Scan results">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-xs text-gray-400 dark:text-gray-500 font-mono break-all">{scan.url}</p>
+        <div className="flex items-center gap-2">
+          <button
+              onClick={() => downloadResults(scan)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/5 rounded-lg hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download
+          </button>
+          <button
+              onClick={() => shareUrl(scan)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/5 rounded-lg hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            Share
+          </button>
+        </div>
+      </div>
 
       {/* URL breadcrumb */}
       <p className="mono text-xs break-all" style={{ color: 'var(--text-dim)' }}>

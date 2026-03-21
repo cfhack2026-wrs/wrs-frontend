@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { createScan, getScan } from '../api/scanner';
+import { createScan, getScan, getScanById } from '../api/scanner';
 import type { Scan, ScanStatus } from '../types/scanner';
 
 const TERMINAL_STATUSES: ScanStatus[] = ['completed', 'completed_with_errors', 'failed'];
@@ -13,7 +13,7 @@ interface UseScanResult {
   reset: () => void;
 }
 
-export function useScan(): UseScanResult {
+export function useScan(initialId?: string): UseScanResult {
   const [scan, setScan] = useState<Scan | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +45,25 @@ export function useScan(): UseScanResult {
       }
     }, POLL_INTERVAL_MS);
   }, [stopPolling]);
+
+  useEffect(() => {
+    if (initialId) {
+      setIsLoading(true);
+      getScanById(initialId)
+        .then((data) => {
+          setScan(data);
+          if (!TERMINAL_STATUSES.includes(data.status)) {
+            poll(data.monitor);
+          }
+        })
+        .catch(() => {
+          setError('Failed to load scan results.');
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [initialId, poll, stopPolling]);
 
   const submit = useCallback(async (url: string) => {
     stopPolling();
