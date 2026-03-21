@@ -58,10 +58,6 @@ function estimateEffort(finding: Finding): 'easy' | 'medium' | 'significant' {
   return 'significant';
 }
 
-function isEasyWin(item: RoadmapItem): boolean {
-  return item.effort === 'easy' && (item.priority === 'critical' || item.priority === 'high');
-}
-
 function buildRoadmap(assessments: Assessment[]): RoadmapSection[] {
   const merged = mergeFindings(assessments);
   
@@ -89,37 +85,39 @@ function buildRoadmap(assessments: Assessment[]): RoadmapSection[] {
     return EFFORT_ORDER[a.effort] - EFFORT_ORDER[b.effort];
   });
 
-  const easyWins = items.filter((i) => isEasyWin(i));
-  const quickFixes = items.filter((i) => !isEasyWin(i) && i.effort === 'medium' && (i.priority === 'critical' || i.priority === 'high'));
-  const majorEffort = items.filter((i) => i.effort === 'significant' || i.priority === 'medium' || i.priority === 'low');
+  const phase1 = items.filter((i) => i.priority === 'critical' || (i.priority === 'high' && i.effort === 'easy'));
+  const phase2 = items.filter((i) => i.priority === 'high' && i.effort !== 'easy').concat(
+    items.filter((i) => i.priority === 'medium' && i.effort === 'easy')
+  );
+  const phase3 = items.filter((i) => !phase1.includes(i) && !phase2.includes(i));
 
   return [
     {
-      id: 'easy-wins',
-      label: 'Easy Wins',
-      icon: '🎯',
+      id: 'phase-1',
+      label: 'Phase 1: Quick Wins',
+      icon: '1',
       color: '#22c55e',
       bg: 'rgba(34,197,94,0.1)',
       borderColor: 'rgba(34,197,94,0.3)',
-      items: easyWins,
+      items: phase1,
     },
     {
-      id: 'quick-fixes',
-      label: 'Quick Fixes',
-      icon: '⚡',
+      id: 'phase-2',
+      label: 'Phase 2: Next Steps',
+      icon: '2',
       color: '#f59e0b',
       bg: 'rgba(245,158,11,0.1)',
       borderColor: 'rgba(245,158,11,0.3)',
-      items: quickFixes,
+      items: phase2,
     },
     {
-      id: 'major-effort',
-      label: 'Plan & Schedule',
-      icon: '📋',
+      id: 'phase-3',
+      label: 'Phase 3: Future Improvements',
+      icon: '3',
       color: '#6366f1',
       bg: 'rgba(99,102,241,0.1)',
       borderColor: 'rgba(99,102,241,0.3)',
-      items: majorEffort,
+      items: phase3,
     },
   ].filter((s) => s.items.length > 0);
 }
@@ -182,7 +180,23 @@ export function RecommendationRoadmap({ assessments }: RecommendationRoadmapProp
               background: section.bg,
             }}
           >
-            <span style={{ fontSize: '1.2rem' }}>{section.icon}</span>
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 8,
+                background: section.bg,
+                border: `1px solid ${section.borderColor}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                color: section.color,
+              }}
+            >
+              {section.icon}
+            </div>
             <span style={{ fontWeight: 600, color: section.color, fontSize: '0.95rem' }}>
               {section.label}
             </span>

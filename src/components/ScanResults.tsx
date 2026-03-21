@@ -297,7 +297,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
         <ViewToggleButton
             active={scanView}
             view="checklist"
-            label="All Issues"
+            label="Checklist"
             icon="📋"
             onClick={() => setScanView('checklist')}
         />
