@@ -66,6 +66,18 @@ function impactSymbol(impact?: string): string {
   return 'i';
 }
 
+const PHASE_META: Record<string, { label: string; color: string; bg: string; border: string; timeline: string }> = {
+  critical: { label: 'Phase 1 — Critical', color: '#f43f5e', bg: 'rgba(244,63,94,0.08)', border: 'rgba(244,63,94,0.30)', timeline: 'Fix immediately' },
+  serious:  { label: 'Phase 2 — Serious',  color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.30)', timeline: 'Week 1–2' },
+  moderate: { label: 'Phase 3 — Moderate', color: '#38bdf8', bg: 'rgba(56,189,248,0.08)',  border: 'rgba(56,189,248,0.30)',  timeline: 'Week 3–4' },
+  minor:    { label: 'Phase 3 — Minor',    color: '#38bdf8', bg: 'rgba(56,189,248,0.08)',  border: 'rgba(56,189,248,0.30)',  timeline: 'Week 3–4' },
+};
+const PHASE_DEFAULT = { label: 'Phase 4 — Informational', color: '#a695ff', bg: 'rgba(124,106,247,0.08)', border: 'rgba(124,106,247,0.30)', timeline: 'Ongoing' };
+
+function phaseMeta(impact?: string) {
+  return (impact ? PHASE_META[impact] : undefined) ?? PHASE_DEFAULT;
+}
+
 function extractWcagTags(tags: string[]): string[] {
   return tags
     .filter((t) => /^wcag\d/.test(t))
@@ -127,22 +139,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
           <div className="check-divider" />
 
           {description && (
-            <p className="check-desc">
-              {description}
-              {helpUrl && (
-                <>
-                  {' '}
-                  <a
-                    href={helpUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ color: 'var(--eaa-blue)', textDecoration: 'underline' }}
-                  >
-                    Learn more ↗
-                  </a>
-                </>
-              )}
-            </p>
+            <p className="check-desc">{description}</p>
           )}
 
           {/* WCAG / standard tags */}
@@ -195,6 +192,47 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
               ⓘ {wcagTags.join(' · ')} · EAA Annex I
             </span>
           )}
+
+          {/* Remediation guidance */}
+          {(() => {
+            const phase = phaseMeta(impact);
+            return (
+              <div
+                className="remediation-panel"
+                style={{ borderColor: phase.color, background: phase.bg }}
+              >
+                <div style={{ fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-dim)', marginBottom: 6 }}>
+                  Remediation
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <span
+                    style={{
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      color: phase.color,
+                      background: `${phase.color}18`,
+                      border: `1px solid ${phase.border}`,
+                      borderRadius: 100,
+                      padding: '2px 10px',
+                    }}
+                  >
+                    {phase.label}
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{phase.timeline}</span>
+                  {helpUrl && (
+                    <a
+                      href={helpUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ fontSize: '0.8rem', color: 'var(--eaa-blue)', marginLeft: 'auto' }}
+                    >
+                      Learn how to fix ↗
+                    </a>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>
@@ -397,7 +435,7 @@ export function ChecklistView({ assessments }: ChecklistViewProps) {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: '1.4rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, 1fr)`, gap: 8, marginBottom: '1.4rem' }}>
         {tabs.map((key) => {
           const m = meta(key);
           const group = grouped.get(key)!;
@@ -407,6 +445,7 @@ export function ChecklistView({ assessments }: ChecklistViewProps) {
               key={key}
               className={`eaa-tab${activeTab === key ? ' active' : ''}`}
               onClick={() => setActiveTab(key)}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               <span aria-hidden="true">{m.icon}</span>
               {m.label.split('(')[0].trim()}

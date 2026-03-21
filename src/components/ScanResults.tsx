@@ -2,7 +2,6 @@ import { useState } from 'react';
 import type { Assessment, Scan } from '../types/scanner';
 import { ScoreRing } from './ScoreRing';
 import { ChecklistView } from './ChecklistView';
-import { RemediationRoadmap } from './RemediationRoadmap';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -81,10 +80,7 @@ interface ScanResultsProps {
   isScanning?: boolean;
 }
 
-type ViewMode = 'checklist' | 'roadmap';
-
 export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
-  const [view, setView] = useState<ViewMode>('checklist');
   const [copied, setCopied] = useState(false);
 
   async function handleShare() {
@@ -145,6 +141,18 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
                 Share
               </>
             )}
+          </button>
+          <button
+            onClick={exportPDF}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+            style={{ color: 'var(--text-muted)', background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Export PDF
           </button>
         </div>
       </div>
@@ -225,42 +233,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
         </div>
       </div>
 
-      {/* Toolbar: view toggle + export */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <div className="view-toggle">
-          <button
-            className={`view-btn${view === 'checklist' ? ' active' : ''}`}
-            onClick={() => setView('checklist')}
-          >
-            ☰&nbsp; Checklist
-          </button>
-          <button
-            className={`view-btn${view === 'roadmap' ? ' active' : ''}`}
-            onClick={() => setView('roadmap')}
-          >
-            ⚑&nbsp; Remediation Roadmap
-          </button>
-        </div>
-        <button
-          onClick={exportPDF}
-          className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg transition-colors"
-          style={{ color: 'var(--text-muted)', background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          Export PDF
-        </button>
-      </div>
-
-      {/* Main view */}
-      {view === 'checklist' ? (
-        <ChecklistView assessments={scan.assessments} />
-      ) : (
-        <RemediationRoadmap assessments={scan.assessments} />
-      )}
+      <ChecklistView assessments={scan.assessments} />
     </section>
   );
 }
