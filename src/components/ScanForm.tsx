@@ -68,7 +68,7 @@ export function ScanForm({ onSubmit, isLoading }: ScanFormProps) {
         <label
           htmlFor="url-input"
           className="block mono text-xs tracking-widest uppercase mb-3"
-          style={{ color: 'var(--cyan)', letterSpacing: '0.12em' }}
+          style={{ color: 'var(--accent-text)', letterSpacing: '0.12em' }}
         >
           Target URL
         </label>
@@ -113,7 +113,7 @@ export function ScanForm({ onSubmit, isLoading }: ScanFormProps) {
             id="url-error"
             role="alert"
             className="mono mt-2 text-xs"
-            style={{ color: 'rgba(248,113,113,0.9)' }}
+            style={{ color: 'var(--error-text)' }}
           >
             ⚠ {error}
           </p>

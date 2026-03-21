@@ -35,3 +35,5 @@ export interface Scan {
   created_at: string | null;
   assessments: Assessment[];
 }
+
+export const TERMINAL_STATUSES: ScanStatus[] = ['completed', 'completed_with_errors', 'failed'];

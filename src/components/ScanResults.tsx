@@ -64,7 +64,12 @@ function FindingsSection({ name, assessments }: { name: string; assessments: Ass
 
       {allFindings.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-xs uppercase tracking-widest text-red-500 font-semibold">Issues</h3>
+          <h3
+            className="mono text-xs uppercase tracking-widest"
+            style={{ color: 'var(--error-text)', letterSpacing: '0.1em' }}
+          >
+            Issues
+          </h3>
           <ul className="space-y-3">
             {allFindings.map((f, i) => {
               const title = typeof f.details.title === 'string' ? f.details.title : formatLabel(f.identifier);
@@ -80,17 +85,13 @@ function FindingsSection({ name, assessments }: { name: string; assessments: Ass
               return (
                 <li
                   key={`${f.id}-${i}`}
-                  className="rounded-xl bg-red-500/5 border border-red-500/15 p-4 space-y-3"
+                  className="rounded-xl p-4 space-y-3 bg-red-500/5 border border-red-500/15"
                 >
                   <div className="flex items-start gap-3">
-                    <svg
-                      className="w-5 h-5 shrink-0 mt-0.5 text-red-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    <svg className="w-5 h-5 shrink-0 mt-0.5"
+                      fill="none" viewBox="0 0 24 24"
+                      stroke="var(--error-text)" strokeWidth={2.5} aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <div className="flex-1 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -171,7 +172,7 @@ function FindingsSection({ name, assessments }: { name: string; assessments: Ass
         <div className="space-y-2">
           <h3
             className="mono text-xs uppercase tracking-widest"
-            style={{ color: 'rgba(74,222,128,0.6)', letterSpacing: '0.1em' }}
+            style={{ color: 'var(--success-text)', letterSpacing: '0.1em' }}
           >
             Passed
           </h3>
@@ -182,14 +183,9 @@ function FindingsSection({ name, assessments }: { name: string; assessments: Ass
               
               return (
                 <li key={a.id} className="flex items-start gap-2 text-sm bg-green-500/5 border border-green-500/10 rounded-lg p-3">
-                  <svg
-                    className="w-4 h-4 shrink-0 mt-0.5 text-green-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24"
+                    stroke="var(--success-text)" strokeWidth={2.5} aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                   <div>
                     <div className="flex items-center gap-2">
@@ -257,16 +253,17 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
     ...(other.length > 0 ? [['__other__', other] as [string, typeof scan.assessments]] : []),
   ];
 
-  const scoreColor = overallScore >= 90 ? '#4ade80' : overallScore >= 50 ? '#fbbf24' : '#f87171';
+  const scoreColor = overallScore >= 90 ? 'var(--score-good)' : overallScore >= 50 ? 'var(--score-ok)' : 'var(--score-bad)';
 
   return (
     <section className="w-full max-w-4xl space-y-5 animate-fade-up" aria-label="Scan results">
       <div className="flex items-center justify-between gap-4">
-        <p className="text-xs text-gray-400 dark:text-gray-500 font-mono break-all">{scan.url}</p>
+        <p className="text-xs font-mono break-all" style={{ color: 'var(--text-muted)' }}>{scan.url}</p>
         <div className="flex items-center gap-2">
           <button
               onClick={() => downloadResults(scan)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/5 rounded-lg hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+              style={{ color: 'var(--text-muted)', background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -275,7 +272,8 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
           </button>
           <button
               onClick={() => shareUrl(scan)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/5 rounded-lg hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+              style={{ color: 'var(--text-muted)', background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -305,7 +303,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
           </p>
           <p className="text-2xl font-semibold" style={{ color: scoreColor }}>
             {overallScore}
-            <span className="text-base font-normal ml-1" style={{ color: 'var(--text-dim)' }}>/100</span>
+            <span className="text-base font-normal ml-1" style={{ color: 'var(--text-muted)' }}>/100</span>
           </p>
           <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
             {isScanning

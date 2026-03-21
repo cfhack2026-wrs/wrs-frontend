@@ -2,6 +2,13 @@ import type { Scan } from '../types/scanner';
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
+function httpError(response: Response, body: Record<string, unknown>): Error {
+  if (response.status === 404) return new Error('Scan not found.');
+  if (response.status === 422) return new Error(typeof body.message === 'string' ? body.message : 'Invalid URL. Please check and try again.');
+  if (response.status >= 500) return new Error('Server error. Please try again later.');
+  return new Error(typeof body.message === 'string' ? body.message : `Request failed: ${response.status}`);
+}
+
 export async function createScan(url: string): Promise<Scan> {
   const response = await fetch(`${BASE_URL}/scans`, {
     method: 'POST',
@@ -10,8 +17,8 @@ export async function createScan(url: string): Promise<Scan> {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error?.message ?? `Request failed: ${response.status}`);
+    const body = await response.json().catch(() => ({}));
+    throw httpError(response, body);
   }
 
   const { data } = await response.json();
@@ -25,10 +32,12 @@ export async function getScan(monitorUrl: string): Promise<Scan> {
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    const body = await response.json().catch(() => ({}));
+    throw httpError(response, body);
   }
 
   const { data } = await response.json();
+  data.assessments ??= [];
   return data;
 }
 
@@ -38,7 +47,8 @@ export async function getScanById(id: string): Promise<Scan> {
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    const body = await response.json().catch(() => ({}));
+    throw httpError(response, body);
   }
 
   const { data } = await response.json();
