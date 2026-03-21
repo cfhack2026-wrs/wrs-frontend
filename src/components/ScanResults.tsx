@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import type { Assessment, Scan } from '../types/scanner';
 import { ScoreRing } from './ScoreRing';
 import { ChecklistView } from './ChecklistView';
+import { mergeFindings } from '../utils/findings';
 import html2pdf from 'html2pdf.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -33,34 +34,31 @@ function buildShareUrl(scanId: string): string {
 // ── Score calculations ────────────────────────────────────────────────────────
 
 function computeStats(assessments: Assessment[]) {
-  const relevant = assessments.filter((a) => a.status !== 'skipped');
+  const relevant = assessments.filter((a) => a.status !== 'skipped' && a.identifier !== 'http-fetch');
 
-  const allFindings = relevant.flatMap((a) => a.findings);
-  const criticalCount = allFindings.filter(
-    (f) => typeof f.details.impact === 'string' && f.details.impact === 'critical',
-  ).length;
-  const seriousCount = allFindings.filter(
-    (f) => typeof f.details.impact === 'string' && f.details.impact === 'serious',
-  ).length;
+  // Group by category, then deduplicate findings within each group
+  const byCategory = new Map<string, Assessment[]>();
+  for (const a of relevant) {
+    const key = a.category ?? a.identifier;
+    if (!byCategory.has(key)) byCategory.set(key, []);
+    byCategory.get(key)!.push(a);
+  }
+  const allFindings = [...byCategory.values()].flatMap(mergeFindings);
+
+  const criticalCount = allFindings.filter((f) => f.details.impact === 'critical').length;
+  const seriousCount  = allFindings.filter((f) => f.details.impact === 'serious').length;
   const totalFindings = allFindings.length;
 
-  // Best available overall score: prefer Lighthouse score_percent, fall back to Axe, then pass ratio
-  const lighthouseAssessment = relevant.find(
-    (a) => a.identifier === 'lighthouse' && typeof a.details?.score_percent === 'number',
-  );
-  const axeAssessment = relevant.find(
-    (a) => a.identifier === 'accessibility' && typeof a.details?.score_percent === 'number',
-  );
+  // Overall score: average of all score_percent values across assessments
+  const scores = relevant
+    .filter((a) => typeof a.details?.score_percent === 'number')
+    .map((a) => a.details!.score_percent as number);
 
-  let overallScore: number;
-  if (lighthouseAssessment && typeof lighthouseAssessment.details?.score_percent === 'number') {
-    overallScore = lighthouseAssessment.details.score_percent as number;
-  } else if (axeAssessment && typeof axeAssessment.details?.score_percent === 'number') {
-    overallScore = axeAssessment.details.score_percent as number;
-  } else {
-    const passed = relevant.filter((a) => a.findings.length === 0 && a.status === 'completed').length;
-    overallScore = relevant.length > 0 ? Math.round((passed / relevant.length) * 100) : 100;
-  }
+  const overallScore = scores.length > 0
+    ? Math.round(scores.reduce((s, n) => s + n, 0) / scores.length)
+    : relevant.length > 0
+      ? Math.round((relevant.filter((a) => a.findings.length === 0 && a.status === 'completed').length / relevant.length) * 100)
+      : 100;
 
   const categories = new Set(relevant.map((a) => a.category ?? a.identifier));
   const isCompliant = criticalCount === 0 && seriousCount === 0;
