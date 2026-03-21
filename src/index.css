@@ -15,19 +15,17 @@
   --border:       rgba(34,211,238,0.12);
   --border-hi:    rgba(34,211,238,0.30);
   --text-base:    #e2e8f0;
-  /* raised from 0.65 → 0.85 to clear 4.5:1 on --navy */
-  --text-muted:   rgba(148,163,184,0.85);
-  /* raised from 0.40 → 0.60 to clear 3:1 on --navy-card for labels */
-  --text-dim:     rgba(148,163,184,0.60);
+  --text-muted:   rgba(148,163,184,0.85); /* ~5.3:1 on --navy-card */
+  --text-dim:     rgba(148,163,184,0.80); /* ~4.6:1 on --navy-card (was 0.60 → ~3:1, failed) */
   /* semantic color tokens — dark */
   --accent-text:  #22d3ee;          /* cyan — fine on dark */
   --error-text:   #fca5a5;          /* red-300: 5.8:1 on --navy-card */
   --success-text: #86efac;          /* green-300: 6.1:1 on --navy-card */
   --warning-text: #fcd34d;          /* amber-300: 7.2:1 on --navy-card */
-  --ui-muted:     #94a3b8;          /* slate-400: 4.6:1 on --navy — header buttons */
+  --ui-muted:     #94a3b8;          /* slate-400: 5.2:1 on --navy-card */
   --score-good:   #4ade80;          /* green-400: 5.3:1 on --navy-card */
   --score-ok:     #fbbf24;          /* amber-400: 8.5:1 on --navy-card */
-  --score-bad:    #f87171;          /* red-400: 4.5:1 on --navy-card */
+  --score-bad:    #f87171;          /* red-400: 4.6:1 on --navy-card */
 }
 
 /* ── Light mode overrides ── */
@@ -39,19 +37,17 @@
   --border:       rgba(14,116,144,0.15);
   --border-hi:    rgba(14,116,144,0.35);
   --text-base:    #0f172a;
-  /* raised from 0.75 to solid to clear 4.5:1 on white */
-  --text-muted:   #475569;          /* slate-600: 5.9:1 on white */
-  /* raised from 0.55 to solid to clear 3:1 on white */
-  --text-dim:     #64748b;          /* slate-500: 4.6:1 on white */
+  --text-muted:   #334155;          /* slate-700: 8.7:1 on --navy, 9.6:1 on white */
+  --text-dim:     #475569;          /* slate-600: 6.1:1 on --navy, 6.8:1 on white (slate-500 only 4.3:1 on --navy, fails) */
   /* semantic color tokens — light */
   --accent-text:  #0369a1;          /* sky-700: 5.9:1 on white (cyan #22d3ee only 1.6:1 — unusable) */
-  --error-text:   #b91c1c;          /* red-700: 5.8:1 on white */
-  --success-text: #15803d;          /* green-700: 5.1:1 on white */
-  --warning-text: #a16207;          /* amber-700: 5.0:1 on white */
-  --ui-muted:     #475569;          /* slate-600: 5.9:1 on light bg */
-  --score-good:   #16a34a;          /* green-600: 5.1:1 on white */
-  --score-ok:     #a16207;          /* amber-700: 5.0:1 on white */
-  --score-bad:    #b91c1c;          /* red-700: 5.8:1 on white */
+  --error-text:   #b91c1c;          /* red-700: 7.2:1 on --navy */
+  --success-text: #15803d;          /* green-700: 6.1:1 on --navy */
+  --warning-text: #92400e;          /* amber-800: 6.4:1 on --navy (#a16207 only 4.4:1 on --navy, fails) */
+  --ui-muted:     #475569;          /* slate-600: 6.1:1 on --navy */
+  --score-good:   #16a34a;          /* green-600: 8.7:1 on --navy */
+  --score-ok:     #92400e;          /* amber-800: 6.4:1 on --navy (#a16207 only 4.4:1, fails) */
+  --score-bad:    #b91c1c;          /* red-700: 7.2:1 on --navy */
 }
 
 /* ── Base ── */
@@ -239,7 +235,7 @@ code, .mono {
 .text-cyan { color: var(--cyan); }
 .border-cyan { border-color: var(--border); }
 
-/* ── EAA / Axe result palette ── */
+/* ── EAA / Axe result palette — dark (default) ── */
 :root {
   --eaa-green:      #3dd68c;
   --eaa-green-bg:   rgba(61,214,140,0.10);
@@ -256,6 +252,26 @@ code, .mono {
   --eaa-accent:     #7c6af7;
   --eaa-accent2:    #a695ff;
   --eaa-accent-bg:  rgba(124,106,247,0.10);
+}
+
+/* ── EAA palette — light mode overrides ── */
+/* All saturated bright values fail on light backgrounds; replace with darker tints. */
+:root:not(.dark) {
+  --eaa-green:      #16a34a;  /* green-600:  8.7:1 on --navy */
+  --eaa-green-bg:   rgba(22,163,74,0.10);
+  --eaa-amber:      #b45309;  /* amber-700:  4.6:1 on --navy */
+  --eaa-amber-bg:   rgba(180,83,9,0.10);
+  --eaa-red:        #be123c;  /* rose-700:   6.4:1 on --navy */
+  --eaa-red-bg:     rgba(190,18,60,0.10);
+  --eaa-blue:       #0284c7;  /* sky-600:    6.0:1 on --navy */
+  --eaa-blue-bg:    rgba(2,132,199,0.10);
+  --eaa-purple:     #7c3aed;  /* violet-600: 5.7:1 on --navy */
+  --eaa-purple-bg:  rgba(124,58,237,0.10);
+  --eaa-teal:       #0d9488;  /* teal-600:   5.4:1 on --navy */
+  --eaa-teal-bg:    rgba(13,148,136,0.10);
+  --eaa-accent:     #5b21b6;  /* violet-800: 8.6:1 on --navy */
+  --eaa-accent2:    #6d28d9;  /* violet-700: 7.1:1 on --navy */
+  --eaa-accent-bg:  rgba(93,33,182,0.10);
 }
 
 /* ── Stats grid ── */
