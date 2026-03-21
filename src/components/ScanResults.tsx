@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import type { Assessment, Scan } from '../types/scanner';
 import { ScoreRing } from './ScoreRing';
+import { LetterGrade } from './LetterGrade';
+import { CategoryBreakdown } from './CategoryBreakdown';
 import { ChecklistView } from './ChecklistView';
 import { mergeFindings } from '../utils/findings';
 import html2pdf from 'html2pdf.js';
@@ -179,9 +181,9 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
         </div>
       </div>
 
-      {/* Score overview: ring + stats grid */}
+      {/* Score overview: grade + ring + stats */}
       <div className="score-overview">
-        {/* Score ring card */}
+        {/* Grade + ring card */}
         <div
           style={{
             background: 'var(--navy-card)',
@@ -193,20 +195,26 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
+            gap: '0.75rem',
           }}
         >
-          <ScoreRing score={stats.overallScore} size={120} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <LetterGrade score={stats.overallScore} size={64} />
+            <div>
+              <ScoreRing score={stats.overallScore} size={88} />
+            </div>
+          </div>
+          <div className="score-grade" style={{ background: grade.bg, color: grade.color }}>
+            {grade.text}
+          </div>
           <p
-            className="mono text-xs uppercase tracking-widest mt-3"
+            className="mono text-xs uppercase tracking-widest"
             style={{ color: 'var(--text-dim)', letterSpacing: '0.12em' }}
           >
             Overall Score
           </p>
-          <div className="score-grade" style={{ background: grade.bg, color: grade.color }}>
-            {grade.text}
-          </div>
           {isScanning && (
-            <p className="text-xs mt-2" style={{ color: 'var(--text-dim)' }}>
+            <p className="text-xs" style={{ color: 'var(--text-dim)' }}>
               Scan in progress…
             </p>
           )}
@@ -254,6 +262,9 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
           </div>
         </div>
       </div>
+
+      {/* Category breakdown */}
+      <CategoryBreakdown assessments={scan.assessments} />
 
       <ChecklistView assessments={scan.assessments} />
     </section>
