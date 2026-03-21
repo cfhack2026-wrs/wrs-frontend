@@ -1,5 +1,12 @@
 import type { Assessment, Finding } from '../types/scanner';
 import { mergeFindings } from '../utils/findings';
+import remediationTexts from '../../a11y_remidiation_texts.json';
+
+const remediationMap = new Map<string, string>(
+  (remediationTexts as { 'rule-id': string; 'plain-english': string }[]).map(
+    (r) => [r['rule-id'], r['plain-english']],
+  ),
+);
 
 export interface RoadmapItem {
   finding: Finding;
@@ -11,6 +18,7 @@ export interface RoadmapItem {
   helpUrl?: string;
   affectedElements: number;
   remediation?: string;
+  solution?: string;
 }
 
 interface RoadmapSection {
@@ -21,6 +29,7 @@ interface RoadmapSection {
   bg: string;
   borderColor: string;
   items: RoadmapItem[];
+  recommendation: string;
 }
 
 interface RecommendationRoadmapProps {
@@ -63,6 +72,7 @@ function buildRoadmap(assessments: Assessment[]): RoadmapSection[] {
   
   const items: RoadmapItem[] = merged.map((f) => {
     const category = assessments.find((a) => a.findings.some((af) => af.id === f.id))?.category ?? 'other';
+    const plainEnglish = remediationMap.get(f.identifier);
     return {
       finding: f,
       priority: getFindingPriority(f),
@@ -73,6 +83,7 @@ function buildRoadmap(assessments: Assessment[]): RoadmapSection[] {
       helpUrl: typeof f.details.help_url === 'string' ? f.details.help_url : undefined,
       affectedElements: getAffectedCount(f),
       remediation: typeof f.details.description === 'string' ? f.details.description : undefined,
+      solution: plainEnglish,
     };
   });
 
@@ -96,10 +107,11 @@ function buildRoadmap(assessments: Assessment[]): RoadmapSection[] {
       id: 'phase-1',
       label: 'Phase 1: Quick Wins',
       icon: '1',
-      color: '#22c55e',
-      bg: 'rgba(34,197,94,0.1)',
-      borderColor: 'rgba(34,197,94,0.3)',
+      color: '#38bdf8',
+      bg: 'rgba(56,189,248,0.12)',
+      borderColor: 'rgba(56,189,248,0.3)',
       items: phase1,
+      recommendation: 'Address these critical and high-priority issues first. They have the biggest impact on accessibility compliance and can be resolved quickly. Start with images without alt text, missing form labels, and color contrast failures.',
     },
     {
       id: 'phase-2',
@@ -109,15 +121,17 @@ function buildRoadmap(assessments: Assessment[]): RoadmapSection[] {
       bg: 'rgba(245,158,11,0.1)',
       borderColor: 'rgba(245,158,11,0.3)',
       items: phase2,
+      recommendation: 'These issues require more planning but are essential for full compliance. Focus on keyboard navigation improvements, ARIA attribute corrections, and heading structure fixes. Consider involving your development team for complex changes.',
     },
     {
       id: 'phase-3',
       label: 'Phase 3: Future Improvements',
       icon: '3',
-      color: '#6366f1',
-      bg: 'rgba(99,102,241,0.1)',
-      borderColor: 'rgba(99,102,241,0.3)',
+      color: '#f87171',
+      bg: 'rgba(248,113,113,0.12)',
+      borderColor: 'rgba(248,113,113,0.3)',
       items: phase3,
+      recommendation: 'These enhancements improve the overall user experience but are lower priority. Schedule them for your next development sprint. Focus on code quality improvements, metatag optimizations, and progressive enhancement features.',
     },
   ].filter((s) => s.items.length > 0);
 }
@@ -259,12 +273,23 @@ export function RecommendationRoadmap({ assessments }: RecommendationRoadmapProp
                       </span>
                     </div>
 
-                    {item.description && (
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.25rem 0 0.5rem', lineHeight: 1.5 }}>
-                        {item.description.length > 120 
-                          ? item.description.substring(0, 120) + '…' 
-                          : item.description}
-                      </p>
+                    {item.solution && (
+                      <div
+                        style={{
+                          marginTop: '0.6rem',
+                          padding: '0.7rem 0.85rem',
+                          background: 'var(--eaa-green-bg)',
+                          border: '1px solid rgba(61,214,140,0.25)',
+                          borderRadius: 8,
+                        }}
+                      >
+                        <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--eaa-green)', marginBottom: 4 }}>
+                          How to fix
+                        </div>
+                        <p style={{ fontSize: '0.82rem', color: 'var(--text-base)', lineHeight: 1.55, margin: 0 }}>
+                          {item.solution}
+                        </p>
+                      </div>
                     )}
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: '0.5rem' }}>
