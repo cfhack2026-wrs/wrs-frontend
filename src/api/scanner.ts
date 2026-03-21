@@ -41,6 +41,20 @@ export async function getScan(monitorUrl: string): Promise<Scan> {
   return data;
 }
 
+export async function getRecentScans(): Promise<Scan[]> {
+  const response = await fetch(`${BASE_URL}/scans`, {
+    headers: { Accept: 'application/json' },
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw httpError(response, body);
+  }
+
+  const { data } = await response.json();
+  return (data as Scan[]).map((s) => ({ ...s, assessments: s.assessments ?? [] }));
+}
+
 export async function getScanById(id: string): Promise<Scan> {
   const response = await fetch(`${BASE_URL}/scans/${id}`, {
     headers: { Accept: 'application/json' },
