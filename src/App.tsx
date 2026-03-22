@@ -9,7 +9,7 @@ import { ScanProgressBanner } from './components/ScanProgressBanner';
 import { ScanResults } from './components/ScanResults';
 import { RecentScans } from './components/RecentScans';
 import { Header } from './components/Header';
-import { AboutPage } from './components/AboutPage';
+import { AboutSection } from './components/AboutSection';
 
 function PageLayout({ children, state, error }: {
   children?: React.ReactNode;
@@ -89,6 +89,8 @@ function HomePage() {
         activeScanId={scan?.id}
       />
 
+      {scan === null && <AboutSection />}
+
       {showFullProgress && <ScanProgress scan={scan!} />}
 
       {error && (
@@ -139,11 +141,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/scan/:id" element={<ScanPage />} />
-        <Route path="/about" element={
-          <PageLayout>
-            <AboutPage />
-          </PageLayout>
-        } />
       </Routes>
     </HashRouter>
   );

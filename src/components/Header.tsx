@@ -23,20 +23,7 @@ export function Header() {
       </Link>
 
       <div className="flex items-center gap-2">
-        <Link
-          to="/about"
-          className="flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2"
-          style={{
-            border: '1px solid var(--border)',
-            background: 'rgba(255,255,255,0.04)',
-            color: 'var(--ui-muted)',
-            fontFamily: "'DM Mono', monospace",
-          }}
-        >
-          Über diesen Scanner
-        </Link>
-
-<button
+        <button
           onClick={toggle}
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2"
