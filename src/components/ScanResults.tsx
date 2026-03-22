@@ -99,6 +99,9 @@ function ratingColor(rating: string): { color: string; bg: string } {
 }
 
 function CarbonFootprintOverview({ assessments, onWhyClick }: { assessments: Assessment[]; onWhyClick?: () => void }) {
+  const [visitorsPerMonth, setVisitorsPerMonth] = useState(10000);
+  const [inputValue, setInputValue] = useState('10000');
+
   const cfAssessment = assessments.find((a) => a.identifier === 'carbon-footprint');
   if (!cfAssessment || !cfAssessment.details) return null;
 
@@ -123,6 +126,9 @@ function CarbonFootprintOverview({ assessments, onWhyClick }: { assessments: Ass
     };
   };
 
+  const co2Visit = typeof details.co2_per_visit === 'number' ? details.co2_per_visit : null;
+  const calculatedAnnualCo2 = co2Visit !== null ? (co2Visit * visitorsPerMonth * 12) / 1000 : null;
+
   // Green hosting: prefer the flag embedded directly in carbon details,
   // fall back to the companion green-hosting assessment score.
   const ghAssessment = assessments.find((a) => a.identifier === 'green-hosting');
@@ -136,8 +142,6 @@ function CarbonFootprintOverview({ assessments, onWhyClick }: { assessments: Ass
   const rating = details.rating ?? '?';
   const { color, bg } = ratingColor(rating);
 
-  const co2Visit  = typeof details.co2_per_visit === 'number' ? details.co2_per_visit : null;
-  const annualCo2 = typeof details.annual_co2_kg === 'number' ? details.annual_co2_kg : null;
   const pageSizeMb = typeof details.total_bytes === 'number'
     ? details.total_bytes / 1_048_576
     : null;
@@ -221,10 +225,135 @@ function CarbonFootprintOverview({ assessments, onWhyClick }: { assessments: Ass
             <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>Carbon emissions each time someone visits this page</div>
           </div>
         )}
-        {annualCo2 !== null && (
-          <div style={{ flex: '1 1 130px', background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.65rem 0.85rem' }}>
-            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-base)' }}>{annualCo2.toFixed(2)} kg</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>Yearly carbon emissions (assuming 10,000 visitors per month)</div>
+        {calculatedAnnualCo2 !== null && (
+          <div style={{ flex: '1 1 200px', background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-base)' }}>{calculatedAnnualCo2.toFixed(2)} kg CO₂/year</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>Estimated yearly emissions based on {visitorsPerMonth.toLocaleString()} monthly visitors</div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="range"
+                min="100"
+                max="1000000"
+                value={visitorsPerMonth}
+                onChange={(e) => {
+                  const num = Number(e.target.value);
+                  setVisitorsPerMonth(num);
+                  setInputValue(String(num));
+                }}
+                style={{
+                  flex: 1,
+                  cursor: 'pointer',
+                  height: '4px',
+                  borderRadius: '2px',
+                  background: 'var(--border)',
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  outline: 'none',
+                }}
+              />
+              <input
+                type="text"
+                inputMode="numeric"
+                value={inputValue}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setInputValue(val);
+                  const num = Number(val);
+                  if (!isNaN(num) && num > 0) {
+                    setVisitorsPerMonth(num);
+                  }
+                }}
+                onBlur={(e) => {
+                  const val = e.target.value;
+                  if (val === '') {
+                    setVisitorsPerMonth(10000);
+                    setInputValue('10000');
+                  } else {
+                    const num = Number(val);
+                    if (isNaN(num)) {
+                      setVisitorsPerMonth(10000);
+                      setInputValue('10000');
+                    } else if (num > 1000000) {
+                      setVisitorsPerMonth(1000000);
+                      setInputValue('1000000');
+                    } else if (num < 1) {
+                      setVisitorsPerMonth(1);
+                      setInputValue('1');
+                    } else {
+                      setVisitorsPerMonth(Math.floor(num));
+                      setInputValue(String(Math.floor(num)));
+                    }
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const val = e.currentTarget.value;
+                    if (val === '') {
+                      setVisitorsPerMonth(10000);
+                      setInputValue('10000');
+                    } else {
+                      const num = Number(val);
+                      if (isNaN(num)) {
+                        setVisitorsPerMonth(10000);
+                        setInputValue('10000');
+                      } else if (num > 1000000) {
+                        setVisitorsPerMonth(1000000);
+                        setInputValue('1000000');
+                      } else if (num < 1) {
+                        setVisitorsPerMonth(1);
+                        setInputValue('1');
+                      } else {
+                        setVisitorsPerMonth(Math.floor(num));
+                        setInputValue(String(Math.floor(num)));
+                      }
+                    }
+                  }
+                }}
+                style={{
+                  width: '55px',
+                  padding: '0.25rem 0.35rem',
+                  fontSize: '0.7rem',
+                  fontFamily: "'DM Mono', monospace",
+                  background: 'var(--navy-card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '4px',
+                  color: 'var(--text-base)',
+                  textAlign: 'right',
+                }}
+              />
+            </div>
+
+            <style>{`
+              input[type="range"]::-webkit-slider-thumb {
+                appearance: none;
+                -webkit-appearance: none;
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                background: var(--text-base);
+                cursor: pointer;
+                border: 2px solid var(--navy-mid);
+                box-shadow: 0 0 0 3px var(--navy-card);
+              }
+              input[type="range"]::-moz-range-thumb {
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                background: var(--text-base);
+                cursor: pointer;
+                border: 2px solid var(--navy-mid);
+                box-shadow: 0 0 0 3px var(--navy-card);
+              }
+              input[type="number"] {
+                -moz-appearance: textfield;
+              }
+              input[type="number"]::-webkit-inner-spin-button,
+              input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+              }
+            `}</style>
           </div>
         )}
         {pageSizeMb !== null && (
