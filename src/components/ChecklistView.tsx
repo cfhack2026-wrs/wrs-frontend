@@ -239,6 +239,7 @@ const TITLE_OVERRIDES: Record<string, string> = {
   'co2-per-visit': 'Carbon per visit',
   'annual-co2-estimate': 'Estimated yearly carbon emissions',
   'carbon-rating': 'Carbon rating',
+  'carbon-txt': 'carbon.txt — sustainability transparency file',
 };
 
 /** Converts raw Lighthouse displayValue strings to plain-English equivalents. */
@@ -373,6 +374,58 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
           <div style={{ fontSize: '0.92rem', fontWeight: 500, color: 'var(--text-base)' }}>
             {title}
           </div>
+          {finding.identifier === 'carbon-txt' && typeof finding.details.explanation === 'string' && (
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
+              {finding.details.explanation as string}
+            </div>
+          )}
+          {finding.identifier === 'co2-per-visit' && typeof finding.details.co2_grams === 'number' && (
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
+              {(finding.details.co2_grams as number).toFixed(4)} g CO₂ per page view
+              {typeof finding.details.total_bytes === 'number' && (
+                <span style={{ color: 'var(--text-dim)' }}>
+                  {' · '}{((finding.details.total_bytes as number) / 1024).toFixed(1)} KB transferred
+                </span>
+              )}
+            </div>
+          )}
+          {finding.identifier === 'carbon-rating' && typeof finding.details.rating === 'string' && (() => {
+            const r = finding.details.rating as string;
+            const color = ['A+', 'A', 'B'].includes(r) ? 'var(--score-good)' : ['C', 'D'].includes(r) ? 'var(--eaa-amber)' : 'var(--eaa-red)';
+            const bg = ['A+', 'A', 'B'].includes(r) ? 'var(--eaa-green-bg)' : ['C', 'D'].includes(r) ? 'var(--eaa-amber-bg)' : 'var(--eaa-red-bg)';
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                <span style={{
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  padding: '1px 8px',
+                  borderRadius: 6,
+                  background: bg,
+                  color,
+                  border: `1px solid ${color}40`,
+                  flexShrink: 0,
+                }}>
+                  {r}
+                </span>
+                {typeof finding.details.description === 'string' && (
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    {finding.details.description as string}
+                  </span>
+                )}
+              </div>
+            );
+          })()}
+          {finding.identifier === 'annual-co2-estimate' && typeof finding.details.annual_co2_kg === 'number' && (
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
+              {(finding.details.annual_co2_kg as number).toFixed(2)} kg CO₂ / year
+              {typeof finding.details.monthly_visitors === 'number' && (
+                <span style={{ color: 'var(--text-dim)' }}>
+                  {' · '}based on {(finding.details.monthly_visitors as number).toLocaleString()} monthly visitors
+                </span>
+              )}
+            </div>
+          )}
           {impact && (() => {
             const COLOR: Record<string, { color: string; bg: string; border: string }> = {
               critical: { color: '#f43f5e', bg: 'rgba(244,63,94,0.12)', border: 'rgba(244,63,94,0.35)' },
@@ -827,9 +880,16 @@ function scoreSubLabel(assessments: Assessment[]): { tool: string; score: number
 }
 
 const IMPACT_ORDER: Record<string, number> = { critical: 0, serious: 1, moderate: 2, minor: 3 };
+const CARBON_IDENTIFIERS = ['co2-per-visit', 'annual-co2-estimate', 'carbon-rating', 'carbon-footprint', 'green-hosting', 'carbon-txt', 'non-green-hosting'];
 
 function CategoryPanel({ assessments, meta, category }: { assessments: Assessment[]; meta: ReturnType<typeof fallbackMeta>; category: string }) {
   const mergedFindings = mergeFindings(assessments).slice().sort((a, b) => {
+    // In sustainability, carbon findings always come first
+    if (category === 'sustainability') {
+      const aCarbon = CARBON_IDENTIFIERS.includes(a.identifier) ? 0 : 1;
+      const bCarbon = CARBON_IDENTIFIERS.includes(b.identifier) ? 0 : 1;
+      if (aCarbon !== bCarbon) return aCarbon - bCarbon;
+    }
     const ai = typeof a.details.impact === 'string' ? (IMPACT_ORDER[a.details.impact] ?? 4) : 4;
     const bi = typeof b.details.impact === 'string' ? (IMPACT_ORDER[b.details.impact] ?? 4) : 4;
     if (ai !== bi) return ai - bi;
