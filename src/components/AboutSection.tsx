@@ -44,13 +44,47 @@ export function AboutSection() {
         </div>
       </div>
 
-      {/* Why + differentiators */}
+      {/* Why another scanner? */}
       <div className="w-full rounded-2xl p-5 border animate-fade-up" style={{ borderColor: 'var(--border)', background: 'rgba(255,255,255,0.02)' }}>
-        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-base)' }}>Why another tool?</h2>
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-base)' }}>Why another scanner?</h2>
         <p className="text-xs leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
-          Most tools are technical, single-purpose, or closed source. This one combines accessibility
-          and sustainability in a single open-source interface anyone can understand.
+          Great tools already exist — but each only covers one dimension.
         </p>
+
+        {/* Existing landscape */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: '1rem' }}>
+          {[
+            { tool: 'Lighthouse', scope: 'Performance & accessibility' },
+            { tool: 'axe', scope: 'Accessibility (WCAG)' },
+            { tool: 'Sustainable Web Design Model', scope: 'CO\u2082 estimation' },
+            { tool: 'Green Web Foundation', scope: 'Hosting sustainability' },
+          ].map(({ tool, scope }) => (
+            <div key={tool} className="flex items-center gap-2.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span
+                className="mono"
+                style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  color: 'var(--text-dim)',
+                  background: 'var(--navy-mid)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 6,
+                  padding: '2px 8px',
+                  flexShrink: 0,
+                }}
+              >
+                {tool}
+              </span>
+              <span style={{ color: 'var(--text-dim)' }}>{scope}</span>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-xs leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
+          WRS pulls these together into a single scan so you get the full picture —
+          accessibility, sustainability, performance — without juggling separate tools.
+        </p>
+
         <ul className="space-y-2">
           {[
             'Plain-language findings, not just codes and warnings',
