@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import type { Assessment, Scan } from '../types/scanner';
 import { ScoreRing } from './ScoreRing';
 import { LetterGrade } from './LetterGrade';
-import { CategoryBreakdown } from './CategoryBreakdown';
 import { ChecklistView } from './ChecklistView';
 import { RecommendationRoadmap } from './RecommendationRoadmap';
 import { mergeFindings, enrichForSustainability } from '../utils/findings';
@@ -685,9 +684,6 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
           setTimeout(() => findingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
         }}
       />
-
-      {/* Category breakdown */}
-      <CategoryBreakdown assessments={enrichedAssessments} />
 
       {/* Findings view toggle */}
       <div ref={findingsRef} style={{ display: 'flex', gap: 8 }}>

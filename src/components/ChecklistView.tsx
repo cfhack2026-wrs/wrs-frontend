@@ -789,6 +789,26 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
   );
 }
 
+function getLetterGrade(score: number): string {
+  if (score >= 90) return 'A';
+  if (score >= 80) return 'B';
+  if (score >= 70) return 'C';
+  if (score >= 60) return 'D';
+  return 'F';
+}
+
+function getScoreColor(score: number): string {
+  if (score >= 90) return 'var(--score-good)';
+  if (score >= 70) return 'var(--score-ok)';
+  return 'var(--score-bad)';
+}
+
+function getScoreBg(score: number): string {
+  if (score >= 90) return 'var(--eaa-green-bg)';
+  if (score >= 70) return 'var(--eaa-amber-bg)';
+  return 'var(--eaa-red-bg)';
+}
+
 /** Averages score_percent across all completed assessments that provide one. */
 function normalizedCategoryScore(assessments: Assessment[]): number | undefined {
   const scores = assessments
@@ -834,7 +854,8 @@ function CategoryPanel({ assessments, meta, category }: { assessments: Assessmen
 
   return (
     <div>
-      {/* Category header */}
+      {/* Category header — hidden; tab cards already show icon/label/grade/score */}
+      {false && (
       <div
         style={{
           background: 'var(--navy-card)',
@@ -879,7 +900,7 @@ function CategoryPanel({ assessments, meta, category }: { assessments: Assessmen
                 </div>
                 {subLabel ? (
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-                    {subLabel.map((s, i) => (
+                    {subLabel!.map((s, i) => (
                       <span key={s.tool}>
                         {i > 0 && ' · '}
                         <abbr title={s.tool}>{s.score}%</abbr>
@@ -911,6 +932,7 @@ function CategoryPanel({ assessments, meta, category }: { assessments: Assessmen
           </p>
         )}
       </div>
+      )}
 
       {/* No findings */}
       {allCompleted && mergedFindings.length === 0 && (
@@ -998,6 +1020,93 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
 
   return (
     <div>
+      {/* Unified category selector */}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, 1fr)`, gap: 8, marginBottom: '1rem' }}>
+        {tabs.map((key) => {
+          const m = meta(key);
+          const group = grouped.get(key)!;
+          const totalFindings = mergeFindings(group).length;
+          const score = normalizedCategoryScore(group);
+          const isActive = activeTab === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: 8,
+                padding: '0.9rem 1.1rem',
+                borderRadius: 12,
+                border: `1px solid ${isActive ? m.color + '66' : 'var(--border)'}`,
+                background: isActive ? m.bg : 'var(--navy-card)',
+                cursor: 'pointer',
+                transition: 'border-color 0.15s, background 0.15s',
+                textAlign: 'left',
+                fontFamily: 'inherit',
+              }}
+            >
+              {/* Top row: icon + label + count */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, width: '100%' }}>
+                <span style={{ fontSize: '1rem' }} aria-hidden="true">{m.icon}</span>
+                <span style={{ fontSize: '0.88rem', fontWeight: 600, color: isActive ? m.color : 'var(--text-base)', flex: 1 }}>
+                  {m.label}
+                </span>
+                {totalFindings > 0 && (
+                  <span style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: isActive ? m.color : 'var(--text-dim)',
+                    background: isActive ? m.color + '22' : 'var(--navy-mid)',
+                    border: `1px solid ${isActive ? m.color + '44' : 'var(--border)'}`,
+                    borderRadius: 100,
+                    padding: '1px 7px',
+                    flexShrink: 0,
+                  }}>
+                    {totalFindings}
+                  </span>
+                )}
+              </div>
+              {/* Grade badge + score */}
+              {score !== undefined && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%' }}>
+                  <div style={{
+                    width: 32,
+                    height: 26,
+                    borderRadius: 6,
+                    background: getScoreBg(score),
+                    border: `1px solid ${getScoreColor(score)}40`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    color: getScoreColor(score),
+                    flexShrink: 0,
+                  }}>
+                    {getLetterGrade(score)}
+                  </div>
+                  <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--border)', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${score}%`, background: getScoreColor(score), borderRadius: 2, transition: 'width 0.4s ease' }} />
+                  </div>
+                  <div style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: getScoreColor(score),
+                    flexShrink: 0,
+                  }}>
+                    {score}%
+                  </div>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Legend */}
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: '1.2rem' }}>
         {[
@@ -1012,42 +1121,7 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
         ))}
       </div>
 
-      {/* Tabs */}
-      <div style={{ overflowX: 'auto', marginBottom: '1.4rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, minmax(140px, 1fr))`, gap: 8, minWidth: 'max-content', width: '100%' }}>
-          {tabs.map((key) => {
-            const m = meta(key);
-            const group = grouped.get(key)!;
-            const totalFindings = mergeFindings(group).length;
-            return (
-              <button
-                key={key}
-                className={`eaa-tab${activeTab === key ? ' active' : ''}`}
-                onClick={() => setActiveTab(key)}
-                style={{ width: '100%', justifyContent: 'center' }}
-              >
-                <span aria-hidden="true">{m.icon}</span>
-                {m.label}
-                {totalFindings > 0 && (
-                  <span
-                    style={{
-                      fontSize: '0.72rem',
-                      opacity: 0.75,
-                      background: activeTab === key ? 'rgba(124,106,247,0.2)' : 'var(--navy-mid)',
-                      borderRadius: 100,
-                      padding: '1px 7px',
-                    }}
-                  >
-                    {totalFindings}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Active panel */}
+      {/* Active panel — header stripped since tab already contains icon/label/score */}
       {tabs.filter((t) => t === activeTab).map((key) => (
         <CategoryPanel key={key} assessments={grouped.get(key)!} meta={meta(key)} category={key} />
       ))}
