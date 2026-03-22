@@ -49,55 +49,19 @@ export function AboutSection() {
         <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-base)' }}>Why another scanner?</h2>
         <p className="text-xs leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
           Great tools already exist — but each only covers one dimension.
-        </p>
-
-        {/* Existing landscape */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: '1rem' }}>
-          {[
-            { tool: 'Lighthouse', scope: 'Performance & accessibility' },
-            { tool: 'axe', scope: 'Accessibility (WCAG)' },
-            { tool: 'Sustainable Web Design Model', scope: 'CO\u2082 estimation' },
-            { tool: 'Green Web Foundation', scope: 'Hosting sustainability' },
-          ].map(({ tool, scope }) => (
-            <div key={tool} className="flex items-center gap-2.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-              <span
-                className="mono"
-                style={{
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  color: 'var(--text-dim)',
-                  background: 'var(--navy-mid)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 6,
-                  padding: '2px 8px',
-                  flexShrink: 0,
-                }}
-              >
-                {tool}
-              </span>
-              <span style={{ color: 'var(--text-dim)' }}>{scope}</span>
-            </div>
-          ))}
-        </div>
-
-        <p className="text-xs leading-relaxed mb-4" style={{ color: 'var(--text-muted)' }}>
-          WRS pulls these together into a single scan so you get the full picture —
-          accessibility, sustainability, performance — without juggling separate tools.
+          WRS pulls them together into a single scan so you get the full picture.
         </p>
 
         <ul className="space-y-2">
           {[
-            'Plain-language findings, not just codes and warnings',
-            'Actionable fix guidance for every issue',
-            'Transparent about what automation can and cannot catch',
-            'Open source and self-hostable',
-          ].map((item) => (
-            <li key={item} className="flex items-start gap-2.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-              <svg className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: 'var(--cyan)' }} viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M20 6 9 17l-5-5" />
-              </svg>
-              {item}
+            { icon: '🔍', text: 'Lighthouse for performance & accessibility' },
+            { icon: '♿', text: 'axe for WCAG-based accessibility testing' },
+            { icon: '🌱', text: 'Sustainable Web Design Model for CO\u2082 estimation' },
+            { icon: '⚡', text: 'Green Web Foundation for hosting sustainability' },
+          ].map(({ icon, text }) => (
+            <li key={text} className="flex items-start gap-2.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span style={{ color: 'var(--cyan)', fontSize: '0.75rem', flexShrink: 0, width: 16, textAlign: 'center' }} aria-hidden="true">{icon}</span>
+              {text}
             </li>
           ))}
         </ul>
