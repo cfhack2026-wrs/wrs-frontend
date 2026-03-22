@@ -816,7 +816,8 @@ export function ChecklistView({ assessments }: ChecklistViewProps) {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, 1fr)`, gap: 8, marginBottom: '1.4rem' }}>
+      <div style={{ overflowX: 'auto', marginBottom: '1.4rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, minmax(140px, 1fr))`, gap: 8, minWidth: 'max-content', width: '100%' }}>
         {tabs.map((key) => {
           const m = meta(key);
           const group = grouped.get(key)!;
@@ -846,6 +847,7 @@ export function ChecklistView({ assessments }: ChecklistViewProps) {
             </button>
           );
         })}
+      </div>
       </div>
 
       {/* Active panel */}
