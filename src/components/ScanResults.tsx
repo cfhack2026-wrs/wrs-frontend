@@ -652,21 +652,8 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
               <div className="stat-desc">Total items checked</div>
             </div>
             <div className="stat-item">
-              <div className="stat-num" style={{ color: scoreColor }}>{stats.overallScore}</div>
-              <div className="stat-desc">Score</div>
-            </div>
-            <div className="stat-item">
               <div className="stat-num" style={{ color: 'var(--eaa-purple)' }}>{stats.categoriesCount}</div>
               <div className="stat-desc">Categories</div>
-            </div>
-            <div className="stat-item">
-              <div
-                className="stat-num"
-                style={{ color: stats.isCompliant ? 'var(--eaa-green)' : 'var(--eaa-red)' }}
-              >
-                {stats.isCompliant ? 'Yes' : 'No'}
-              </div>
-              <div className="stat-desc">Meets EU Accessibility Act</div>
             </div>
           </div>
         </div>
