@@ -262,6 +262,13 @@ code,
 }
 
 /* ── Ticker scroll ── */
+.ticker-scroll-container {
+  scrollbar-width: none; /* Firefox */
+}
+.ticker-scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}
+
 @keyframes ticker-scroll {
   0% {
     transform: translateX(0);
