@@ -122,6 +122,59 @@ function extractWcagTags(tags: string[]): string[] {
     });
 }
 
+/** Maps a raw axe/lighthouse tag to a human-readable label and tooltip explanation.
+ *  Returns null for tags that should be hidden (e.g. internal cat.* categories). */
+function tagDisplay(tag: string): { label: string; title: string } | null {
+  if (tag.startsWith('cat.')) return null;
+
+  if (tag === 'wcag2a') return { label: 'WCAG 2 Level A', title: 'Web Content Accessibility Guidelines 2 — Level A: the minimum accessibility requirements every website must meet' };
+  if (tag === 'wcag2aa') return { label: 'WCAG 2 Level AA', title: 'Web Content Accessibility Guidelines 2 — Level AA: the accessibility standard required by most laws worldwide, including the EU Web Accessibility Directive' };
+  if (tag === 'wcag2aaa') return { label: 'WCAG 2 Level AAA', title: 'Web Content Accessibility Guidelines 2 — Level AAA: the highest and most inclusive accessibility standard' };
+  if (tag === 'wcag21a') return { label: 'WCAG 2.1 Level A', title: 'Web Content Accessibility Guidelines 2.1 — Level A: minimum requirements, expanded in 2018 to better cover mobile and cognitive disabilities' };
+  if (tag === 'wcag21aa') return { label: 'WCAG 2.1 Level AA', title: 'Web Content Accessibility Guidelines 2.1 — Level AA: the standard referenced by the EU Web Accessibility Directive and European Accessibility Act' };
+
+  // wcag + criterion number, e.g. wcag412 → WCAG 4.1.2
+  const wcagCritMatch = tag.match(/^wcag(\d{2,})$/i);
+  if (wcagCritMatch) {
+    const d = wcagCritMatch[1];
+    const formatted = d.length === 3
+      ? `${d[0]}.${d[1]}.${d[2]}`
+      : d.length === 2
+        ? `${d[0]}.${d[1]}`
+        : d;
+    return { label: `WCAG ${formatted}`, title: `WCAG success criterion ${formatted} — a specific rule from the Web Content Accessibility Guidelines that this issue violates` };
+  }
+
+  if (tag === 'section508') return { label: 'Section 508', title: 'Section 508 of the US Rehabilitation Act — US federal law requiring all government technology to be accessible to people with disabilities' };
+  if (tag.startsWith('section508.')) {
+    const sub = tag.replace('section508.', '');
+    return { label: `Section 508 §${sub}`, title: `Section 508 of the US Rehabilitation Act, paragraph ${sub} — a specific accessibility requirement under US federal law` };
+  }
+
+  if (tag === 'TTv5') return { label: 'Trusted Tester v5', title: 'US Department of Homeland Security Trusted Tester v5 — a standardised step-by-step method for manually testing website accessibility on US federal systems' };
+  const ttMatch = tag.match(/^TT(\d+\.\w+)$/);
+  if (ttMatch) return { label: `Trusted Tester ${ttMatch[1]}`, title: `Trusted Tester test ${ttMatch[1]} — a specific manual accessibility test step from the US DHS Trusted Tester methodology` };
+
+  if (tag === 'EN-301-549') return { label: 'EN 301 549', title: 'EN 301 549 — the European standard for accessible ICT (Information and Communications Technology) products and services; this is the technical standard behind the EU Web Accessibility Directive and the European Accessibility Act (EAA)' };
+  if (tag.startsWith('EN-')) {
+    const sub = tag.replace(/^EN-/, '');
+    return { label: `EN ${sub}`, title: `EN 301 549 clause ${sub} — a specific requirement from the European accessibility standard that underpins the EU Web Accessibility Directive and European Accessibility Act` };
+  }
+
+  if (tag === 'ACT') return { label: 'ACT Rules', title: 'Accessibility Conformance Testing Rules — a W3C framework that defines standardised, repeatable rules for automated and semi-automated accessibility testing' };
+
+  if (tag === 'RGAAv4') return { label: 'RGAA v4', title: "Référentiel Général d'Amélioration de l'Accessibilité v4 — the French national accessibility standard for public-sector websites" };
+  if (tag.startsWith('RGAA-')) {
+    const sub = tag.replace('RGAA-', '');
+    return { label: `RGAA ${sub}`, title: `RGAA criterion ${sub} — a specific requirement from the French national accessibility standard (Référentiel Général d'Amélioration de l'Accessibilité)` };
+  }
+
+  if (tag === 'best-practice') return { label: 'Best Practice', title: 'A web accessibility best practice recommended by the axe testing engine — not a strict legal requirement, but strongly advisable' };
+
+  // Fallback: show the raw tag without an abbr
+  return { label: tag, title: '' };
+}
+
 function prettifyIdentifier(id: string): string {
   return id
     .replace(/-/g, ' ')
@@ -366,7 +419,11 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
             {formatDisplayValue(displayValue)}
           </span>
         )}
-        {wcagTags.length > 0 && <span className="wcag-tag">{wcagTags[0]}</span>}
+        {wcagTags.length > 0 && (
+          <span className="wcag-tag">
+            <abbr title="Web Content Accessibility Guidelines — the international standard for accessible web content, published by the W3C" style={{ textDecoration: 'none' }}>{wcagTags[0]}</abbr>
+          </span>
+        )}
         <div className="check-expand-btn" aria-hidden="true">
           {open ? '−' : '+'}
         </div>
@@ -380,27 +437,38 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
             <p className="check-desc">{renderMarkdownLinks(description)}</p>
           )}
 
-          {/* WCAG / standard tags */}
-          {tags.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  style={{
-                    fontFamily: 'DM Mono, monospace',
-                    fontSize: '0.7rem',
-                    padding: '2px 8px',
-                    borderRadius: 6,
-                    background: 'var(--navy-mid)',
-                    color: 'var(--text-dim)',
-                    border: '1px solid var(--border)',
-                  }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
+          {/* Remediation guidance — shown right after the description */}
+          {(() => {
+            const plainEnglish = remediationMap.get(finding.identifier);
+            if (!plainEnglish && !helpUrl && !suggestion) return null;
+            return (
+              <div
+                className="remediation-panel"
+                style={{ borderColor: 'var(--border)', background: 'var(--navy-mid)' }}
+              >
+                <div style={{ fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-dim)', marginBottom: 6 }}>
+                  How to fix this
+                </div>
+
+                {(plainEnglish ?? suggestion) && (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-base)', lineHeight: 1.6, marginBottom: helpUrl ? 10 : 0 }}>
+                    {plainEnglish ?? suggestion}
+                  </p>
+                )}
+
+                {helpUrl && (
+                  <a
+                    href={helpUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ fontSize: '0.8rem', color: 'var(--eaa-blue)', display: 'inline-block' }}
+                  >
+                    Learn how to fix ↗
+                  </a>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Affected HTML nodes */}
           {nodes.length > 0 && (
@@ -678,39 +746,40 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
           {/* EAA reference */}
           {wcagTags.length > 0 && (
             <span className="eaa-ref">
-              ⓘ {wcagTags.join(' · ')} · EAA Annex I
+              ⓘ{' '}
+              {wcagTags.map((t, i) => (
+                <span key={t}>
+                  {i > 0 && ' · '}
+                  <abbr title="Web Content Accessibility Guidelines — the international standard for accessible web content, published by the W3C">{t}</abbr>
+                </span>
+              ))}
+              {' · '}
+              <abbr title="European Accessibility Act Annex I — the list of accessibility requirements that all digital products and services sold in the EU must meet by 28 June 2025">EAA Annex I</abbr>
             </span>
           )}
 
-          {/* Remediation guidance */}
+          {/* WCAG / standard tags */}
           {(() => {
-            const plainEnglish = remediationMap.get(finding.identifier);
-            if (!plainEnglish && !helpUrl && !suggestion) return null;
+            const visibleTags = tags.map((t) => ({ tag: t, info: tagDisplay(t) })).filter(({ info }) => info !== null);
+            if (visibleTags.length === 0) return null;
             return (
-              <div
-                className="remediation-panel"
-                style={{ borderColor: 'var(--border)', background: 'var(--navy-mid)' }}
-              >
-                <div style={{ fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-dim)', marginBottom: 6 }}>
-                  How to fix this
-                </div>
-
-                {(plainEnglish ?? suggestion) && (
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-base)', lineHeight: 1.6, marginBottom: helpUrl ? 10 : 0 }}>
-                    {plainEnglish ?? suggestion}
-                  </p>
-                )}
-
-                {helpUrl && (
-                  <a
-                    href={helpUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ fontSize: '0.8rem', color: 'var(--eaa-blue)', display: 'inline-block' }}
+              <div style={{ marginBottom: 12, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {visibleTags.map(({ tag, info }) => (
+                  <span
+                    key={tag}
+                    style={{
+                      fontFamily: 'DM Mono, monospace',
+                      fontSize: '0.7rem',
+                      padding: '2px 8px',
+                      borderRadius: 6,
+                      background: 'var(--navy-mid)',
+                      color: 'var(--text-dim)',
+                      border: '1px solid var(--border)',
+                    }}
                   >
-                    Learn how to fix ↗
-                  </a>
-                )}
+                    {info!.title ? <abbr title={info!.title} style={{ textDecoration: 'underline dotted', cursor: 'help' }}>{info!.label}</abbr> : info!.label}
+                  </span>
+                ))}
               </div>
             );
           })()}
@@ -739,7 +808,7 @@ function scoreSubLabel(assessments: Assessment[]): { tool: string; score: number
 
 const IMPACT_ORDER: Record<string, number> = { critical: 0, serious: 1, moderate: 2, minor: 3 };
 
-function CategoryPanel({ assessments, meta }: { assessments: Assessment[]; meta: ReturnType<typeof fallbackMeta> }) {
+function CategoryPanel({ assessments, meta, category }: { assessments: Assessment[]; meta: ReturnType<typeof fallbackMeta>; category: string }) {
   const mergedFindings = mergeFindings(assessments).slice().sort((a, b) => {
     const ai = typeof a.details.impact === 'string' ? (IMPACT_ORDER[a.details.impact] ?? 4) : 4;
     const bi = typeof b.details.impact === 'string' ? (IMPACT_ORDER[b.details.impact] ?? 4) : 4;
@@ -768,9 +837,6 @@ function CategoryPanel({ assessments, meta }: { assessments: Assessment[]; meta:
       {/* Category header */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
           background: 'var(--navy-card)',
           border: '1px solid var(--border)',
           borderRadius: 14,
@@ -778,61 +844,72 @@ function CategoryPanel({ assessments, meta }: { assessments: Assessment[]; meta:
           marginBottom: '1.2rem',
         }}
       >
-        <div
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 12,
-            background: meta.bg,
-            border: `1px solid ${meta.color}33`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 22,
-            flexShrink: 0,
-          }}
-          aria-hidden="true"
-        >
-          {meta.icon}
-        </div>
-        <div style={{ flex: 1 }}>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 500, marginBottom: 3, color: 'var(--text-base)' }}>
-            {meta.label}
-          </h3>
-          {meta.desc && (
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{meta.desc}</p>
-          )}
-        </div>
-        <div className="cat-score-bar">
-          {score !== undefined ? (
-            <>
-              <div style={{ fontSize: '1rem', fontWeight: 600, color: meta.color }}>{score}%</div>
-              <div className="bar-track">
-                <div className="bar-fill" style={{ width: `${score}%`, background: meta.color }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              background: meta.bg,
+              border: `1px solid ${meta.color}33`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 22,
+              flexShrink: 0,
+            }}
+            aria-hidden="true"
+          >
+            {meta.icon}
+          </div>
+          <div style={{ flex: 1 }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 500, marginBottom: 3, color: 'var(--text-base)' }}>
+              {meta.label}
+            </h3>
+            {meta.desc && (
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{meta.desc}</p>
+            )}
+          </div>
+          <div className="cat-score-bar">
+            {score !== undefined ? (
+              <>
+                <div style={{ fontSize: '1rem', fontWeight: 600, color: meta.color }}>{score}%</div>
+                <div className="bar-track">
+                  <div className="bar-fill" style={{ width: `${score}%`, background: meta.color }} />
+                </div>
+                {subLabel ? (
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                    {subLabel.map((s, i) => (
+                      <span key={s.tool}>
+                        {i > 0 && ' · '}
+                        <abbr title={s.tool}>{s.score}%</abbr>
+                      </span>
+                    ))}
+                  </div>
+                ) : axePasses !== undefined && axeViolations !== undefined ? (
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                    {axePasses} pass · {axeViolations} fail
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Score</div>
+                )}
+              </>
+            ) : (
+              <div style={{ fontSize: '0.88rem', color: 'var(--text-dim)' }}>
+                {allCompleted ? 'No score' : 'Pending'}
               </div>
-              {subLabel ? (
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-                  {subLabel.map((s, i) => (
-                    <span key={s.tool}>
-                      {i > 0 && ' · '}
-                      <abbr title={s.tool}>{s.score}%</abbr>
-                    </span>
-                  ))}
-                </div>
-              ) : axePasses !== undefined && axeViolations !== undefined ? (
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-                  {axePasses} pass · {axeViolations} fail
-                </div>
-              ) : (
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Score</div>
-              )}
-            </>
-          ) : (
-            <div style={{ fontSize: '0.88rem', color: 'var(--text-dim)' }}>
-              {allCompleted ? 'No score' : 'Pending'}
-            </div>
-          )}
+            )}
+          </div>
         </div>
+        {category === 'accessibility' && (
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: '0.8rem', marginBottom: 0, lineHeight: 1.5 }}>
+            Please note that only 20% to 50% of all accessibility issues can automatically be detected.
+            <strong>Manual testing is always required.</strong> For more information see:{' '}
+            <a href="https://testparty.ai/blog/automated-accessibility-testing-guide" target="_blank" rel="noreferrer" style={{ color: 'var(--eaa-purple)' }}>
+              testparty.ai/blog/automated-accessibility-testing-guide
+            </a>
+          </p>
+        )}
       </div>
 
       {/* No findings */}
@@ -972,7 +1049,7 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
 
       {/* Active panel */}
       {tabs.filter((t) => t === activeTab).map((key) => (
-        <CategoryPanel key={key} assessments={grouped.get(key)!} meta={meta(key)} />
+        <CategoryPanel key={key} assessments={grouped.get(key)!} meta={meta(key)} category={key} />
       ))}
     </div>
   );

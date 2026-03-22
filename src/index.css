@@ -308,10 +308,13 @@ code,
 
 /* ── Ticker scroll ── */
 .ticker-scroll-container {
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  /* Firefox */
 }
+
 .ticker-scroll-container::-webkit-scrollbar {
-  display: none; /* Chrome / Safari */
+  display: none;
+  /* Chrome / Safari */
 }
 
 @keyframes ticker-scroll {
@@ -682,6 +685,7 @@ code,
   color: var(--eaa-accent2);
   font-weight: 600;
   margin-bottom: 8px;
+  margin-top: 8px;
 }
 
 .fix-text {
@@ -710,6 +714,7 @@ code,
   font-size: 0.75rem;
   color: var(--eaa-blue);
   margin-top: 10px;
+  margin-bottom: 10px;
   background: var(--eaa-blue-bg);
   padding: 4px 10px;
   border-radius: 6px;
@@ -988,6 +993,7 @@ code,
     opacity: 0;
     transform: scale(0.4) rotate(-90deg);
   }
+
   to {
     opacity: 1;
     transform: scale(1) rotate(0deg);
@@ -1078,7 +1084,7 @@ code,
   transform: rotate(180deg) scale(0.9);
 }
 
-.theme-fab-icon > svg {
+.theme-fab-icon>svg {
   animation: theme-icon-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -1088,18 +1094,21 @@ code,
     max-width: 110px;
     padding-left: 16px;
   }
+
   .theme-fab:not(:hover) .theme-fab-label {
     opacity: 0;
     max-width: 0;
     padding-left: 0;
   }
+
   .theme-fab-icon,
   .theme-fab:hover .theme-fab-icon,
   .theme-fab:active .theme-fab-icon {
     transition: none;
     transform: none;
   }
-  .theme-fab-icon > svg {
+
+  .theme-fab-icon>svg {
     animation: none;
   }
 }
