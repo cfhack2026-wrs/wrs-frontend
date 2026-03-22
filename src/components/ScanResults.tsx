@@ -360,7 +360,7 @@ function ViewToggleButton({ active, view, label, icon, onClick }: ViewToggleButt
 export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
   const [copied, setCopied] = useState(false);
   const [scanView, setScanView] = useState<ScanView>('checklist');
-  const [checklistCategory, setChecklistCategory] = useState<string | undefined>(undefined);
+  const [checklistCategory, setChecklistCategory] = useState<string>('sustainability');
   const contentRef = useRef<HTMLElement>(null);
   const findingsRef = useRef<HTMLDivElement>(null);
 
