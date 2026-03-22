@@ -102,7 +102,7 @@ function HomePage() {
           <div className="flex flex-col items-start">
             <span className="text-sm font-semibold leading-tight" style={{ color: 'var(--text-base)' }}>
               Website{' '}
-              <span style={{ color: 'var(--accent-text)' }}>Responsibility</span>
+              <span style={{ color: 'var(--teal)' }}>Responsibility</span>
               {' '}Scanner
             </span>
             <span
@@ -119,10 +119,10 @@ function HomePage() {
           style={{ color: 'var(--text-base)' }}
         >
           Audit for{' '}
-          <span style={{ color: 'var(--accent-text)' }}>accessibility</span>
+          <span style={{ color: 'var(--teal)' }}>accessibility</span>
           <br />
           and{' '}
-          <span style={{ color: 'var(--teal)' }}>sustainability</span>.
+          <span style={{ color: 'var(--lime)' }}>sustainability</span>.
         </h1>
         <p
           className="text-sm leading-relaxed animate-fade-up delay-100 max-w-lg"

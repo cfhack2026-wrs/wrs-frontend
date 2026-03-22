@@ -243,23 +243,23 @@ code,
   outline-offset: 3px;
 }
 
-/* Lime variant — used inside the integrated scan bar */
+/* Green variant — used inside the integrated scan bar */
 .scan-btn.scan-btn-lime {
-  background: var(--lime);
-  color: #0d1a03;
+  background: #0F766E;
+  color: #fff;
   border-radius: 11px;
   margin: 4px;
   padding: 0.75rem 1.5rem;
 }
 
 .scan-btn.scan-btn-lime:hover:not(:disabled) {
-  background: #bce858;
-  box-shadow: 0 0 20px rgba(167, 217, 72, 0.3);
+  background: #0d6b63;
+  box-shadow: 0 0 20px rgba(15, 118, 110, 0.35);
   transform: translateY(-1px);
 }
 
 .scan-btn.scan-btn-lime:focus-visible {
-  outline-color: var(--lime);
+  outline-color: #0F766E;
 }
 
 /* ── Example pills ── */
