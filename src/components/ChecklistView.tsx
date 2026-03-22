@@ -892,8 +892,13 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
   const grouped = groupByCategory(
     assessments.filter((a) => a.status !== 'skipped' && a.identifier !== 'http-fetch'),
   );
-  const tabs = [...grouped.keys()];
-  const [internalTab, setInternalTab] = useState(tabs[0] ?? '');
+  const tabs = [...grouped.keys()].sort((a, b) => {
+    if (a === 'sustainability') return -1;
+    if (b === 'sustainability') return 1;
+    return 0;
+  });
+  const defaultTab = tabs.includes('sustainability') ? 'sustainability' : tabs[0] ?? '';
+  const [internalTab, setInternalTab] = useState(defaultTab);
   const activeTab = activeCategory ?? internalTab;
   const setActiveTab = onCategoryChange ?? setInternalTab;
 

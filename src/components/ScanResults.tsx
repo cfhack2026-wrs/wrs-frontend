@@ -5,7 +5,7 @@ import { LetterGrade } from './LetterGrade';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { ChecklistView } from './ChecklistView';
 import { RecommendationRoadmap } from './RecommendationRoadmap';
-import { mergeFindings } from '../utils/findings';
+import { mergeFindings, enrichForSustainability } from '../utils/findings';
 import html2pdf from 'html2pdf.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -489,7 +489,7 @@ function ViewToggleButton({ active, view, label, icon, onClick }: ViewToggleButt
 export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
   const [copied, setCopied] = useState(false);
   const [scanView, setScanView] = useState<ScanView>('checklist');
-  const [checklistCategory, setChecklistCategory] = useState<string | undefined>(undefined);
+  const [checklistCategory, setChecklistCategory] = useState<string>('sustainability');
   const contentRef = useRef<HTMLElement>(null);
   const findingsRef = useRef<HTMLDivElement>(null);
 
@@ -521,7 +521,8 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
     document.documentElement.classList.add('dark');
   }
 
-  const stats = computeStats(scan.assessments);
+  const enrichedAssessments = enrichForSustainability(scan.assessments);
+  const stats = computeStats(enrichedAssessments);
   const grade = gradeLabel(stats.overallScore);
   const scoreColor =
     stats.overallScore >= 90
@@ -682,7 +683,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
       />
 
       {/* Category breakdown */}
-      <CategoryBreakdown assessments={scan.assessments} />
+      <CategoryBreakdown assessments={enrichedAssessments} />
 
       {/* Findings view toggle */}
       <div ref={findingsRef} style={{ display: 'flex', gap: 8 }}>
@@ -703,10 +704,10 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
       </div>
 
       {scanView === 'roadmap' ? (
-        <RecommendationRoadmap assessments={scan.assessments} />
+        <RecommendationRoadmap assessments={enrichedAssessments} />
       ) : (
         <ChecklistView
-          assessments={scan.assessments}
+          assessments={enrichedAssessments}
           activeCategory={checklistCategory}
           onCategoryChange={setChecklistCategory}
         />
