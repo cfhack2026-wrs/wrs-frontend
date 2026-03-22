@@ -532,9 +532,22 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
     <section ref={contentRef} className="w-full max-w-4xl space-y-5 animate-fade-up" aria-label="Scan results">
       {/* URL + actions bar */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <p className="text-xs font-mono break-all" style={{ color: 'var(--text-muted)' }}>
-          {scan.url}
-        </p>
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className="text-xs font-mono break-all px-2.5 py-1 rounded-full"
+            style={{ color: 'var(--text-muted)', background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
+          >
+            {scan.url}
+          </span>
+          {scan.created_at && (
+            <span className="text-xs mono shrink-0" style={{ color: 'var(--text-dim)' }}>
+              {new Date(scan.created_at).toLocaleString(undefined, {
+                dateStyle: 'medium',
+                timeStyle: 'short',
+              })}
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => downloadResults(scan)}
