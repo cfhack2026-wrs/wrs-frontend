@@ -1082,7 +1082,7 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
   return (
     <div>
       {/* Unified category selector */}
-      <div role="tablist" aria-label="Assessment categories" style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, 1fr)`, gap: 8, marginBottom: '1rem' }}>
+      <div role="tablist" aria-label="Assessment categories" className="category-tablist" style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, 1fr)`, gap: 8, marginBottom: '1rem' }}>
         {tabs.map((key) => {
           const m = meta(key);
           const group = grouped.get(key)!;

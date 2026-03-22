@@ -945,6 +945,12 @@ code,
   }
 }
 
+/* ── Category tablist ── */
+.category-tablist {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ── Category score bar ── */
 .cat-score-bar {
   display: flex;
