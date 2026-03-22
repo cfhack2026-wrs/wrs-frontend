@@ -93,7 +93,7 @@ export function CategoryBreakdown({ assessments }: CategoryBreakdownProps) {
     byCategory.get(key)!.push(a);
   }
 
-  const categories: CategoryScore[] = [...byCategory.entries()].map(([key, asmts]) => {
+  const categories: CategoryScore[] = [...byCategory.entries()].filter(([, asmts]) => normalizeScore(asmts) !== null).map(([key, asmts]) => {
     const meta = CATEGORY_META[key] ?? {
       label: key.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
       icon: '📋',
@@ -131,7 +131,7 @@ export function CategoryBreakdown({ assessments }: CategoryBreakdownProps) {
           marginBottom: '1rem',
         }}
       >
-        Score Breakdown
+        Scores by category
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {categories.map((cat) => (

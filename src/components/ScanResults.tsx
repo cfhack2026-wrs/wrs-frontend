@@ -72,10 +72,21 @@ function computeStats(assessments: Assessment[]) {
 function gradeLabel(score: number): { text: string; color: string; bg: string } {
   if (score >= 90) return { text: 'Compliant', color: 'var(--eaa-green)', bg: 'var(--eaa-green-bg)' };
   if (score >= 70) return { text: 'Needs Work', color: 'var(--eaa-amber)', bg: 'var(--eaa-amber-bg)' };
-  return { text: 'Non-Compliant', color: 'var(--eaa-red)', bg: 'var(--eaa-red-bg)' };
+  return { text: 'Does not meet legal requirements', color: 'var(--eaa-red)', bg: 'var(--eaa-red-bg)' };
 }
 
 // ── Carbon footprint overview ─────────────────────────────────────────────────
+
+function ratingDescription(rating: string): string {
+  switch (rating) {
+    case 'A': return 'Excellent — this page produces far less carbon than most websites.';
+    case 'B': return 'Good — this page produces less carbon than the average website.';
+    case 'C': return 'Average — this page produces roughly as much carbon as the average website.';
+    case 'D': return 'Below average — this page produces more carbon than most websites.';
+    case 'E': return 'Poor — this page produces significantly more carbon than most websites.';
+    default:  return 'Very poor — this page produces far more carbon than most websites. Significant improvements are needed.';
+  }
+}
 
 function ratingColor(rating: string): { color: string; bg: string } {
   switch (rating) {
@@ -87,7 +98,7 @@ function ratingColor(rating: string): { color: string; bg: string } {
   }
 }
 
-function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] }) {
+function CarbonFootprintOverview({ assessments, onWhyClick }: { assessments: Assessment[]; onWhyClick?: () => void }) {
   const cfAssessment = assessments.find((a) => a.identifier === 'carbon-footprint');
   if (!cfAssessment || !cfAssessment.details) return null;
 
@@ -144,9 +155,9 @@ function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] })
   const pct = (v: number) => segTotal > 0 ? `${((v / segTotal) * 100).toFixed(1)}%` : '0%';
 
   const SEGMENT_COLORS = {
-    dc:  { op: '#6366f1', em: '#4f46e5', label: 'Data Center'    },
-    net: { op: '#0ea5e9', em: '#0284c7', label: 'Network'         },
-    dev: { op: '#10b981', em: '#059669', label: 'Consumer Device' },
+    dc:  { op: '#6366f1', em: '#4f46e5', label: 'Server',             description: 'Energy used by the computer (data centre) that stores and serves this website to visitors.'    },
+    net: { op: '#0ea5e9', em: '#0284c7', label: 'Internet connection', description: 'Energy used by routers, cables, and mobile towers to carry the page data from the server to your device.' },
+    dev: { op: '#10b981', em: '#059669', label: 'Your device',         description: 'Energy used by your own phone, tablet, or laptop to download and display the page.' },
   };
 
   return (
@@ -159,16 +170,46 @@ function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] })
       }}
     >
       {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: '1.1rem' }}>🌍</span>
-          <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-dim)' }}>
-            Carbon Footprint
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+        {/* Big grade letter */}
+        <div style={{
+          width: 64, height: 64, borderRadius: 14,
+          background: bg, border: `2px solid ${color}60`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '2rem', fontWeight: 800, color, lineHeight: 1 }}>
+            {rating}
           </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.25rem 0.75rem', borderRadius: 20, background: bg, border: `1px solid ${color}40` }}>
-          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '1rem', fontWeight: 700, color }}>{rating}</span>
-          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>Carbon Rating</span>
+        {/* Title + explainer */}
+        <div>
+          <div style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-base)', marginBottom: 4 }}>
+            Environmental Rating
+          </div>
+          <div style={{ fontSize: '0.8rem', color, lineHeight: 1.45 }}>
+            {ratingDescription(rating)}
+            {onWhyClick && (
+              <button
+                onClick={onWhyClick}
+                style={{
+                  marginLeft: 8,
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  color,
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  textDecoration: 'underline',
+                  textUnderlineOffset: 3,
+                  opacity: 0.8,
+                }}
+              >
+                Why?
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -176,20 +217,20 @@ function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] })
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: hasSegments ? '1rem' : 0 }}>
         {co2Visit !== null && (
           <div style={{ flex: '1 1 110px', background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.65rem 0.85rem' }}>
-            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color }}>{co2Visit.toFixed(3)} g</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>CO₂ per visit</div>
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color }}>{Math.round(co2Visit * 1000)} mg CO₂</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>Carbon emissions each time someone visits this page</div>
           </div>
         )}
         {annualCo2 !== null && (
           <div style={{ flex: '1 1 130px', background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.65rem 0.85rem' }}>
             <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-base)' }}>{annualCo2.toFixed(2)} kg</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>CO₂/year (10k visitors/mo)</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>Yearly carbon emissions (assuming 10,000 visitors per month)</div>
           </div>
         )}
         {pageSizeMb !== null && (
           <div style={{ flex: '1 1 90px', background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.65rem 0.85rem' }}>
             <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-base)' }}>{pageSizeMb.toFixed(2)} MB</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>Page transfer size</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>Amount of data downloaded when loading this page</div>
           </div>
         )}
         <div style={{ flex: '1 1 130px', background: isGreenHosted ? 'var(--eaa-green-bg)' : 'var(--navy-mid)', borderRadius: 10, border: `1px solid ${isGreenHosted ? 'var(--score-good)' : 'var(--border)'}40`, padding: '0.65rem 0.85rem' }}>
@@ -197,7 +238,7 @@ function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] })
             {isGreenHosted ? '✔' : '✘'}
           </div>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>
-            {isGreenHosted ? `Green hosting${hostedBy ? ` (${hostedBy})` : ''}` : 'No green hosting detected'}
+            {isGreenHosted ? `Hosted on servers powered by renewable energy${hostedBy ? ` (${hostedBy})` : ''}` : 'No renewable energy hosting detected'}
           </div>
         </div>
       </div>
@@ -206,19 +247,19 @@ function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] })
       {hasSegments && (
         <div style={{ background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.75rem 0.9rem' }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-dim)', marginBottom: '0.6rem' }}>
-            Emissions by system segment
+            Where the energy is used
           </div>
 
           {/* Stacked proportional bar */}
           <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', marginBottom: '0.65rem', gap: 1 }}>
             {[
-              { value: dcCO2,  color: SEGMENT_COLORS.dc.op,  label: SEGMENT_COLORS.dc.label  },
-              { value: netCO2, color: SEGMENT_COLORS.net.op, label: SEGMENT_COLORS.net.label },
-              { value: devCO2, color: SEGMENT_COLORS.dev.op, label: SEGMENT_COLORS.dev.label },
-            ].map(({ value, color: c, label }) => (
+              { value: dcCO2,  color: SEGMENT_COLORS.dc.op,  label: SEGMENT_COLORS.dc.label,  description: SEGMENT_COLORS.dc.description  },
+              { value: netCO2, color: SEGMENT_COLORS.net.op, label: SEGMENT_COLORS.net.label, description: SEGMENT_COLORS.net.description },
+              { value: devCO2, color: SEGMENT_COLORS.dev.op, label: SEGMENT_COLORS.dev.label, description: SEGMENT_COLORS.dev.description },
+            ].map(({ value, color: c, label, description }) => (
               <div
                 key={label}
-                title={`${label}: ${(value * 1000).toFixed(2)} mgCO₂e (${pct(value)})`}
+                title={`${label} (${description}): ${(value * 1000).toFixed(2)} mg CO₂ (${pct(value)})`}
                 style={{ width: pct(value), background: c, transition: 'width 0.4s ease', minWidth: value > 0 ? 2 : 0 }}
               />
             ))}
@@ -227,13 +268,15 @@ function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] })
           {/* Legend rows */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {[
-              { value: dcCO2,  opVal: seg?.dataCenterOperationalCO2e      ?? 0, emVal: seg?.dataCenterEmbodiedCO2e      ?? 0, ...SEGMENT_COLORS.dc,  icon: '🏢' },
-              { value: netCO2, opVal: seg?.networkOperationalCO2e          ?? 0, emVal: seg?.networkEmbodiedCO2e          ?? 0, ...SEGMENT_COLORS.net, icon: '📡' },
-              { value: devCO2, opVal: seg?.consumerDeviceOperationalCO2e   ?? 0, emVal: seg?.consumerDeviceEmbodiedCO2e   ?? 0, ...SEGMENT_COLORS.dev, icon: '💻' },
-            ].map(({ value, opVal, emVal, op, em, label, icon }) => (
+              { value: dcCO2,  ...SEGMENT_COLORS.dc,  icon: '🏢' },
+              { value: netCO2, ...SEGMENT_COLORS.net, icon: '📡' },
+              { value: devCO2, ...SEGMENT_COLORS.dev, icon: '💻' },
+            ].map(({ value, op, label, description, icon }) => (
               <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: '0.8rem', width: 18 }}>{icon}</span>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', flex: '0 0 115px' }}>{label}</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', flex: '0 0 115px' }}>
+                  <abbr title={description} style={{ textDecoration: 'underline dotted', cursor: 'help' }}>{label}</abbr>
+                </span>
                 {/* mini bar */}
                 <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'var(--border)', overflow: 'hidden', position: 'relative' }}>
                   <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: pct(value), background: op, borderRadius: 3 }} />
@@ -241,10 +284,8 @@ function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] })
                 <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.72rem', color: op, minWidth: 42, textAlign: 'right' }}>
                   {pct(value)}
                 </span>
-                {/* operational / embodied sub-label */}
-                <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', minWidth: 135, whiteSpace: 'nowrap' }}>
-                  <span style={{ color: op }}>{(opVal * 1000).toFixed(1)}</span>
-                  {' '}op · <span style={{ color: em }}>{(emVal * 1000).toFixed(1)}</span> emb mgCO₂e
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', color: 'var(--text-dim)', minWidth: 80, whiteSpace: 'nowrap', textAlign: 'right' }}>
+                  {Math.round(value * 1000)} mg CO₂
                 </span>
               </div>
             ))}
@@ -256,17 +297,17 @@ function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] })
               {firstVisit !== null && (
                 <div style={{ flex: '1 1 110px', background: 'var(--navy-card)', borderRadius: 8, border: '1px solid var(--border)', padding: '0.5rem 0.7rem' }}>
                   <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-base)' }}>
-                    {(firstVisit * 1000).toFixed(0)} mg
+                    {Math.round(firstVisit * 1000)} mg CO₂
                   </div>
-                  <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 1 }}>First visit CO₂e</div>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 1 }}>Carbon emitted on your first visit</div>
                 </div>
               )}
               {returnVisit !== null && (
                 <div style={{ flex: '1 1 110px', background: 'var(--navy-card)', borderRadius: 8, border: '1px solid var(--border)', padding: '0.5rem 0.7rem' }}>
                   <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.9rem', fontWeight: 700, color: 'var(--score-good)' }}>
-                    {(returnVisit * 1000).toFixed(0)} mg
+                    {Math.round(returnVisit * 1000)} mg CO₂
                   </div>
-                  <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 1 }}>Return visit CO₂e</div>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 1 }}>Carbon emitted on repeat visits</div>
                 </div>
               )}
               {firstVisit !== null && returnVisit !== null && (
@@ -274,7 +315,7 @@ function CarbonFootprintOverview({ assessments }: { assessments: Assessment[] })
                   <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.9rem', fontWeight: 700, color: 'var(--score-good)' }}>
                     −{(((firstVisit - returnVisit) / firstVisit) * 100).toFixed(0)}%
                   </div>
-                  <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 1 }}>Saved on return (caching)</div>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 1 }}><abbr title="When you visit a page more than once, your browser saves a copy of images and files locally so it does not have to download them again, which reduces the energy needed." style={{ textDecoration: 'underline dotted', cursor: 'help' }}>Saved on repeat visits</abbr></div>
                 </div>
               )}
             </div>
@@ -319,7 +360,9 @@ function ViewToggleButton({ active, view, label, icon, onClick }: ViewToggleButt
 export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
   const [copied, setCopied] = useState(false);
   const [scanView, setScanView] = useState<ScanView>('checklist');
+  const [checklistCategory, setChecklistCategory] = useState<string | undefined>(undefined);
   const contentRef = useRef<HTMLElement>(null);
+  const findingsRef = useRef<HTMLDivElement>(null);
 
   async function handleShare() {
     await navigator.clipboard.writeText(buildShareUrl(scan.id));
@@ -469,15 +512,15 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
           <div className="stats-grid">
             <div className="stat-item">
               <div className="stat-num" style={{ color: 'var(--eaa-red)' }}>{stats.criticalCount}</div>
-              <div className="stat-desc">Critical violations</div>
+              <div className="stat-desc">Urgent problems</div>
             </div>
             <div className="stat-item">
               <div className="stat-num" style={{ color: 'var(--eaa-amber)' }}>{stats.seriousCount}</div>
-              <div className="stat-desc">Serious issues</div>
+              <div className="stat-desc">Major problems</div>
             </div>
             <div className="stat-item">
               <div className="stat-num" style={{ color: 'var(--eaa-blue)' }}>{stats.totalFindings}</div>
-              <div className="stat-desc">Total findings</div>
+              <div className="stat-desc">Total items checked</div>
             </div>
             <div className="stat-item">
               <div className="stat-num" style={{ color: scoreColor }}>{stats.overallScore}</div>
@@ -494,31 +537,38 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
               >
                 {stats.isCompliant ? 'Yes' : 'No'}
               </div>
-              <div className="stat-desc">EAA compliant</div>
+              <div className="stat-desc">Meets EU Accessibility Act</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Carbon footprint overview */}
-      <CarbonFootprintOverview assessments={enrichedAssessments} />
+      <CarbonFootprintOverview
+        assessments={enrichedAssessments}
+        onWhyClick={() => {
+          setScanView('checklist');
+          setChecklistCategory('sustainability');
+          setTimeout(() => findingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+        }}
+      />
 
       {/* Category breakdown */}
       <CategoryBreakdown assessments={enrichedAssessments} />
 
       {/* Findings view toggle */}
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div ref={findingsRef} style={{ display: 'flex', gap: 8 }}>
         <ViewToggleButton
             active={scanView}
             view="checklist"
-            label="Checklist"
+            label="All findings"
             icon="📋"
             onClick={() => setScanView('checklist')}
         />
         <ViewToggleButton
           active={scanView}
           view="roadmap"
-          label="Roadmap"
+          label="Fix-it plan"
           icon="🗺️"
           onClick={() => setScanView('roadmap')}
         />
@@ -527,7 +577,11 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
       {scanView === 'roadmap' ? (
         <RecommendationRoadmap assessments={enrichedAssessments} />
       ) : (
-        <ChecklistView assessments={enrichedAssessments} />
+        <ChecklistView
+          assessments={enrichedAssessments}
+          activeCategory={checklistCategory}
+          onCategoryChange={setChecklistCategory}
+        />
       )}
     </section>
   );
