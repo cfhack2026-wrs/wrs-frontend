@@ -5,7 +5,7 @@ import { LetterGrade } from './LetterGrade';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { ChecklistView } from './ChecklistView';
 import { RecommendationRoadmap } from './RecommendationRoadmap';
-import { mergeFindings } from '../utils/findings';
+import { mergeFindings, enrichForSustainability } from '../utils/findings';
 import html2pdf from 'html2pdf.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -349,7 +349,8 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
     document.documentElement.classList.add('dark');
   }
 
-  const stats = computeStats(scan.assessments);
+  const enrichedAssessments = enrichForSustainability(scan.assessments);
+  const stats = computeStats(enrichedAssessments);
   const grade = gradeLabel(stats.overallScore);
   const scoreColor =
     stats.overallScore >= 90
@@ -500,10 +501,10 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
       </div>
 
       {/* Carbon footprint overview */}
-      <CarbonFootprintOverview assessments={scan.assessments} />
+      <CarbonFootprintOverview assessments={enrichedAssessments} />
 
       {/* Category breakdown */}
-      <CategoryBreakdown assessments={scan.assessments} />
+      <CategoryBreakdown assessments={enrichedAssessments} />
 
       {/* Findings view toggle */}
       <div style={{ display: 'flex', gap: 8 }}>
@@ -524,9 +525,9 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
       </div>
 
       {scanView === 'roadmap' ? (
-        <RecommendationRoadmap assessments={scan.assessments} />
+        <RecommendationRoadmap assessments={enrichedAssessments} />
       ) : (
-        <ChecklistView assessments={scan.assessments} />
+        <ChecklistView assessments={enrichedAssessments} />
       )}
     </section>
   );
