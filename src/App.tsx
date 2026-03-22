@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, useParams, Link } from 'react-router-dom';
 import { useScan } from './hooks/useScan';
 import { useRecentScans } from './hooks/useRecentScans';
@@ -42,6 +42,10 @@ function PageLayout({ children, state, error }: {
 function HomePage() {
   const { scan, isLoading, error, submit, selectScan } = useScan();
   const { scans: recentScans, refresh: refreshRecent } = useRecentScans();
+  const [scanEverCompleted, setScanEverCompleted] = useState(
+    () => localStorage.getItem('wrs_scan_completed') === 'true'
+  );
+
   const isTerminal     = scan !== null && TERMINAL_STATUSES.includes(scan.status);
   const isScanning     = scan !== null && !isTerminal;
   const hasAssessments = scan !== null && scan.assessments.length > 0;
@@ -49,6 +53,13 @@ function HomePage() {
   const showFullProgress = isScanning && !hasAssessments;
   const showInlineBanner = isScanning && hasAssessments;
   const showResults      = hasAssessments;
+
+  useEffect(() => {
+    if (isTerminal && !scanEverCompleted) {
+      localStorage.setItem('wrs_scan_completed', 'true');
+      setScanEverCompleted(true);
+    }
+  }, [isTerminal, scanEverCompleted]);
 
   const handleSubmit = useCallback(async (url: string) => {
     await submit(url);
@@ -89,8 +100,6 @@ function HomePage() {
         activeScanId={scan?.id}
       />
 
-      {scan === null && <AboutSection />}
-
       {showFullProgress && <ScanProgress scan={scan!} />}
 
       {error && (
@@ -103,12 +112,14 @@ function HomePage() {
         </p>
       )}
 
-      {showResults && (
+      {showResults ? (
         <>
           {showInlineBanner && <ScanProgressBanner />}
           <ScanResults scan={scan!} isScanning={isScanning} />
         </>
-      )}
+      ) : !scanEverCompleted ? (
+        <AboutSection />
+      ) : null}
     </PageLayout>
   );
 }
