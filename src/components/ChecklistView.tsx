@@ -1107,8 +1107,13 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
         })}
       </div>
 
+      {/* Active panel — header stripped since tab already contains icon/label/score */}
+      {tabs.filter((t) => t === activeTab).map((key) => (
+        <CategoryPanel key={key} assessments={grouped.get(key)!} meta={meta(key)} category={key} />
+      ))}
+
       {/* Legend */}
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: '1.2rem' }}>
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginTop: '1.2rem' }}>
         {[
           { cls: 'status-fail', label: 'Urgent' },
           { cls: 'status-warn', label: 'Should fix' },
@@ -1120,11 +1125,6 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
           </div>
         ))}
       </div>
-
-      {/* Active panel — header stripped since tab already contains icon/label/score */}
-      {tabs.filter((t) => t === activeTab).map((key) => (
-        <CategoryPanel key={key} assessments={grouped.get(key)!} meta={meta(key)} category={key} />
-      ))}
     </div>
   );
 }
