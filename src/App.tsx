@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { HashRouter, Routes, Route, useParams, Link } from 'react-router-dom';
 import { useScan } from './hooks/useScan';
 import { useRecentScans } from './hooks/useRecentScans';
@@ -8,16 +8,13 @@ import { ScanProgress } from './components/ScanProgress';
 import { ScanProgressBanner } from './components/ScanProgressBanner';
 import { ScanResults } from './components/ScanResults';
 import { RecentScans } from './components/RecentScans';
-import { AboutModal } from './components/AboutModal';
 import { Header } from './components/Header';
 import { AboutPage } from './components/AboutPage';
 
-function PageLayout({ children, state, error, showAbout, setShowAbout }: {
+function PageLayout({ children, state, error }: {
   children?: React.ReactNode;
   state?: 'loading' | 'error';
   error?: string | null;
-  showAbout: boolean;
-  setShowAbout: (v: boolean) => void;
 }) {
   return (
     <div
@@ -25,7 +22,7 @@ function PageLayout({ children, state, error, showAbout, setShowAbout }: {
       style={{ background: 'var(--navy)', color: 'var(--text-base)' }}
     >
 
-      <Header onAboutClick={() => setShowAbout(true)} />
+      <Header />
       <main className={`relative z-10 flex-1 flex flex-col items-center px-4 pt-16 pb-24 gap-8 ${state ? 'justify-center' : ''}`}>
         {state === 'loading' && (
           <p className="text-gray-400">Loading scan results...</p>
@@ -38,7 +35,6 @@ function PageLayout({ children, state, error, showAbout, setShowAbout }: {
         )}
         {!state && children}
       </main>
-      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
     </div>
   );
 }
@@ -46,8 +42,6 @@ function PageLayout({ children, state, error, showAbout, setShowAbout }: {
 function HomePage() {
   const { scan, isLoading, error, submit, selectScan } = useScan();
   const { scans: recentScans, refresh: refreshRecent } = useRecentScans();
-  const [showAbout, setShowAbout] = useState(false);
-
   const isTerminal     = scan !== null && TERMINAL_STATUSES.includes(scan.status);
   const isScanning     = scan !== null && !isTerminal;
   const hasAssessments = scan !== null && scan.assessments.length > 0;
@@ -62,7 +56,7 @@ function HomePage() {
   }, [submit, refreshRecent]);
 
   return (
-    <PageLayout showAbout={showAbout} setShowAbout={setShowAbout}>
+    <PageLayout>
       <div className="text-center space-y-3 max-w-xl animate-fade-up">
         <p
           className="sm:hidden mono text-xs uppercase tracking-widest"
@@ -120,21 +114,19 @@ function HomePage() {
 function ScanPage() {
   const { id } = useParams<{ id: string }>();
   const { scan, isLoading, error } = useScan(id);
-  const [showAbout, setShowAbout] = useState(false);
-
   const isTerminal = scan !== null && TERMINAL_STATUSES.includes(scan.status);
   const isScanning = scan !== null && !isTerminal;
 
   if (isLoading) {
-    return <PageLayout state="loading" showAbout={showAbout} setShowAbout={setShowAbout} />;
+    return <PageLayout state="loading" />;
   }
 
   if (error || !scan) {
-    return <PageLayout state="error" error={error} showAbout={showAbout} setShowAbout={setShowAbout} />;
+    return <PageLayout state="error" error={error} />;
   }
 
   return (
-    <PageLayout showAbout={showAbout} setShowAbout={setShowAbout}>
+    <PageLayout>
       {isScanning && <ScanProgressBanner />}
       <ScanResults scan={scan} isScanning={isScanning} />
     </PageLayout>
@@ -148,7 +140,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/scan/:id" element={<ScanPage />} />
         <Route path="/about" element={
-          <PageLayout showAbout={false} setShowAbout={() => {}}>
+          <PageLayout>
             <AboutPage />
           </PageLayout>
         } />

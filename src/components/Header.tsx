@@ -3,11 +3,7 @@ import logoHorizontalDark from '/logo_white_transparent.png';
 import logoHorizontalLight from '/logo_black_transparent.png';
 import { useTheme } from '../hooks/useTheme';
 
-interface HeaderProps {
-  onAboutClick: () => void;
-}
-
-export function Header({ onAboutClick }: HeaderProps) {
+export function Header() {
   const { theme, toggle } = useTheme();
 
   return (
@@ -40,25 +36,7 @@ export function Header({ onAboutClick }: HeaderProps) {
           Über diesen Scanner
         </Link>
 
-        <button
-          onClick={onAboutClick}
-          aria-label="About this project"
-          title="About this project"
-          className="flex items-center justify-center w-9 h-9 rounded-full transition-colors focus:outline-none focus-visible:ring-2"
-          style={{
-            border: '1px solid var(--border)',
-            background: 'rgba(255,255,255,0.04)',
-            color: 'var(--ui-muted)',
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 16v-4m0-4h.01" />
-          </svg>
-        </button>
-
-        <button
+<button
           onClick={toggle}
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2"
