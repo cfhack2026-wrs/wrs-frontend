@@ -545,7 +545,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
 
       {/* Carbon footprint overview */}
       <CarbonFootprintOverview
-        assessments={enrichedAssessments}
+        assessments={scan.assessments}
         onWhyClick={() => {
           setScanView('checklist');
           setChecklistCategory('sustainability');
