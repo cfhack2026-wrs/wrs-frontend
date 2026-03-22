@@ -3,11 +3,7 @@ import logoHorizontalDark from '/logo_white_transparent.png';
 import logoHorizontalLight from '/logo_black_transparent.png';
 import { useTheme } from '../hooks/useTheme';
 
-interface HeaderProps {
-  onAboutClick: () => void;
-}
-
-export function Header({ onAboutClick }: HeaderProps) {
+export function Header() {
   const { theme, toggle } = useTheme();
 
   return (
@@ -27,68 +23,71 @@ export function Header({ onAboutClick }: HeaderProps) {
       </Link>
 
       <div className="flex items-center gap-2">
-        <Link
-          to="/about"
-          className="flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2"
-          style={{
-            border: '1px solid var(--border)',
-            background: 'rgba(255,255,255,0.04)',
-            color: 'var(--ui-muted)',
-            fontFamily: "'DM Mono', monospace",
-          }}
-        >
-          Über diesen Scanner
-        </Link>
-
-        <button
-          onClick={onAboutClick}
-          aria-label="About this project"
-          title="About this project"
-          className="flex items-center justify-center w-9 h-9 rounded-full transition-colors focus:outline-none focus-visible:ring-2"
-          style={{
-            border: '1px solid var(--border)',
-            background: 'rgba(255,255,255,0.04)',
-            color: 'var(--ui-muted)',
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 16v-4m0-4h.01" />
-          </svg>
-        </button>
-
         <button
           onClick={toggle}
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2"
+          className="relative focus:outline-none focus-visible:ring-2 rounded-full"
           style={{
+            width: '68px',
+            height: '34px',
+            flexShrink: 0,
             border: '1px solid var(--border)',
             background: 'rgba(255,255,255,0.04)',
-            color: 'var(--ui-muted)',
-            fontFamily: "'DM Mono', monospace",
-            fontSize: '0.75rem',
           }}
         >
-          {theme === 'dark' ? (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10A5 5 0 0012 7z" />
+          {/* thumb with active icon */}
+          <span
+            aria-hidden="true"
+            className="absolute rounded-full flex items-center justify-center"
+            style={{
+              width: '28px',
+              height: '28px',
+              top: '2px',
+              left: '3px',
+              transform: theme === 'dark' ? 'translateX(32px)' : 'translateX(0)',
+              background: 'var(--ui-muted)',
+              transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1)',
+            }}
+          >
+            {theme === 'dark' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--navy)"
+                strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
+                style={{ width: '16px', height: '16px' }}>
+                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
               </svg>
-              light
-            </>
-          ) : (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--navy)"
+                strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
+                style={{ width: '16px', height: '16px' }}>
+                <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10A5 5 0 0012 7z" />
               </svg>
-              dark
-            </>
-          )}
+            )}
+          </span>
+          {/* inactive icon on opposite side */}
+          <span
+            aria-hidden="true"
+            className="absolute flex items-center justify-center"
+            style={{
+              width: '28px',
+              height: '28px',
+              top: '2px',
+              left: theme === 'dark' ? '3px' : '37px',
+            }}
+          >
+            {theme === 'dark' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
+                style={{ width: '16px', height: '16px', color: 'rgba(255,255,255,0.7)' }}>
+                <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10A5 5 0 0012 7z" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
+                style={{ width: '16px', height: '16px', color: 'rgba(0,0,0,0.25)' }}>
+                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+              </svg>
+            )}
+          </span>
         </button>
       </div>
     </header>
