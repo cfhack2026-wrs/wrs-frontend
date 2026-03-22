@@ -78,6 +78,7 @@ function gradeLabel(score: number): { text: string; color: string; bg: string } 
 
 function ratingDescription(rating: string): string {
   switch (rating) {
+    case 'A+': return 'Exceptional — this page produces far less carbon than almost any other website.';
     case 'A': return 'Excellent — this page produces far less carbon than most websites.';
     case 'B': return 'Good — this page produces less carbon than the average website.';
     case 'C': return 'Average — this page produces roughly as much carbon as the average website.';
@@ -89,6 +90,7 @@ function ratingDescription(rating: string): string {
 
 function ratingColor(rating: string): { color: string; bg: string } {
   switch (rating) {
+    case 'A+': return { color: 'var(--score-good)', bg: 'var(--eaa-green-bg)' };
     case 'A': return { color: 'var(--score-good)', bg: 'var(--eaa-green-bg)' };
     case 'B': return { color: 'var(--score-good)', bg: 'var(--eaa-green-bg)' };
     case 'C': return { color: 'var(--eaa-amber)', bg: 'var(--eaa-amber-bg)' };
