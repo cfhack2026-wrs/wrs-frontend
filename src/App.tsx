@@ -2,14 +2,47 @@ import { useCallback } from 'react';
 import { HashRouter, Routes, Route, useParams, Link } from 'react-router-dom';
 import { useScan } from './hooks/useScan';
 import { useRecentScans } from './hooks/useRecentScans';
+import { useTheme } from './hooks/useTheme';
 import { TERMINAL_STATUSES } from './types/scanner';
 import { ScanForm } from './components/ScanForm';
 import { ScanProgress } from './components/ScanProgress';
 import { ScanProgressBanner } from './components/ScanProgressBanner';
 import { ScanResults } from './components/ScanResults';
 import { RecentScans } from './components/RecentScans';
-import { Header } from './components/Header';
 import { AboutSection } from './components/AboutSection';
+import logoHorizontalDark from '/logo_white_transparent.png';
+import logoHorizontalLight from '/logo_black_transparent.png';
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  const isDark = theme === 'dark';
+
+  return (
+    <button
+      onClick={toggle}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className="theme-fab"
+    >
+      <span className="theme-fab-label">
+        {isDark ? 'Light mode' : 'Dark mode'}
+      </span>
+      <span className="theme-fab-icon" key={theme}>
+        {isDark ? (
+          // Sun
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+        ) : (
+          // Moon
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+        )}
+      </span>
+    </button>
+  );
+}
 
 function PageLayout({ children, state, error }: {
   children?: React.ReactNode;
@@ -21,9 +54,7 @@ function PageLayout({ children, state, error }: {
       className="min-h-screen flex flex-col relative overflow-hidden"
       style={{ background: 'var(--navy)', color: 'var(--text-base)' }}
     >
-
-      <Header />
-      <main className={`relative z-10 flex-1 flex flex-col items-center px-4 pt-16 pb-24 gap-8 ${state ? 'justify-center' : ''}`}>
+      <main className={`relative z-10 flex-1 flex flex-col items-center px-4 pt-16 pb-32 gap-8 ${state ? 'justify-center' : ''}`}>
         {state === 'loading' && (
           <p className="text-gray-400">Loading scan results...</p>
         )}
@@ -35,6 +66,7 @@ function PageLayout({ children, state, error }: {
         )}
         {!state && children}
       </main>
+      <ThemeToggle />
     </div>
   );
 }
@@ -42,6 +74,7 @@ function PageLayout({ children, state, error }: {
 function HomePage() {
   const { scan, isLoading, error, submit, selectScan } = useScan();
   const { scans: recentScans, refresh: refreshRecent } = useRecentScans();
+  const { theme } = useTheme();
 
   const isTerminal     = scan !== null && TERMINAL_STATUSES.includes(scan.status);
   const isScanning     = scan !== null && !isTerminal;
@@ -58,26 +91,45 @@ function HomePage() {
 
   return (
     <PageLayout>
-      <div className="text-center space-y-3 max-w-xl animate-fade-up">
-        <p
-          className="sm:hidden mono text-xs uppercase tracking-widest"
-          style={{ color: 'var(--cyan)', letterSpacing: '0.15em' }}
-        >
-          Web Responsibility Scanner
-        </p>
-        <h2
-          className="text-4xl font-semibold tracking-tight leading-tight"
+      <div className="text-center space-y-4 max-w-2xl animate-fade-up flex flex-col items-center">
+        {/* Logo + name row */}
+        <div className="flex items-center gap-3">
+          <img
+            src={theme === 'dark' ? logoHorizontalDark : logoHorizontalLight}
+            alt=""
+            className="h-10 w-auto flex-shrink-0"
+          />
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-semibold leading-tight" style={{ color: 'var(--text-base)' }}>
+              Website{' '}
+              <span style={{ color: 'var(--accent-text)' }}>Responsibility</span>
+              {' '}Scanner
+            </span>
+            <span
+              className="mono text-xs mt-0.5"
+              style={{ color: 'var(--text-dim)', letterSpacing: '0.1em' }}
+            >
+              Open source · EAA · WSG 1.0
+            </span>
+          </div>
+        </div>
+
+        <h1
+          className="text-4xl sm:text-5xl font-semibold tracking-tight leading-tight"
           style={{ color: 'var(--text-base)' }}
         >
-          Audit any website.<br />
-          <span style={{ color: 'var(--text-dim)' }}>Instantly.</span>
-        </h2>
+          Audit for{' '}
+          <span style={{ color: 'var(--accent-text)' }}>accessibility</span>
+          <br />
+          and{' '}
+          <span style={{ color: 'var(--teal)' }}>sustainability</span>.
+        </h1>
         <p
-          className="text-sm leading-relaxed animate-fade-up delay-100"
+          className="text-sm leading-relaxed animate-fade-up delay-100 max-w-lg"
           style={{ color: 'var(--text-muted)' }}
         >
-          Checks accessibility, performance, security, SEO, and code quality
-          in a single scan.
+          An open-source tool to assess any website against the European Accessibility Act
+          and Web Sustainability Guidelines — then turn findings into practical improvements.
         </p>
       </div>
 

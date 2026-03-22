@@ -121,29 +121,27 @@ export function ScanForm({ onSubmit, isLoading }: ScanFormProps) {
   return (
     <div className="w-full max-w-2xl animate-fade-up delay-200">
       <form onSubmit={handleSubmit} aria-label="Scan a website">
-        {/* Label */}
-        <label
-          htmlFor="url-input"
-          className="block mono text-xs tracking-widest uppercase mb-3"
-          style={{ color: 'var(--accent-text)', letterSpacing: '0.12em' }}
-        >
-          Target URL
-        </label>
-
-        {/* Input row */}
-        <div className="flex gap-3">
+        {/* Integrated scan bar */}
+        <div className={`scan-bar${error ? ' scan-bar-error' : ''}`}>
+          <div className="scan-bar-icon" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+          </div>
           <input
             id="url-input"
             type="text"
             value={url}
             onChange={(e) => handleChange(e.target.value)}
-            placeholder="https://example.com"
+            placeholder="https://yourwebsite.com"
             disabled={isLoading}
             aria-describedby={error ? 'url-error' : undefined}
             aria-invalid={!!error}
-            className={`scan-input flex-1${error ? ' error' : ''}`}
+            className="scan-input flex-1"
           />
-          <button type="submit" disabled={isLoading || !url.trim()} className="scan-btn">
+          <div className="scan-bar-divider" aria-hidden="true" />
+          <button type="submit" disabled={isLoading || !url.trim()} className="scan-btn scan-btn-lime">
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -153,13 +151,7 @@ export function ScanForm({ onSubmit, isLoading }: ScanFormProps) {
                 Scanning
               </span>
             ) : (
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                  <circle cx="11" cy="11" r="8" />
-                  <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
-                </svg>
-                Scan
-              </span>
+              'Scan website'
             )}
           </button>
         </div>
