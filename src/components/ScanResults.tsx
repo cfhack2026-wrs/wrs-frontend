@@ -545,6 +545,13 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
                 dateStyle: 'medium',
                 timeStyle: 'short',
               })}
+              {scan.started_at && scan.completed_at && (() => {
+                const ms = new Date(scan.completed_at!).getTime() - new Date(scan.started_at!).getTime();
+                const s = Math.round(ms / 1000);
+                return s >= 60
+                  ? ` · ${Math.floor(s / 60)}m ${s % 60}s`
+                  : ` · ${s}s`;
+              })()}
             </span>
           )}
         </div>
