@@ -269,21 +269,21 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
     : [];
   const co2Data = (finding.identifier === 'sustainability.carbon-footprint' && finding.details.co2 && typeof finding.details.co2 === 'object')
     ? (finding.details.co2 as {
-        total: number;
-        networkCO2e: number;
-        dataCenterCO2e: number;
-        firstVisitCO2e: number;
-        returnVisitCO2e: number;
-        totalEmbodiedCO2e: number;
-        consumerDeviceCO2e: number;
-        networkEmbodiedCO2e: number;
-        totalOperationalCO2e: number;
-        dataCenterEmbodiedCO2e: number;
-        networkOperationalCO2e: number;
-        dataCenterOperationalCO2e: number;
-        consumerDeviceEmbodiedCO2e: number;
-        consumerDeviceOperationalCO2e: number;
-      })
+      total: number;
+      networkCO2e: number;
+      dataCenterCO2e: number;
+      firstVisitCO2e: number;
+      returnVisitCO2e: number;
+      totalEmbodiedCO2e: number;
+      consumerDeviceCO2e: number;
+      networkEmbodiedCO2e: number;
+      totalOperationalCO2e: number;
+      dataCenterEmbodiedCO2e: number;
+      networkOperationalCO2e: number;
+      dataCenterOperationalCO2e: number;
+      consumerDeviceEmbodiedCO2e: number;
+      consumerDeviceOperationalCO2e: number;
+    })
     : null;
   const greenEnergyUsed = typeof finding.details.green_energy_used === 'boolean'
     ? finding.details.green_energy_used
@@ -323,9 +323,9 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
           {impact && (() => {
             const COLOR: Record<string, { color: string; bg: string; border: string }> = {
               critical: { color: '#f43f5e', bg: 'rgba(244,63,94,0.12)', border: 'rgba(244,63,94,0.35)' },
-              serious:  { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.35)' },
-              moderate: { color: '#38bdf8', bg: 'rgba(56,189,248,0.12)',  border: 'rgba(56,189,248,0.35)'  },
-              minor:    { color: '#a3e635', bg: 'rgba(163,230,53,0.12)',  border: 'rgba(163,230,53,0.35)'  },
+              serious: { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.35)' },
+              moderate: { color: '#38bdf8', bg: 'rgba(56,189,248,0.12)', border: 'rgba(56,189,248,0.35)' },
+              minor: { color: '#a3e635', bg: 'rgba(163,230,53,0.12)', border: 'rgba(163,230,53,0.35)' },
             };
             const c = COLOR[impact] ?? { color: '#a695ff', bg: 'rgba(124,106,247,0.12)', border: 'rgba(124,106,247,0.35)' };
             return (
@@ -529,7 +529,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
             const total = co2Data.total;
             // Rating thresholds: < 0.5g = good, < 1g = ok, >= 1g = bad
             const co2Color = total < 0.5 ? '#3dd68c' : total < 1.0 ? '#f59e0b' : '#f43f5e';
-            const co2Bg   = total < 0.5 ? 'rgba(61,214,140,0.10)' : total < 1.0 ? 'rgba(245,158,11,0.10)' : 'rgba(244,63,94,0.10)';
+            const co2Bg = total < 0.5 ? 'rgba(61,214,140,0.10)' : total < 1.0 ? 'rgba(245,158,11,0.10)' : 'rgba(244,63,94,0.10)';
             const co2Border = total < 0.5 ? 'rgba(61,214,140,0.30)' : total < 1.0 ? 'rgba(245,158,11,0.30)' : 'rgba(244,63,94,0.30)';
 
             const maxSegment = Math.max(co2Data.dataCenterCO2e, co2Data.networkCO2e, co2Data.consumerDeviceCO2e);
@@ -729,12 +729,12 @@ function normalizedCategoryScore(assessments: Assessment[]): number | undefined 
   return Math.round(scores.reduce((s, n) => s + n, 0) / scores.length);
 }
 
-/** Builds a "Tested with two independent tools: 84% · 82%" sub-label when multiple scores exist. */
-function scoreSubLabel(assessments: Assessment[]): string | undefined {
+/** Returns per-tool scores when multiple assessments provide one. */
+function scoreSubLabel(assessments: Assessment[]): { tool: string; score: number }[] | undefined {
   const scores = assessments
     .filter((a) => a.status === 'completed' && typeof a.details?.score_percent === 'number')
-    .map((a) => `${a.details!.score_percent as number}%`);
-  return scores.length > 1 ? `Tested with two independent tools: ${scores.join(' · ')}` : undefined;
+    .map((a) => ({ tool: a.identifier, score: a.details!.score_percent as number }));
+  return scores.length > 1 ? scores : undefined;
 }
 
 const IMPACT_ORDER: Record<string, number> = { critical: 0, serious: 1, moderate: 2, minor: 3 };
@@ -811,7 +811,14 @@ function CategoryPanel({ assessments, meta }: { assessments: Assessment[]; meta:
                 <div className="bar-fill" style={{ width: `${score}%`, background: meta.color }} />
               </div>
               {subLabel ? (
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{subLabel}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                  {subLabel.map((s, i) => (
+                    <span key={s.tool}>
+                      {i > 0 && ' · '}
+                      <abbr title={s.tool}>{s.score}%</abbr>
+                    </span>
+                  ))}
+                </div>
               ) : axePasses !== undefined && axeViolations !== undefined ? (
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
                   {axePasses} pass · {axeViolations} fail
@@ -930,37 +937,37 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
 
       {/* Tabs */}
       <div style={{ overflowX: 'auto', marginBottom: '1.4rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, minmax(140px, 1fr))`, gap: 8, minWidth: 'max-content', width: '100%' }}>
-        {tabs.map((key) => {
-          const m = meta(key);
-          const group = grouped.get(key)!;
-          const totalFindings = mergeFindings(group).length;
-          return (
-            <button
-              key={key}
-              className={`eaa-tab${activeTab === key ? ' active' : ''}`}
-              onClick={() => setActiveTab(key)}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              <span aria-hidden="true">{m.icon}</span>
-              {m.label}
-              {totalFindings > 0 && (
-                <span
-                  style={{
-                    fontSize: '0.72rem',
-                    opacity: 0.75,
-                    background: activeTab === key ? 'rgba(124,106,247,0.2)' : 'var(--navy-mid)',
-                    borderRadius: 100,
-                    padding: '1px 7px',
-                  }}
-                >
-                  {totalFindings}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, minmax(140px, 1fr))`, gap: 8, minWidth: 'max-content', width: '100%' }}>
+          {tabs.map((key) => {
+            const m = meta(key);
+            const group = grouped.get(key)!;
+            const totalFindings = mergeFindings(group).length;
+            return (
+              <button
+                key={key}
+                className={`eaa-tab${activeTab === key ? ' active' : ''}`}
+                onClick={() => setActiveTab(key)}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <span aria-hidden="true">{m.icon}</span>
+                {m.label}
+                {totalFindings > 0 && (
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      opacity: 0.75,
+                      background: activeTab === key ? 'rgba(124,106,247,0.2)' : 'var(--navy-mid)',
+                      borderRadius: 100,
+                      padding: '1px 7px',
+                    }}
+                  >
+                    {totalFindings}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Active panel */}
