@@ -86,6 +86,7 @@ function ScanRow({ scan, index, isActive, isFlashing, onSelect, onRerun, isLast 
           transition: 'background 0.2s',
         }}
       />
+      <span className="sr-only">Status: {st.label}</span>
 
       {/* Clickable view area */}
       <button

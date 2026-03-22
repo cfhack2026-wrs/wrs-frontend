@@ -359,15 +359,16 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
         ? '!'
         : 'i';
 
+  const panelId = `finding-panel-${finding.id}`;
+
   return (
     <div className="check-item">
-      <div
+      <button
+        type="button"
         className="check-header"
         onClick={() => setOpen((o) => !o)}
-        role="button"
         aria-expanded={open}
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpen((o) => !o); }}
+        aria-controls={panelId}
       >
         <div className={`check-status ${statusCls}`}>{statusSymbol}</div>
         <div style={{ flex: 1 }}>
@@ -480,10 +481,10 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
         <div className="check-expand-btn" aria-hidden="true">
           {open ? '−' : '+'}
         </div>
-      </div>
+      </button>
 
       {open && (
-        <div className="check-body">
+        <div className="check-body" id={panelId} role="region" aria-label={title}>
           <div className="check-divider" />
 
           {description && (
@@ -944,7 +945,7 @@ function CategoryPanel({ assessments, meta, category }: { assessments: Assessmen
             {meta.icon}
           </div>
           <div style={{ flex: 1 }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 500, marginBottom: 3, color: 'var(--text-base)' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 500, margin: 0, marginBottom: 3, color: 'var(--text-base)' }}>
               {meta.label}
             </h3>
             {meta.desc && (
@@ -1081,7 +1082,7 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
   return (
     <div>
       {/* Unified category selector */}
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, 1fr)`, gap: 8, marginBottom: '1rem' }}>
+      <div role="tablist" aria-label="Assessment categories" style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, 1fr)`, gap: 8, marginBottom: '1rem' }}>
         {tabs.map((key) => {
           const m = meta(key);
           const group = grouped.get(key)!;
@@ -1091,6 +1092,11 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
           return (
             <button
               key={key}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`category-panel-${key}`}
+              id={`category-tab-${key}`}
+              tabIndex={isActive ? 0 : -1}
               onClick={() => setActiveTab(key)}
               style={{
                 display: 'flex',
@@ -1148,7 +1154,7 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
                   }}>
                     {getLetterGrade(score)}
                   </div>
-                  <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--border)', overflow: 'hidden' }}>
+                  <div role="progressbar" aria-valuenow={score} aria-valuemin={0} aria-valuemax={100} aria-label={`${m.label} score`} style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--border)', overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${score}%`, background: getScoreColor(score), borderRadius: 2, transition: 'width 0.4s ease' }} />
                   </div>
                   <div style={{
@@ -1169,7 +1175,9 @@ export function ChecklistView({ assessments, activeCategory, onCategoryChange }:
 
       {/* Active panel — header stripped since tab already contains icon/label/score */}
       {tabs.filter((t) => t === activeTab).map((key) => (
-        <CategoryPanel key={key} assessments={grouped.get(key)!} meta={meta(key)} category={key} />
+        <div key={key} role="tabpanel" id={`category-panel-${key}`} aria-labelledby={`category-tab-${key}`}>
+          <CategoryPanel assessments={grouped.get(key)!} meta={meta(key)} category={key} />
+        </div>
       ))}
 
       {/* Legend */}

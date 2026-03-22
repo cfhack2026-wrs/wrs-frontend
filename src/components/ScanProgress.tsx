@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { Scan } from '../types/scanner';
 
 interface ScanProgressProps {
@@ -12,8 +13,27 @@ const STATUS_LABEL: Record<string, string> = {
   failed: 'failed',
 };
 
+function useElapsed(startedAt: string | null, active: boolean): string {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!active || !startedAt) return;
+    const start = new Date(startedAt).getTime();
+    const tick = () => setElapsed(Math.floor((Date.now() - start) / 1000));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [startedAt, active]);
+
+  if (!active || elapsed === 0) return '';
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
 export function ScanProgress({ scan }: ScanProgressProps) {
   const isTerminal = ['completed', 'completed_with_errors', 'failed'].includes(scan.status);
+  const elapsed = useElapsed(scan.started_at, !isTerminal);
 
   return (
     <div
@@ -32,18 +52,25 @@ export function ScanProgress({ scan }: ScanProgressProps) {
           >
             {scan.url}
           </span>
-          <span
-            className="mono text-xs shrink-0 font-medium"
-            style={{
-              color:
-                scan.status === 'completed'             ? 'var(--score-good)' :
-                scan.status === 'failed'                ? 'var(--error-text)' :
-                scan.status === 'completed_with_errors' ? 'var(--score-ok)' :
-                'var(--accent-text)',
-            }}
-          >
-            {STATUS_LABEL[scan.status] ?? scan.status}
-          </span>
+          <div className="flex items-center gap-3 shrink-0">
+            {elapsed && (
+              <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+                {elapsed}
+              </span>
+            )}
+            <span
+              className="mono text-xs font-medium"
+              style={{
+                color:
+                  scan.status === 'completed'             ? 'var(--score-good)' :
+                  scan.status === 'failed'                ? 'var(--error-text)' :
+                  scan.status === 'completed_with_errors' ? 'var(--score-ok)' :
+                  'var(--accent-text)',
+              }}
+            >
+              {STATUS_LABEL[scan.status] ?? scan.status}
+            </span>
+          </div>
         </div>
 
         {!isTerminal && (

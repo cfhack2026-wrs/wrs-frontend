@@ -79,6 +79,19 @@ code,
   font-family: 'DM Mono', monospace;
 }
 
+/* ── Screen-reader only ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /* ── Grid backdrop ── */
 .grid-bg {
   background-image:
@@ -589,6 +602,12 @@ code,
   padding: 1rem 1.25rem;
   cursor: pointer;
   list-style: none;
+  width: 100%;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
 }
 
 .check-status {

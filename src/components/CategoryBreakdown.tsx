@@ -121,18 +121,20 @@ export function CategoryBreakdown({ assessments }: CategoryBreakdownProps) {
         padding: '1.25rem',
       }}
     >
-      <div
+      <h2
         style={{
           fontSize: '0.75rem',
           fontWeight: 600,
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           color: 'var(--text-dim)',
+          margin: 0,
           marginBottom: '1rem',
+          font: 'inherit',
         }}
       >
         Scores by category
-      </div>
+      </h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {categories.map((cat) => (
           <div
@@ -179,6 +181,11 @@ export function CategoryBreakdown({ assessments }: CategoryBreakdownProps) {
                 {getLetterGrade(cat.score)}
               </div>
               <div
+                role="progressbar"
+                aria-valuenow={cat.score ?? 0}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`${cat.label} score`}
                 style={{
                   width: 60,
                   height: 6,

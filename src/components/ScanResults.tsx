@@ -189,9 +189,9 @@ function CarbonFootprintOverview({ assessments, onWhyClick }: { assessments: Ass
         </div>
         {/* Title + explainer */}
         <div>
-          <div style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-base)', marginBottom: 4 }}>
+          <h2 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-base)', marginBottom: 4, margin: 0 }}>
             Environmental Rating
-          </div>
+          </h2>
           <div style={{ fontSize: '0.8rem', color, lineHeight: 1.45 }}>
             {ratingDescription(rating)}
             {onWhyClick && (
@@ -234,6 +234,7 @@ function CarbonFootprintOverview({ assessments, onWhyClick }: { assessments: Ass
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <input
                 type="range"
+                aria-label="Monthly visitors"
                 min="100"
                 max="1000000"
                 value={visitorsPerMonth}
@@ -256,6 +257,7 @@ function CarbonFootprintOverview({ assessments, onWhyClick }: { assessments: Ass
               <input
                 type="text"
                 inputMode="numeric"
+                aria-label="Monthly visitors (number)"
                 value={inputValue}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -364,10 +366,11 @@ function CarbonFootprintOverview({ assessments, onWhyClick }: { assessments: Ass
           </div>
         )}
         <div style={{ flex: '1 1 130px', background: isGreenHosted ? 'var(--eaa-green-bg)' : 'var(--navy-mid)', borderRadius: 10, border: `1px solid ${isGreenHosted ? 'var(--score-good)' : 'var(--border)'}40`, padding: '0.65rem 0.85rem' }}>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color: isGreenHosted ? 'var(--score-good)' : 'var(--text-muted)' }}>
+          <div aria-hidden="true" style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.05rem', fontWeight: 700, color: isGreenHosted ? 'var(--score-good)' : 'var(--text-muted)' }}>
             {isGreenHosted ? '✔' : '✘'}
           </div>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>
+            <span className="sr-only">{isGreenHosted ? 'Yes:' : 'No:'} </span>
             {isGreenHosted ? `Hosted on servers powered by renewable energy${hostedBy ? ` (${hostedBy})` : ''}` : 'No renewable energy hosting detected'}
           </div>
         </div>
@@ -376,12 +379,12 @@ function CarbonFootprintOverview({ assessments, onWhyClick }: { assessments: Ass
       {/* ── Segment breakdown (only when SWDMv4 segment data is present) ── */}
       {hasSegments && (
         <div style={{ background: 'var(--navy-mid)', borderRadius: 10, border: '1px solid var(--border)', padding: '0.75rem 0.9rem' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-dim)', marginBottom: '0.6rem' }}>
+          <h3 style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-dim)', margin: 0, marginBottom: '0.6rem', font: 'inherit' }}>
             Where the energy is used
-          </div>
+          </h3>
 
           {/* Stacked proportional bar */}
-          <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', marginBottom: '0.65rem', gap: 1 }}>
+          <div role="img" aria-label={`Energy breakdown: Server ${pct(dcCO2)}, Network ${pct(netCO2)}, Device ${pct(devCO2)}`} style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', marginBottom: '0.65rem', gap: 1 }}>
             {[
               { value: dcCO2,  color: SEGMENT_COLORS.dc.op,  label: SEGMENT_COLORS.dc.label,  description: SEGMENT_COLORS.dc.description  },
               { value: netCO2, color: SEGMENT_COLORS.net.op, label: SEGMENT_COLORS.net.label, description: SEGMENT_COLORS.net.description },
@@ -477,9 +480,14 @@ function ViewToggleButton({ active, view, label, icon, onClick }: ViewToggleButt
   const isActive = active === view;
   return (
     <button
+      role="tab"
+      aria-selected={isActive}
+      aria-controls={`tabpanel-${view}`}
+      id={`tab-${view}`}
       onClick={onClick}
       className={`eaa-tab${isActive ? ' active' : ''}`}
       style={{ flex: 1, justifyContent: 'center' }}
+      tabIndex={isActive ? 0 : -1}
     >
       <span aria-hidden="true">{icon}</span>
       {label}
@@ -562,7 +570,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
             style={{ color: 'var(--text-muted)', background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
             Download
@@ -579,14 +587,14 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
           >
             {copied ? (
               <>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 Copied
               </>
             ) : (
               <>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
                 Share
@@ -598,7 +606,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
             style={{ color: 'var(--text-muted)', background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
@@ -634,12 +642,12 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
           <div className="score-grade" style={{ background: grade.bg, color: grade.color }}>
             {grade.text}
           </div>
-          <p
+          <h2
             className="mono text-xs uppercase tracking-widest"
-            style={{ color: 'var(--text-dim)', letterSpacing: '0.12em' }}
+            style={{ color: 'var(--text-dim)', letterSpacing: '0.12em', margin: 0, font: 'inherit' }}
           >
             Overall Score
-          </p>
+          </h2>
           {isScanning && (
             <p className="text-xs" style={{ color: 'var(--text-dim)' }}>
               Scan in progress…
@@ -688,7 +696,8 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
       />
 
       {/* Findings view toggle */}
-      <div ref={findingsRef} style={{ display: 'flex', gap: 8 }}>
+      <h2 className="sr-only">Findings</h2>
+      <div ref={findingsRef} style={{ display: 'flex', gap: 8 }} role="tablist" aria-label="Findings view">
         <ViewToggleButton
             active={scanView}
             view="checklist"
@@ -706,13 +715,17 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
       </div>
 
       {scanView === 'roadmap' ? (
-        <RecommendationRoadmap assessments={enrichedAssessments} />
+        <div role="tabpanel" id="tabpanel-roadmap" aria-labelledby="tab-roadmap">
+          <RecommendationRoadmap assessments={enrichedAssessments} />
+        </div>
       ) : (
-        <ChecklistView
-          assessments={enrichedAssessments}
-          activeCategory={checklistCategory}
-          onCategoryChange={setChecklistCategory}
-        />
+        <div role="tabpanel" id="tabpanel-checklist" aria-labelledby="tab-checklist">
+          <ChecklistView
+            assessments={enrichedAssessments}
+            activeCategory={checklistCategory}
+            onCategoryChange={setChecklistCategory}
+          />
+        </div>
       )}
     </section>
   );
