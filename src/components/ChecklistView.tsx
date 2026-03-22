@@ -12,6 +12,8 @@ const remediationMap = new Map<string, string>(
 
 interface ChecklistViewProps {
   assessments: Assessment[];
+  activeCategory?: string;
+  onCategoryChange?: (key: string) => void;
 }
 
 /** Groups assessments by their `category` field, using `identifier` as fallback. */
@@ -31,14 +33,14 @@ const CATEGORY_META: Record<string, { label: string; icon: string; color: string
     icon: '♿',
     color: 'var(--eaa-purple)',
     bg: 'var(--eaa-purple-bg)',
-    desc: 'Automated checks via axe-core and Google Lighthouse — covers ARIA, colour contrast, focus management, heading order and more.',
+    desc: 'Automated checks for how usable this site is for people with disabilities — covers ARIA, colour contrast, keyboard navigation, and more.',
   },
   performance: {
     label: 'Performance',
     icon: '⚡',
     color: 'var(--eaa-blue)',
     bg: 'var(--eaa-blue-bg)',
-    desc: 'Lighthouse performance metrics — measures loading speed, interactivity, and visual stability.',
+    desc: 'How fast and responsive the website feels when you visit it.',
   },
   design: {
     label: 'Design',
@@ -52,7 +54,7 @@ const CATEGORY_META: Record<string, { label: string; icon: string; color: string
     icon: '🌱',
     color: 'var(--eaa-green)',
     bg: 'var(--eaa-green-bg)',
-    desc: 'Green hosting and carbon footprint — checks if the site is served from renewable-energy infrastructure.',
+    desc: 'Checks whether the website runs on green energy and how much carbon each visit produces.',
   },
 };
 
@@ -126,15 +128,123 @@ function prettifyIdentifier(id: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+function impactLabel(impact: string): string {
+  if (impact === 'critical') return 'Urgent';
+  if (impact === 'serious') return 'Should fix';
+  if (impact === 'moderate') return 'Worth reviewing';
+  return impact.charAt(0).toUpperCase() + impact.slice(1);
+}
+
+const TITLE_OVERRIDES: Record<string, string> = {
+  // Performance metrics
+  'first-contentful-paint': 'Time until something first appears on screen',
+  'largest-contentful-paint': 'Time until the main content is visible',
+  'total-blocking-time': 'Time the page was frozen and unresponsive',
+  'speed-index': 'How quickly the visible page fills in',
+  'interactive': 'Time until the page responds to clicks and taps',
+  'max-potential-fid': 'Worst-case delay before the page reacts to your first click',
+  // Performance opportunities
+  'render-blocking-resources': 'Remove files that delay the page from appearing',
+  'uses-responsive-images': 'Images are larger than they need to be',
+  'offscreen-images': 'Load images only when the visitor scrolls to them',
+  'unminified-javascript': 'Shrink code files by removing unnecessary characters',
+  'unused-css-rules': "Remove styling code that this page doesn't actually use",
+  'unused-javascript': "Remove program code that this page doesn't actually use",
+  'uses-rel-preconnect': 'Start connecting to other servers earlier',
+  'redirects': 'The page bounces through multiple addresses before loading',
+  'total-byte-weight': 'Too much data to download',
+  'uses-long-cache-ttl': 'Files could be saved locally so repeat visitors load faster',
+  'legacy-javascript': "Stop sending old compatibility code to browsers that don't need it",
+  'dom-size': 'The page structure is overly complex',
+  'bootup-time': 'Code on this page takes too long to run',
+  'mainthread-work-breakdown': "The browser's main processor is overloaded",
+  'third-party-summary': 'External services froze the page',
+  'largest-contentful-paint-element': 'The slowest-loading piece of main content',
+  'unsized-images': 'Images are missing size information, causing the page to jump around while loading',
+  // Performance insights
+  'document-latency-insight': 'Delay before the page starts loading',
+  'font-display-insight': 'Text is invisible while custom fonts load',
+  'forced-reflow-insight': 'Layout recalculations slowing down the page',
+  'image-delivery-insight': 'Images could be delivered more efficiently',
+  'lcp-discovery-insight': 'The browser found the main image/content too late',
+  'legacy-javascript-insight': "Outdated code that modern browsers don't need",
+  'network-dependency-tree-insight': 'Files are loading in a chain (each waits for the previous one)',
+  'render-blocking-insight': 'Files that prevent the page from displaying until they finish loading',
+  'cache-insight': 'Let browsers remember files longer to speed up repeat visits',
+  // Accessibility
+  'aria-allowed-attr': 'Interactive elements must be correctly labelled for assistive technology',
+  'color-contrast': 'Text colours must be easy to read against their background',
+  'tabindex': 'Keyboard navigation order should not be manually overridden',
+  'heading-order': 'Page headings should follow a logical order (e.g. main heading, then subheading)',
+  'landmark-unique': 'Page sections should each have a unique label so screen readers can tell them apart',
+  'target-size': 'Buttons and links are too small or too close together to tap easily',
+  'label-content-name-mismatch': 'Some buttons show one label visually but announce a different one to screen readers',
+  // Design
+  'css-animation-overuse': 'Too many animations',
+  'non-next-gen-image-format': 'Images use outdated file formats',
+  // Sustainability findings
+  'co2-per-visit': 'Carbon per visit',
+  'annual-co2-estimate': 'Estimated yearly carbon emissions',
+  'carbon-rating': 'Carbon rating',
+};
+
+/** Converts raw Lighthouse displayValue strings to plain-English equivalents. */
+function formatDisplayValue(raw: string): string {
+  // Normalize non-breaking spaces
+  const s = raw.replace(/\u00a0/g, ' ');
+
+  // "Est savings of X KiB" / "Est savings of X ms"
+  const estMatch = s.match(/^Est savings of ([\d,]+(?:\.\d+)?)\s*(KiB|ms|s)$/i);
+  if (estMatch) {
+    const val = parseFloat(estMatch[1].replace(/,/g, ''));
+    const unit = estMatch[2].toLowerCase();
+    if (unit === 'kib') {
+      if (val >= 1024) return `Could save ~${(val / 1024).toFixed(1)} MB`;
+      return `Could save ~${Math.round(val)} KB`;
+    }
+    if (unit === 'ms') {
+      if (val >= 1000) return `Could save ~${(val / 1000).toFixed(1)} seconds`;
+      return `Could save ~${Math.round(val)} ms`;
+    }
+    if (unit === 's') return `Could save ~${val} seconds`;
+  }
+
+  // "X KiB" → "X KB" or "X MB"
+  const kibMatch = s.match(/^([\d,]+(?:\.\d+)?)\s*KiB$/i);
+  if (kibMatch) {
+    const val = parseFloat(kibMatch[1].replace(/,/g, ''));
+    if (val >= 1024) return `${(val / 1024).toFixed(1)} MB`;
+    return `${Math.round(val)} KB`;
+  }
+
+  // "X ms" → "X seconds" if ≥ 1000
+  const msMatch = s.match(/^([\d,]+(?:\.\d+)?)\s*ms$/i);
+  if (msMatch) {
+    const val = parseFloat(msMatch[1].replace(/,/g, ''));
+    if (val >= 1000) return `${(val / 1000).toFixed(1)} seconds`;
+    return s;
+  }
+
+  // "X s" → "X seconds"
+  const secMatch = s.match(/^([\d,]+(?:\.\d+)?)\s*s$/i);
+  if (secMatch) {
+    return `${secMatch[1]} seconds`;
+  }
+
+  // "X elements" → keep as-is but can be extended
+  return s;
+}
+
 function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
   const [open, setOpen] = useState(defaultOpen);
   const [showAllNodes, setShowAllNodes] = useState(false);
   const [showAllImages, setShowAllImages] = useState(false);
 
   const title =
-    typeof finding.details.title === 'string'
+    TITLE_OVERRIDES[finding.identifier] ??
+    (typeof finding.details.title === 'string'
       ? finding.details.title
-      : prettifyIdentifier(finding.identifier);
+      : prettifyIdentifier(finding.identifier));
   const description =
     typeof finding.details.description === 'string'
       ? finding.details.description
@@ -224,7 +334,6 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
                 marginTop: 4,
                 fontSize: '0.72rem',
                 fontWeight: 600,
-                textTransform: 'capitalize',
                 color: c.color,
                 background: c.bg,
                 border: `1px solid ${c.border}`,
@@ -232,7 +341,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
                 padding: '1px 9px',
                 letterSpacing: '0.03em',
               }}>
-                {impact}
+                {impactLabel(impact)}
               </span>
             );
           })()}
@@ -254,7 +363,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
               flexShrink: 0,
             }}
           >
-            {displayValue}
+            {formatDisplayValue(displayValue)}
           </span>
         )}
         {wcagTags.length > 0 && <span className="wcag-tag">{wcagTags[0]}</span>}
@@ -297,7 +406,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
           {nodes.length > 0 && (
             <div style={{ marginBottom: 12 }}>
               <div className="fix-label" style={{ marginBottom: 8 }}>
-                Affected elements ({nodes.length})
+                Found on {nodes.length} element{nodes.length === 1 ? '' : 's'}
               </div>
               {(showAllNodes ? nodes : nodes.slice(0, 3)).map((node, idx) => (
                 <div key={idx} className="node-snippet">
@@ -583,7 +692,7 @@ function FindingItem({ finding, defaultOpen = false }: FindingItemProps) {
                 style={{ borderColor: 'var(--border)', background: 'var(--navy-mid)' }}
               >
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-dim)', marginBottom: 6 }}>
-                  Remediation
+                  How to fix this
                 </div>
 
                 {(plainEnglish ?? suggestion) && (
@@ -620,15 +729,12 @@ function normalizedCategoryScore(assessments: Assessment[]): number | undefined 
   return Math.round(scores.reduce((s, n) => s + n, 0) / scores.length);
 }
 
-/** Builds a "Axe: 84% · Lighthouse: 82%" sub-label when multiple scores exist. */
+/** Builds a "Tested with two independent tools: 84% · 82%" sub-label when multiple scores exist. */
 function scoreSubLabel(assessments: Assessment[]): string | undefined {
-  const parts = assessments
+  const scores = assessments
     .filter((a) => a.status === 'completed' && typeof a.details?.score_percent === 'number')
-    .map((a) => {
-      const label = a.identifier.charAt(0).toUpperCase() + a.identifier.slice(1);
-      return `${label}: ${a.details!.score_percent as number}%`;
-    });
-  return parts.length > 1 ? parts.join(' · ') : undefined;
+    .map((a) => `${a.details!.score_percent as number}%`);
+  return scores.length > 1 ? `Tested with two independent tools: ${scores.join(' · ')}` : undefined;
 }
 
 const IMPACT_ORDER: Record<string, number> = { critical: 0, serious: 1, moderate: 2, minor: 3 };
@@ -782,12 +888,14 @@ function CategoryPanel({ assessments, meta }: { assessments: Assessment[]; meta:
   );
 }
 
-export function ChecklistView({ assessments }: ChecklistViewProps) {
+export function ChecklistView({ assessments, activeCategory, onCategoryChange }: ChecklistViewProps) {
   const grouped = groupByCategory(
     assessments.filter((a) => a.status !== 'skipped' && a.identifier !== 'http-fetch'),
   );
   const tabs = [...grouped.keys()];
-  const [activeTab, setActiveTab] = useState(tabs[0] ?? '');
+  const [internalTab, setInternalTab] = useState(tabs[0] ?? '');
+  const activeTab = activeCategory ?? internalTab;
+  const setActiveTab = onCategoryChange ?? setInternalTab;
 
   if (tabs.length === 0) {
     return (
@@ -804,9 +912,9 @@ export function ChecklistView({ assessments }: ChecklistViewProps) {
       {/* Legend */}
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: '1.2rem' }}>
         {[
-          { cls: 'status-fail', label: 'Critical' },
-          { cls: 'status-warn', label: 'Serious' },
-          { cls: 'status-info', label: 'Moderate / info' },
+          { cls: 'status-fail', label: 'Urgent' },
+          { cls: 'status-warn', label: 'Should fix' },
+          { cls: 'status-info', label: 'Worth reviewing' },
         ].map(({ cls, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', color: 'var(--text-dim)' }}>
             <div className={`check-status ${cls}`} style={{ width: 16, height: 16, fontSize: 9 }}>•</div>
