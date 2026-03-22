@@ -503,6 +503,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
     const element = contentRef.current;
     if (!element) return;
 
+    const darkmode = document.documentElement.classList.contains('dark')
     document.documentElement.classList.remove('dark');
     // waiting for render flush to be completed
     await new Promise((r) => setTimeout(r));
@@ -518,7 +519,9 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
     }).from(element).save();
 
-    document.documentElement.classList.add('dark');
+    if (darkmode) {
+      document.documentElement.classList.add('dark');
+    }
   }
 
   const enrichedAssessments = enrichForSustainability(scan.assessments);
