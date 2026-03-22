@@ -527,12 +527,6 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
   const enrichedAssessments = enrichForSustainability(scan.assessments);
   const stats = computeStats(enrichedAssessments);
   const grade = gradeLabel(stats.overallScore);
-  const scoreColor =
-    stats.overallScore >= 90
-      ? 'var(--score-good)'
-      : stats.overallScore >= 70
-        ? 'var(--score-ok)'
-        : 'var(--score-bad)';
 
   return (
     <section ref={contentRef} className="w-full max-w-4xl space-y-5 animate-fade-up" aria-label="Scan results">
