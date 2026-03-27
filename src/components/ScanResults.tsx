@@ -567,7 +567,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => downloadResults(scan)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer"
             style={{ color: 'var(--text-muted)', background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -577,7 +577,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
           </button>
           <button
             onClick={handleShare}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer"
             style={{
               color: copied ? 'var(--success-text)' : 'var(--text-muted)',
               background: copied ? 'rgba(134,239,172,0.08)' : 'var(--navy-mid)',
@@ -603,7 +603,7 @@ export function ScanResults({ scan, isScanning = false }: ScanResultsProps) {
           </button>
           <button
             onClick={exportPDF}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer"
             style={{ color: 'var(--text-muted)', background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
